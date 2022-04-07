@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\graphics">
+      <UniqueIdentifier>{0cd2b51f-bdc7-432f-ae3b-18a454793889}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\utilities">
+      <UniqueIdentifier>{8685dbec-eea3-4694-8ad6-1d485578faef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\StarSystemSim">
+      <UniqueIdentifier>{314a4bfa-39a8-4217-ab9d-4a06831da11b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\StarSystemSim\graphics">
+      <UniqueIdentifier>{4404fa75-c5eb-48fa-8f57-cb435b91f1ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\StarSystemSim\utilities">
+      <UniqueIdentifier>{2f433e29-89b5-40a3-86f2-0501141b9e38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\StarSystemSim\graphics\primitives">
+      <UniqueIdentifier>{7bf3c455-b529-4850-9908-eeee87c03c96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\graphics\primitives">
+      <UniqueIdentifier>{219b62e4-232e-493c-ab19-6d0ae8e27dfa}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\source\glad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\graphics\camera.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\graphics\mesh.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\graphics\model.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\graphics\object.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\graphics\shader.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\utilities\load_text_file.cpp">
+      <Filter>Source Files\utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\utilities\string_manipulations.cpp">
+      <Filter>Source Files\utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\utilities\timer.cpp">
+      <Filter>Source Files\utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\utilities\error.cpp">
+      <Filter>Source Files\utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\graphics\primitives\cube.cpp">
+      <Filter>Source Files\graphics\primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\graphics\primitives\plane.cpp">
+      <Filter>Source Files\graphics\primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\graphics\primitives\point_light.cpp">
+      <Filter>Source Files\graphics\primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\graphics\primitives\icosahedron.cpp">
+      <Filter>Source Files\graphics\primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\graphics\planet.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\StarSystemSim\graphics\camera.h">
+      <Filter>Header Files\StarSystemSim\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StarSystemSim\graphics\material.h">
+      <Filter>Header Files\StarSystemSim\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StarSystemSim\graphics\mesh.h">
+      <Filter>Header Files\StarSystemSim\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StarSystemSim\graphics\model.h">
+      <Filter>Header Files\StarSystemSim\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StarSystemSim\graphics\object.h">
+      <Filter>Header Files\StarSystemSim\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StarSystemSim\graphics\shader.h">
+      <Filter>Header Files\StarSystemSim\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StarSystemSim\utilities\load_text_file.h">
+      <Filter>Header Files\StarSystemSim\utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StarSystemSim\utilities\string_manipulations.h">
+      <Filter>Header Files\StarSystemSim\utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StarSystemSim\utilities\timer.h">
+      <Filter>Header Files\StarSystemSim\utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StarSystemSim\utilities\error.h">
+      <Filter>Header Files\StarSystemSim\utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StarSystemSim\graphics\primitives\cube.h">
+      <Filter>Header Files\StarSystemSim\graphics\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StarSystemSim\graphics\primitives\plane.h">
+      <Filter>Header Files\StarSystemSim\graphics\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StarSystemSim\graphics\primitives\point_light.h">
+      <Filter>Header Files\StarSystemSim\graphics\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StarSystemSim\graphics\primitives\icosahedron.h">
+      <Filter>Header Files\StarSystemSim\graphics\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StarSystemSim\graphics\planet.h">
+      <Filter>Header Files\StarSystemSim\graphics</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
