@@ -6,7 +6,7 @@ namespace graphics {
 
 	Mesh::Mesh(std::vector<VertexData>& vert, std::vector<unsigned int>& ind)
 		: m_VAO(0), m_VBO(0), m_EBO(0),
-		m_DiffuseTex(0), m_SpecularTex(0), m_NormalTex(0)
+		m_DiffuseTex(0), m_SpecularTex(0), m_NormalTex(0), m_NightTex(0)
 	{
 		buildMesh(vert, ind);
 	}
@@ -18,10 +18,13 @@ namespace graphics {
 			glDeleteTextures(1, &m_SpecularTex);
 		if(m_NormalTex)
 			glDeleteTextures(1, &m_NormalTex);
+		if (m_NightTex)
+			glDeleteTextures(1, &m_NightTex);
 
 		m_DiffuseTex = 0;
 		m_SpecularTex = 0;
 		m_NormalTex = 0;
+		m_NightTex = 0;
 		
 		if(m_VAO)
 			glDeleteVertexArrays(1, &m_VAO);
@@ -48,6 +51,11 @@ namespace graphics {
 		glBindTexture(GL_TEXTURE_2D, m_SpecularTex);
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, m_NormalTex);
+		if (m_NightTex) {
+			shader.setUniform1i("_nightTex", 3);
+			glActiveTexture(GL_TEXTURE3);
+			glBindTexture(GL_TEXTURE_2D, m_NightTex);
+		}
 
 		glBindVertexArray(m_VAO);
 		glDrawElements(GL_TRIANGLES, m_Indices.size(), GL_UNSIGNED_INT, 0);
@@ -70,6 +78,11 @@ namespace graphics {
 			case TextureType::NORMAL:
 				if (!m_NormalTex)
 					m_NormalTex = textureID;
+				break;
+			case TextureType::NIGHT:
+				if (!m_NightTex)
+					m_NightTex = textureID;
+				break;
 			default:
 				break;
 		}

@@ -20,7 +20,7 @@ namespace graphics {
 		void draw(Shader& shader);
 
 		enum class TextureType {
-			DIFFUSE, SPECULAR, NORMAL
+			DIFFUSE, SPECULAR, NORMAL, NIGHT
 		};
 
 		void bindTexture(GLuint textureID, TextureType type);
@@ -33,7 +33,7 @@ namespace graphics {
 	private:
 		std::vector<VertexData> m_Vertices;
 		std::vector<GLuint> m_Indices;
-		GLuint m_DiffuseTex, m_SpecularTex, m_NormalTex;
+		GLuint m_DiffuseTex, m_SpecularTex, m_NormalTex, m_NightTex;
 
 		GLuint m_VAO, m_VBO, m_EBO;
 

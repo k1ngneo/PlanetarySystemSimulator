@@ -174,10 +174,11 @@
     <ClCompile Include="..\..\source\graphics\object.cpp" />
     <ClCompile Include="..\..\source\graphics\planet.cpp" />
     <ClCompile Include="..\..\source\graphics\primitives\cube.cpp" />
-    <ClCompile Include="..\..\source\graphics\primitives\icosahedron.cpp" />
     <ClCompile Include="..\..\source\graphics\primitives\plane.cpp" />
     <ClCompile Include="..\..\source\graphics\primitives\point_light.cpp" />
     <ClCompile Include="..\..\source\graphics\shader.cpp" />
+    <ClCompile Include="..\..\source\graphics\skybox.cpp" />
+    <ClCompile Include="..\..\source\graphics\star.cpp" />
     <ClCompile Include="..\..\source\main.cpp" />
     <ClCompile Include="..\..\source\utilities\error.cpp" />
     <ClCompile Include="..\..\source\utilities\load_text_file.cpp" />
@@ -192,10 +193,11 @@
     <ClInclude Include="..\..\include\StarSystemSim\graphics\object.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\planet.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\primitives\cube.h" />
-    <ClInclude Include="..\..\include\StarSystemSim\graphics\primitives\icosahedron.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\primitives\plane.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\primitives\point_light.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\shader.h" />
+    <ClInclude Include="..\..\include\StarSystemSim\graphics\skybox.h" />
+    <ClInclude Include="..\..\include\StarSystemSim\graphics\star.h" />
     <ClInclude Include="..\..\include\StarSystemSim\utilities\error.h" />
     <ClInclude Include="..\..\include\StarSystemSim\utilities\load_text_file.h" />
     <ClInclude Include="..\..\include\StarSystemSim\utilities\string_manipulations.h" />

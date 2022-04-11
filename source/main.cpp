@@ -6,9 +6,10 @@
 #include "StarSystemSim/graphics/primitives/plane.h"
 #include "StarSystemSim/graphics/primitives/cube.h"
 #include "StarSystemSim/graphics/primitives/point_light.h"
-#include "StarSystemSim/graphics/primitives/icosahedron.h"
 #include "StarSystemSim/graphics/model.h"
 #include "StarSystemSim/graphics/planet.h"
+#include "StarSystemSim/graphics/star.h"
+#include "StarSystemSim/graphics/skybox.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -24,8 +25,11 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 
-const unsigned int SCR_WIDTH = 800;
+const unsigned int SCR_WIDTH = 1500;
 const unsigned int SCR_HEIGHT = 900;
+
+int render_mode = 0;
+bool x_pressed = false;
 
 struct VertexData {
     glm::vec3 pos;
@@ -75,37 +79,31 @@ int main() {
     lightSourceShader.compileShaders(utils::loadTextFile("shaders/light_source.shader").c_str());
     lightSourceShader.linkShaders();
 
-    graphics::primitives::Cube::initVBO();
-    graphics::primitives::PointLight::initVBO();
+    Shader starShader;
+    starShader.compileShaders("shaders/star.shader", true);
+    starShader.linkShaders();
 
-    graphics::primitives::Plane floor;
-    floor.scale(glm::vec3(3.0f));
+    Shader skyboxShader;
+    skyboxShader.compileShaders("shaders/skybox.shader", true);
+    skyboxShader.linkShaders();
+
+    graphics::primitives::Cube::initVBO();
+
+    //graphics::primitives::Plane floor;
+    //floor.scale(glm::vec3(3.0f));
+
+    graphics::Skybox skybox;
 
     glm::mat4 projMat4(1.0f), viewMat4(1.0f);
-    //projMat4 = glm::ortho(0.0f, (float)SCR_WIDTH, 0.0f, (float)SCR_HEIGHT, 0.0f, 100.0f);
-
-    graphics::primitives::PointLight light1;
-    light1.setPos(glm::vec3(1.2f, 4.0f, 2.0f));
-    light1.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-    light1.specular = glm::vec3(1.0f, 1.0f, 1.0f);
-    light1.attenuation = glm::vec3(1.0f, 0.001f, 0.00001f);
-    graphics::primitives::PointLight light2;
-    light2.setPos(glm::vec3(1.2f, 4.0f, 2.0f));
-    light2.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-    light2.specular = glm::vec3(1.0f, 1.0f, 1.0f);
-    light2.attenuation = glm::vec3(1.0f, 0.001f, 0.00001f);
-
-    graphics::Model robot("robot");
-    robot.translate(glm::vec3(1.0f, 0.0f, 0.0f));
-    robot.scale(glm::vec3(0.1f));
 
     graphics::Planet earth("earth");
-    earth.translate(glm::vec3(-1.0f, 1.0f, 0.0f));
-    earth.scale(glm::vec3(0.5f));
+    earth.translate(glm::vec3(-1.0f, 0.0f, 0.0f));
 
-    // uncomment this call to draw in wireframe polygons.
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    //glEnable(GL_CULL_FACE);
+    graphics::Star sun("sun");
+    sun.translate(glm::vec3(1.0f, 0.0f, 0.0f));
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
 
@@ -115,58 +113,58 @@ int main() {
         timer.measureTime();
         processInput(window);
 
-        projMat4 = glm::perspective(glm::radians(mainCamera.fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        projMat4 = glm::perspective(glm::radians(mainCamera.fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.01f, 100.0f);
         viewMat4 = glm::lookAt(mainCamera.pos, mainCamera.pos + mainCamera.front, mainCamera.up);
 
-        light1.setPos(glm::vec3(2.0f * sin(0.2f * glfwGetTime()), 1.0f, 2.0f * cos(0.2f * glfwGetTime())));
+        sun.setPos(glm::vec3(10.0f * sin(0.2f * glfwGetTime()), 0.0f, 10.0f * cos(0.2f * glfwGetTime())));
 
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        lightSourceShader.use();
-        lightSourceShader.setUniformMat4("_projMat", projMat4);
-        lightSourceShader.setUniformMat4("_viewMat", viewMat4);
-        lightSourceShader.unuse();
+        skyboxShader.use();
+        skyboxShader.setUniformMat4("_viewMat", glm::mat4(glm::mat3(viewMat4)));
+        skyboxShader.setUniformMat4("_projMat", projMat4);
+        skyboxShader.unuse();
+
+        starShader.use();
+        starShader.setUniformMat4("_viewMat", viewMat4);
+        starShader.setUniformMat4("_projMat", projMat4);
+        starShader.unuse();
+
+        skybox.draw(skyboxShader);
 
         basicShader.use();
         basicShader.setUniformMat4("_projMat", projMat4);
         basicShader.setUniformMat4("_viewMat", viewMat4);
         basicShader.unuse();
 
-        graphics::primitives::PointLight::bindVAO();
-        light1.draw(lightSourceShader);
-        light2.draw(lightSourceShader);
-        graphics::primitives::PointLight::unbindVAO();
+
 
         lightingShader.use();
         
         lightingShader.setUniform3f("_viewPos", mainCamera.pos);
 
-        lightingShader.setUniform3f("_light1.pos", light1.getPos());
-        lightingShader.setUniform3f("_light1.amb", light1.ambient);
-        lightingShader.setUniform3f("_light1.diff", light1.diffuse);
-        lightingShader.setUniform3f("_light1.spec", light1.specular);
-        lightingShader.setUniform3f("_light1.attenuation", light1.attenuation);
-
-        lightingShader.setUniform3f("_light2.pos", light2.getPos());
-        lightingShader.setUniform3f("_light2.amb", light2.ambient);
-        lightingShader.setUniform3f("_light2.diff", light2.diffuse);
-        lightingShader.setUniform3f("_light2.spec", light2.specular);
-        lightingShader.setUniform3f("_light2.attenuation", light2.attenuation);
+        lightingShader.setUniform3f("_light1.pos", sun.getPos());
+        lightingShader.setUniform3f("_light1.amb", sun.ambientColor);
+        lightingShader.setUniform3f("_light1.diff", sun.diffuseColor);
+        lightingShader.setUniform3f("_light1.spec", sun.specularColor);
+        lightingShader.setUniform3f("_light1.attenuation", sun.attenuation);
         
         lightingShader.setUniformMat4("_projMat", projMat4);
         lightingShader.setUniformMat4("_viewMat", viewMat4);
 
         lightingShader.setUniform3f("_surfM.amb", glm::vec3(0.1f));
         lightingShader.setUniform3f("_surfM.diff", glm::vec3(1.0f));
-        lightingShader.setUniform3f("_surfM.spec", glm::vec3(1.0f));
+        lightingShader.setUniform3f("_surfM.spec", glm::vec3(0.8f));
         lightingShader.setUniform1f("_surfM.shine", 32.0f);
+
+        lightingShader.setUniform1f("_time", glfwGetTime());
 
         lightingShader.unuse();
 
-        //floor.draw(basicShader);
-        robot.draw(lightingShader);
+        earth.rotate(0.02f, glm::vec3(0.0f, 1.0f, 0.0f));
         earth.draw(lightingShader);
+        sun.draw(starShader);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -174,7 +172,6 @@ int main() {
         lightingShader.reload();
     }
 
-    graphics::primitives::PointLight::destroyVBO();
     graphics::primitives::Cube::destroyVBO();
 
     glfwTerminate();
@@ -190,6 +187,29 @@ void processInput(GLFWwindow* window) {
         camSpeed = 2.0f;
     else
         camSpeed = 1.0f;
+
+    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
+        if (!x_pressed) {
+            x_pressed = true;
+        
+            switch (render_mode++) {
+            case 0:
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                break;
+            case 1:
+                glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+                break;
+            case 2:
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                break;
+            }
+
+            render_mode = render_mode % 3;
+        }
+    }
+    else {
+        x_pressed = false;
+    }
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         glm::vec3 camRight = glm::normalize(glm::cross(mainCamera.front, mainCamera.up));

@@ -35,7 +35,6 @@ out struct FragData {
     vec3 viewDir;
 
     Light light1;
-    Light light2;
 } fragData;
 
 void main() {
@@ -55,13 +54,9 @@ void main() {
     fragData.viewDir = normalize(fragData.posTan - TBN * _viewPos);
 
     fragData.light1 = _light1;
-    fragData.light2 = _light2;
-
     fragData.light1.pos = TBN * _light1.pos;
-    fragData.light2.pos = TBN * _light2.pos;
-
-    fragData.light1.dir = normalize(fragData.posTan - fragData.light1.pos);
-    fragData.light2.dir = normalize(fragData.posTan - fragData.light2.pos);
+    //fragData.light1.dir = normalize(fragData.posTan - fragData.light1.pos);
+    fragData.light1.dir = normalize((TBN * vec3(0.0, 0.0, 0.0)) - fragData.light1.pos);
 }
 
 #fragment_shader
@@ -87,7 +82,6 @@ in struct FragData {
     vec3 viewDir;
 
     Light light1;
-    Light light2;
 } fragData;
 
 struct Material {
@@ -97,6 +91,7 @@ struct Material {
     float shine;
 
     vec3 norm;
+    vec3 night;
 };
 
 uniform Material _surfM;
@@ -105,6 +100,9 @@ uniform mat4 _viewMat;
 uniform sampler2D _diffTex;
 uniform sampler2D _specTex;
 uniform sampler2D _normTex;
+uniform sampler2D _nightTex;
+
+uniform float _time;
 
 out vec4 outColor;
 
@@ -116,10 +114,7 @@ vec3 calcPointLight(Light light, Material mater) {
     float diff = max(dot(mater.norm, -light.dir), 0.0);
     vec3 diffuseLight = (mater.diff * diff) * light.diff;
 
-    vec3 lightPos = vec3(_viewMat * vec4(light.pos, 1.0));
-    vec3 lightDir = normalize(fragData.posViewSp - lightPos);
-
-    vec3 reflectDir = reflect(lightDir, mater.norm);
+    vec3 reflectDir = reflect(light.dir, mater.norm);
 
     float spec = pow(max(dot(-fragData.viewDir, reflectDir), 0.0), mater.shine);
     vec3 specularLight = (mater.spec * spec) * light.spec;
@@ -128,7 +123,7 @@ vec3 calcPointLight(Light light, Material mater) {
     float attenuation = 1.0 / (light.attenuation.x + light.attenuation.y * dist
         + light.attenuation.y * (dist*dist));
 
-    lightSum = /*ambientLight +*/ diffuseLight + specularLight;
+    lightSum = ambientLight + diffuseLight + specularLight;
     lightSum *= attenuation;
 
     return lightSum;
@@ -143,9 +138,20 @@ void main() {
 
     mater.norm = normalize(texture2D(_normTex, fragData.uv).rgb * 2.0 - 1.0);
 
-    vec3 pointLights = calcPointLight(fragData.light1, mater);
-    pointLights += calcPointLight(fragData.light2, mater);
+    vec3 waves;
+    waves.x = 0.1*sin(10.0*fragData.uv.x*_time);
+    waves.y = 0.1*cos(10.0*fragData.uv.y*_time)*cos(2.0*fragData.uv.x*fragData.uv.y*_time);
+    waves.z = 1.0;
+    waves = normalize(waves);
 
-    //outColor = vec4(fragData.uv, 0.0, 1.0);
-    outColor = vec4(mater.diff, 1.0);
+    //mater.norm = mater.norm * (1.0 - mater.spec) + waves * mater.spec;
+
+    mater.night = texture2D(_nightTex, fragData.uv).rgb;
+
+    vec3 pointLights = calcPointLight(fragData.light1, mater);
+
+    float darkness = 0.3334 * (pointLights.r + pointLights.g + pointLights.b);
+    vec3 nightLights = smoothstep(0.1, 0.0, darkness) * mater.night;
+
+    outColor = vec4(pointLights + nightLights, 1.0);
 }

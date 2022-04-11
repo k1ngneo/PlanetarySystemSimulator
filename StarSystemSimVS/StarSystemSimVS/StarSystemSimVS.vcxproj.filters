@@ -78,10 +78,13 @@
     <ClCompile Include="..\..\source\graphics\primitives\point_light.cpp">
       <Filter>Source Files\graphics\primitives</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\graphics\primitives\icosahedron.cpp">
-      <Filter>Source Files\graphics\primitives</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\graphics\planet.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\graphics\skybox.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\graphics\star.cpp">
       <Filter>Source Files\graphics</Filter>
     </ClCompile>
   </ItemGroup>
@@ -128,10 +131,13 @@
     <ClInclude Include="..\..\include\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\StarSystemSim\graphics\primitives\icosahedron.h">
-      <Filter>Header Files\StarSystemSim\graphics\primitives</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\StarSystemSim\graphics\planet.h">
+      <Filter>Header Files\StarSystemSim\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StarSystemSim\graphics\skybox.h">
+      <Filter>Header Files\StarSystemSim\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StarSystemSim\graphics\star.h">
       <Filter>Header Files\StarSystemSim\graphics</Filter>
     </ClInclude>
   </ItemGroup>
