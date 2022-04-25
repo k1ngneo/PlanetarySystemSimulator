@@ -12,10 +12,12 @@
 
 namespace graphics {
 
-	std::vector<Mesh::VertexData> vertices;
-	std::vector<GLuint> indices;
+	static std::vector<Mesh::VertexData> vertices;
+	static std::vector<GLuint> indices;
 
-	std::map<std::pair<GLuint, GLuint>, GLuint> lookup;
+	static std::map<std::pair<GLuint, GLuint>, GLuint> lookup;
+
+	static std::map<std::string, GLuint> loadedTextures;
 
 
 	Planet::Planet(const char* name)
@@ -384,6 +386,12 @@ namespace graphics {
 	GLuint Planet::loadTexture(const std::string& path, bool required) {
 		GLuint textureID = 0;
 
+		if (loadedTextures.find(path.c_str()) != loadedTextures.end()) {
+			return loadedTextures[path];
+		}
+
+		utils::print("Loading texture... %s", path.c_str());
+
 		// load and generate the texture
 		int width, height, nrChannels;
 		unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
@@ -406,10 +414,12 @@ namespace graphics {
 		}
 		else if(required)
 		{
-			utils::printError("Failed to load texture: %s\n", path.c_str());
+			utils::printError("Failed to load texture: %s", path.c_str());
 		}
 
 		stbi_image_free(data);
+
+		loadedTextures.insert(std::pair<std::string, GLuint>(path, textureID));
 
 		return textureID;
 	}

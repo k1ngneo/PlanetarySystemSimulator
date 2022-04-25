@@ -24,6 +24,7 @@
 #include <iostream>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void key_press_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
@@ -40,7 +41,9 @@ utils::Timer timer;
 graphics::Camera mainCamera(glm::vec3(0.0f, 0.5f, 3.0f));
 
 glm::vec2 mousePos;
-bool firstMouse = true;
+bool isFirstMouseMovement = true;
+
+bool isCursorVisible = false;
 
 int main() {
     glfwInit();
@@ -57,6 +60,7 @@ int main() {
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetKeyCallback(window, key_press_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetWindowPos(window, 20, 60);
@@ -136,8 +140,11 @@ int main() {
         mainCamera.dir = earth.getPos() - mainCamera.pos;
 
         projMat4 = glm::perspective(glm::radians(mainCamera.fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.01f, 100.0f);
-        //viewMat4 = glm::lookAt(mainCamera.pos, mainCamera.pos + mainCamera.front, mainCamera.up);
-        viewMat4 = glm::lookAt(mainCamera.pos, mainCamera.target->getPos(), { 0.0f, 1.0f, 0.0f });
+
+        if (!isCursorVisible) {
+            viewMat4 = glm::lookAt(mainCamera.pos, mainCamera.pos + mainCamera.front, mainCamera.up);
+            //viewMat4 = glm::lookAt(mainCamera.pos, mainCamera.target->getPos(), { 0.0f, 1.0f, 0.0f });
+        }
 
 
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -257,6 +264,20 @@ void processInput(GLFWwindow* window) {
     }
 }
 
+void key_press_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    if (glfwGetKey(window, GLFW_KEY_GRAVE_ACCENT) == GLFW_PRESS) {
+        if (isCursorVisible) {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            isFirstMouseMovement = true;
+            isCursorVisible = false;
+        }
+        else {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            isCursorVisible = true;
+        }
+    }
+}
+
 void lookAroundCam() {
     mainCamera.dir.x = cos(glm::radians(mainCamera.yaw)) * cos(glm::radians(mainCamera.pitch));
     mainCamera.dir.y = sin(glm::radians(mainCamera.pitch));
@@ -277,9 +298,9 @@ void lookAtCam() {
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-    if (firstMouse) {
+    if (isFirstMouseMovement) {
         mousePos = glm::vec2(xpos, ypos);
-        firstMouse = false;
+        isFirstMouseMovement = false;
     }
 
     glm::vec2 offset = glm::vec2(xpos - mousePos.x, mousePos.y - ypos);
@@ -296,8 +317,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     if (mainCamera.pitch < -89.0f)
         mainCamera.pitch = -89.0f;
 
-    //lookAroundCam();
-    lookAtCam();
+    lookAroundCam();
+    //lookAtCam();
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
