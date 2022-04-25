@@ -34,4 +34,8 @@ namespace graphics {
 		_scaleMat = glm::mat4(1.0f);
 	}
 
+	glm::vec3 Object::getPos() {
+		return _transMat * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+	}
+
 }

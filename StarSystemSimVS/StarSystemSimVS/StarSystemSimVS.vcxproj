@@ -180,6 +180,8 @@
     <ClCompile Include="..\..\source\graphics\skybox.cpp" />
     <ClCompile Include="..\..\source\graphics\star.cpp" />
     <ClCompile Include="..\..\source\main.cpp" />
+    <ClCompile Include="..\..\source\physics\body.cpp" />
+    <ClCompile Include="..\..\source\physics\engine.cpp" />
     <ClCompile Include="..\..\source\utilities\error.cpp" />
     <ClCompile Include="..\..\source\utilities\load_text_file.cpp" />
     <ClCompile Include="..\..\source\utilities\string_manipulations.cpp" />
@@ -198,6 +200,8 @@
     <ClInclude Include="..\..\include\StarSystemSim\graphics\shader.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\skybox.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\star.h" />
+    <ClInclude Include="..\..\include\StarSystemSim\physics\body.h" />
+    <ClInclude Include="..\..\include\StarSystemSim\physics\engine.h" />
     <ClInclude Include="..\..\include\StarSystemSim\utilities\error.h" />
     <ClInclude Include="..\..\include\StarSystemSim\utilities\load_text_file.h" />
     <ClInclude Include="..\..\include\StarSystemSim\utilities\string_manipulations.h" />

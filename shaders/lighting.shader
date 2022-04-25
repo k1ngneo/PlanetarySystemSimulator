@@ -56,7 +56,7 @@ void main() {
     fragData.light1 = _light1;
     fragData.light1.pos = TBN * _light1.pos;
     //fragData.light1.dir = normalize(fragData.posTan - fragData.light1.pos);
-    fragData.light1.dir = normalize((TBN * vec3(0.0, 0.0, 0.0)) - fragData.light1.pos);
+    fragData.light1.dir = normalize(fragData.posTan - fragData.light1.pos);
 }
 
 #fragment_shader

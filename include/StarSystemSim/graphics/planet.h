@@ -1,6 +1,7 @@
 #pragma once
 
 #include "StarSystemSim/graphics/mesh.h"
+#include "StarSystemSim/physics/body.h"
 
 #include <string>
 
@@ -13,13 +14,15 @@ namespace graphics {
 
 		void draw(Shader& shader);
 
-		glm::vec3 getPos();
 		void setPos(const glm::vec3& position);
 
 		void translate(const glm::vec3& translation);
 		void rotate(float angle, const glm::vec3& axis);
 		void scale(const glm::vec3& sc);
 
+		void activateBody(physics::Engine& engine);
+
+		physics::Body m_Body;
 	private:
 		void subdivide(int depth = 1);
 		void divideTriangle(std::vector<Mesh::VertexData>& nVertices, std::vector<GLuint>& nIndices, int ind1, int ind2, int ind3);

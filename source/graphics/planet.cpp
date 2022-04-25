@@ -38,12 +38,8 @@ namespace graphics {
 	}
 
 	void Planet::draw(Shader& shader) {
+		setPos(m_Body.pos);
 		m_MainMesh->draw(shader);
-	}
-
-	glm::vec3 Planet::getPos() {
-		this->updateModelMat();
-		return this->modelMat * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	}
 
 	void Planet::setPos(const glm::vec3& position) {
@@ -56,6 +52,7 @@ namespace graphics {
 	void Planet::translate(const glm::vec3& translation) {
 		((Object*)this)->translate(translation);
 		m_MainMesh->translate(translation);
+		m_Body.pos = getPos();
 	}
 
 	void Planet::rotate(float angle, const glm::vec3& axis) {
@@ -66,6 +63,10 @@ namespace graphics {
 	void Planet::scale(const glm::vec3& sc) {
 		((Object*)this)->scale(sc);
 		m_MainMesh->scale(sc);
+	}
+
+	void Planet::activateBody(physics::Engine& engine) {
+		m_Body.activate(engine);
 	}
 
 	void Planet::subdivide(int depth) {

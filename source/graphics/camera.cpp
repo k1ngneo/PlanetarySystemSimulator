@@ -13,6 +13,8 @@ namespace graphics {
         this->yaw = -90.0f;
         this->roll = 0.0f;
         this->fov = 45.0f;
+
+        this->target = nullptr;
 	}
 
 }

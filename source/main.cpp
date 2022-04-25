@@ -11,12 +11,15 @@
 #include "StarSystemSim/graphics/star.h"
 #include "StarSystemSim/graphics/skybox.h"
 
+#include "StarSystemSim/physics/engine.h"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/constants.hpp>
 
 #include <iostream>
 
@@ -31,11 +34,7 @@ const unsigned int SCR_HEIGHT = 900;
 int render_mode = 0;
 bool x_pressed = false;
 
-struct VertexData {
-    glm::vec3 pos;
-    glm::vec3 col;
-    glm::vec3 normal;
-};
+physics::Engine physicsEngine;
 
 utils::Timer timer;
 graphics::Camera mainCamera(glm::vec3(0.0f, 0.5f, 3.0f));
@@ -97,10 +96,31 @@ int main() {
     glm::mat4 projMat4(1.0f), viewMat4(1.0f);
 
     graphics::Planet earth("earth");
-    earth.translate(glm::vec3(-1.0f, 0.0f, 0.0f));
+    earth.translate(glm::vec3(-5.0f, 0.0f, 0.0f));
+    earth.m_Body.mass = 1.0f;
+    earth.m_Body.vel = { 0.0f, 0.0f, -1.0f };
+    earth.activateBody(physicsEngine);
+
+    graphics::Planet moon("earth");
+    //moon.scale(glm::vec3(0.2f));
+    moon.translate(glm::vec3(5.0f, 0.0f, 0.0f));
+    moon.m_Body.vel = { 0.0f, 0.0f, 1.0f };
+    moon.m_Body.mass = 1.0f;
+    moon.activateBody(physicsEngine);
 
     graphics::Star sun("sun");
-    sun.translate(glm::vec3(1.0f, 0.0f, 0.0f));
+    sun.translate(glm::vec3(0.0f, 0.0f, 5.0f));
+    sun.m_Body.mass = 1.0f;
+    sun.m_Body.vel = { -1.0f, 0.0f, 0.0f };
+    sun.activateBody(physicsEngine);
+
+    graphics::Star sun2("sun");
+    sun2.translate(glm::vec3(0.0f, 0.0f, -5.0f));
+    sun2.m_Body.mass = 1.0f;
+    sun2.m_Body.vel = { 1.0f, 0.0f, 0.0f };
+    sun2.activateBody(physicsEngine);
+
+    mainCamera.target = &earth;
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
@@ -111,12 +131,14 @@ int main() {
 
     while (!glfwWindowShouldClose(window)) {
         timer.measureTime();
+        physicsEngine.update();
         processInput(window);
+        mainCamera.dir = earth.getPos() - mainCamera.pos;
 
         projMat4 = glm::perspective(glm::radians(mainCamera.fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.01f, 100.0f);
-        viewMat4 = glm::lookAt(mainCamera.pos, mainCamera.pos + mainCamera.front, mainCamera.up);
+        //viewMat4 = glm::lookAt(mainCamera.pos, mainCamera.pos + mainCamera.front, mainCamera.up);
+        viewMat4 = glm::lookAt(mainCamera.pos, mainCamera.target->getPos(), { 0.0f, 1.0f, 0.0f });
 
-        sun.setPos(glm::vec3(10.0f * sin(0.2f * glfwGetTime()), 0.0f, 10.0f * cos(0.2f * glfwGetTime())));
 
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -144,7 +166,7 @@ int main() {
         
         lightingShader.setUniform3f("_viewPos", mainCamera.pos);
 
-        lightingShader.setUniform3f("_light1.pos", sun.getPos());
+        lightingShader.setUniform3f("_light1.pos", sun.m_Body.pos);
         lightingShader.setUniform3f("_light1.amb", sun.ambientColor);
         lightingShader.setUniform3f("_light1.diff", sun.diffuseColor);
         lightingShader.setUniform3f("_light1.spec", sun.specularColor);
@@ -164,7 +186,9 @@ int main() {
 
         earth.rotate(0.02f, glm::vec3(0.0f, 1.0f, 0.0f));
         earth.draw(lightingShader);
+        moon.draw(lightingShader);
         sun.draw(starShader);
+        sun2.draw(starShader);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -233,6 +257,25 @@ void processInput(GLFWwindow* window) {
     }
 }
 
+void lookAroundCam() {
+    mainCamera.dir.x = cos(glm::radians(mainCamera.yaw)) * cos(glm::radians(mainCamera.pitch));
+    mainCamera.dir.y = sin(glm::radians(mainCamera.pitch));
+    mainCamera.dir.z = sin(glm::radians(mainCamera.yaw)) * cos(glm::radians(mainCamera.pitch));
+    mainCamera.front = glm::normalize(mainCamera.dir);
+}
+
+void lookAtCam() {
+    if (mainCamera.target) {
+        mainCamera.pos.x = glm::cos(mainCamera.yaw + glm::pi<float>());
+        mainCamera.pos.y = glm::sin(mainCamera.pitch);
+        mainCamera.pos.z = glm::sin(mainCamera.yaw + glm::pi<float>());
+
+        mainCamera.dir = -mainCamera.pos;
+
+        mainCamera.pos = mainCamera.target->getPos() + mainCamera.pos;
+    }
+}
+
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     if (firstMouse) {
         mousePos = glm::vec2(xpos, ypos);
@@ -253,10 +296,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     if (mainCamera.pitch < -89.0f)
         mainCamera.pitch = -89.0f;
 
-    mainCamera.dir.x = cos(glm::radians(mainCamera.yaw)) * cos(glm::radians(mainCamera.pitch));
-    mainCamera.dir.y = sin(glm::radians(mainCamera.pitch));
-    mainCamera.dir.z = sin(glm::radians(mainCamera.yaw)) * cos(glm::radians(mainCamera.pitch));
-    mainCamera.front = glm::normalize(mainCamera.dir);
+    //lookAroundCam();
+    lookAtCam();
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {

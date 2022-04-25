@@ -4,6 +4,8 @@
 
 namespace graphics {
 
+    class Object;
+
     class Camera {
     public:
         glm::vec3 pos;
@@ -14,6 +16,8 @@ namespace graphics {
 
         float pitch, yaw, roll;
         float fov;
+
+        Object* target;
 
         Camera(const glm::vec3& pos);
     };

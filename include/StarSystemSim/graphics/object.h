@@ -18,6 +18,8 @@ namespace graphics {
 
 		Object();
 
+		glm::vec3 getPos();
+
 		inline void resetTransMat() { _transMat = glm::mat4(1.0f); }
 		inline void resetRotMat() { _rotMat = glm::mat4(1.0f); }
 		inline void resetScaleMat() { _scaleMat = glm::mat4(1.0f); }
