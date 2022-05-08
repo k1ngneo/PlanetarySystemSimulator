@@ -16,6 +16,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -64,11 +68,20 @@ int main() {
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetWindowPos(window, 20, 60);
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+    ImGui::StyleColorsDark();
     
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
+
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330 core");
 
     Shader basicShader;
     basicShader.compileShaders(utils::loadTextFile("shaders/basic.shader").c_str());
@@ -133,6 +146,12 @@ int main() {
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+
+    bool show_demo_window = false;
+    bool show_another_window = false;
+    float clear_color[3] = { 0.5f, 0.5f, 0.5f };
+
+
     while (!glfwWindowShouldClose(window)) {
         timer.measureTime();
         physicsEngine.update();
@@ -145,6 +164,11 @@ int main() {
             viewMat4 = glm::lookAt(mainCamera.pos, mainCamera.pos + mainCamera.front, mainCamera.up);
             //viewMat4 = glm::lookAt(mainCamera.pos, mainCamera.target->getPos(), { 0.0f, 1.0f, 0.0f });
         }
+
+        // ImGui preparing for a new frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
 
 
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -197,6 +221,26 @@ int main() {
         sun.draw(starShader);
         sun2.draw(starShader);
 
+        //////////////////
+        // ImGui rendering
+        //////////////////
+
+        // Control Panel Window
+        {
+            ImGui::Begin("Control Panel");
+
+            ImGui::SliderFloat("float", &physicsEngine.timeMultiplier, 0.0f, 10.0f);
+
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::End();
+        }
+
+        ImGui::Render();
+        ImDrawData* drawData = ImGui::GetDrawData();
+        if (drawData) {
+            ImGui_ImplOpenGL3_RenderDrawData(drawData);
+        }
+
         glfwSwapBuffers(window);
         glfwPollEvents();
 
@@ -205,6 +249,11 @@ int main() {
 
     graphics::primitives::Cube::destroyVBO();
 
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
 }

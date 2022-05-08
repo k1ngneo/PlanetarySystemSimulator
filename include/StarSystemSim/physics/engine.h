@@ -22,6 +22,8 @@ namespace physics {
 
 		void update();
 
+		float timeMultiplier;
+
 	private:
 		std::set<Body*> m_Bodies;
 		utils::Timer m_Timer;

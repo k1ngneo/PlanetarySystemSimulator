@@ -40,6 +40,12 @@
     <Filter Include="Source Files\physics">
       <UniqueIdentifier>{670574d4-8324-45d3-b4fa-5a342a4aa82c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\imgui">
+      <UniqueIdentifier>{75cc7e51-9c31-41c9-83ac-3ba6af94a290}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\StarSystemSim\imgui">
+      <UniqueIdentifier>{2dac42b4-dfb8-47a1-a850-80f0157a9eb7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\glad.c">
@@ -99,6 +105,24 @@
     <ClCompile Include="..\..\source\physics\engine.cpp">
       <Filter>Source Files\physics</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\imgui\imgui_impl_glfw.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\imgui\imgui_impl_opengl3.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\imgui\imgui_tables.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\imgui\imgui_widgets.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\imgui\imgui.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\imgui\imgui_draw.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\StarSystemSim\graphics\camera.h">
@@ -157,6 +181,30 @@
     </ClInclude>
     <ClInclude Include="..\..\include\StarSystemSim\physics\engine.h">
       <Filter>Header Files\StarSystemSim\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\imgui\imgui_impl_glfw.h">
+      <Filter>Header Files\StarSystemSim\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\imgui\imgui_impl_opengl3.h">
+      <Filter>Header Files\StarSystemSim\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\imgui\imgui_internal.h">
+      <Filter>Header Files\StarSystemSim\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\imgui\imstb_rectpack.h">
+      <Filter>Header Files\StarSystemSim\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\imgui\imstb_textedit.h">
+      <Filter>Header Files\StarSystemSim\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\imgui\imstb_truetype.h">
+      <Filter>Header Files\StarSystemSim\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\imgui\imconfig.h">
+      <Filter>Header Files\StarSystemSim\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\imgui\imgui.h">
+      <Filter>Header Files\StarSystemSim\imgui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

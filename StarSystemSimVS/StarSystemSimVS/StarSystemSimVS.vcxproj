@@ -179,6 +179,12 @@
     <ClCompile Include="..\..\source\graphics\shader.cpp" />
     <ClCompile Include="..\..\source\graphics\skybox.cpp" />
     <ClCompile Include="..\..\source\graphics\star.cpp" />
+    <ClCompile Include="..\..\source\imgui\imgui.cpp" />
+    <ClCompile Include="..\..\source\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\..\source\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="..\..\source\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\..\source\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\..\source\imgui\imgui_widgets.cpp" />
     <ClCompile Include="..\..\source\main.cpp" />
     <ClCompile Include="..\..\source\physics\body.cpp" />
     <ClCompile Include="..\..\source\physics\engine.cpp" />
@@ -188,6 +194,14 @@
     <ClCompile Include="..\..\source\utilities\timer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\imgui\imconfig.h" />
+    <ClInclude Include="..\..\include\imgui\imgui.h" />
+    <ClInclude Include="..\..\include\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="..\..\include\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="..\..\include\imgui\imgui_internal.h" />
+    <ClInclude Include="..\..\include\imgui\imstb_rectpack.h" />
+    <ClInclude Include="..\..\include\imgui\imstb_textedit.h" />
+    <ClInclude Include="..\..\include\imgui\imstb_truetype.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\camera.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\material.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\mesh.h" />

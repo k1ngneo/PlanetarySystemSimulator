@@ -8,6 +8,7 @@ namespace physics {
 	Engine::Engine()
 		: m_FirstIteration(true)
 	{
+		this->timeMultiplier = 1.0f;
 	}
 
 	Engine::~Engine() {
@@ -23,7 +24,7 @@ namespace physics {
 
 	void Engine::update() {
 		m_Timer.measureTime();
-		m_Timer.deltaTime *= 10.0f;
+		m_Timer.deltaTime *= this->timeMultiplier;
 
 		if (m_FirstIteration) {
 			m_FirstIteration = false;
