@@ -22,12 +22,15 @@ namespace physics {
 
 		void update();
 
+		void skipIteration();
+
+		bool paused;
 		float timeMultiplier;
 
 	private:
 		std::set<Body*> m_Bodies;
 		utils::Timer m_Timer;
-		bool m_FirstIteration;
+		bool m_SkipIteration;
 
 		void applyGravityForce();
 		void advanceBodies();

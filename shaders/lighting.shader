@@ -55,7 +55,6 @@ void main() {
 
     fragData.light1 = _light1;
     fragData.light1.pos = TBN * _light1.pos;
-    //fragData.light1.dir = normalize(fragData.posTan - fragData.light1.pos);
     fragData.light1.dir = normalize(fragData.posTan - fragData.light1.pos);
 }
 
@@ -117,7 +116,7 @@ vec3 calcPointLight(Light light, Material mater) {
     vec3 reflectDir = reflect(light.dir, mater.norm);
 
     float spec = pow(max(dot(-fragData.viewDir, reflectDir), 0.0), mater.shine);
-    vec3 specularLight = (mater.spec * spec) * light.spec;
+    vec3 specularLight = (/*mater.spec */ spec) * light.spec;
 
     float dist = length(light.pos - fragData.pos);
     float attenuation = 1.0 / (light.attenuation.x + light.attenuation.y * dist
@@ -137,14 +136,6 @@ void main() {
     mater.shine = _surfM.shine;
 
     mater.norm = normalize(texture2D(_normTex, fragData.uv).rgb * 2.0 - 1.0);
-
-    vec3 waves;
-    waves.x = 0.1*sin(10.0*fragData.uv.x*_time);
-    waves.y = 0.1*cos(10.0*fragData.uv.y*_time)*cos(2.0*fragData.uv.x*fragData.uv.y*_time);
-    waves.z = 1.0;
-    waves = normalize(waves);
-
-    //mater.norm = mater.norm * (1.0 - mater.spec) + waves * mater.spec;
 
     mater.night = texture2D(_nightTex, fragData.uv).rgb;
 

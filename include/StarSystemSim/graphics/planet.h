@@ -3,6 +3,8 @@
 #include "StarSystemSim/graphics/mesh.h"
 #include "StarSystemSim/physics/body.h"
 
+#include <glad/glad.h>
+
 #include <string>
 
 namespace graphics {
@@ -12,7 +14,7 @@ namespace graphics {
 		Planet(const char* name);
 		~Planet();
 
-		void draw(Shader& shader);
+		void draw(Shader& shader, uint32_t renderMode = GL_TRIANGLES);
 
 		void setPos(const glm::vec3& position);
 
@@ -23,18 +25,19 @@ namespace graphics {
 		void activateBody(physics::Engine& engine);
 
 		physics::Body m_Body;
+
 	private:
-		void subdivide(int depth = 1);
-		void divideTriangle(std::vector<Mesh::VertexData>& nVertices, std::vector<GLuint>& nIndices, int ind1, int ind2, int ind3);
+		void subdivide(uint32_t depth = 1);
+		void divideTriangle(std::vector<Mesh::VertexData>& nVertices, std::vector<uint32_t>& nIndices, int ind1, int ind2, int ind3);
 		void calcUVs();
 		void fixUVs();
 		void calcNormalsTangents();
 
-		GLuint lookUpOrAdd(std::vector<Mesh::VertexData>& nVertices, std::pair<int, int> pair);
+		uint64_t lookUpOrAdd(std::vector<Mesh::VertexData>& nVertices, std::pair<int, int> pair);
 		
 		void init();
 		void loadTextures(const std::string& name);
-		GLuint loadTexture(const std::string& path, bool required = false);
+		uint64_t loadTexture(const std::string& path, bool required = false);
 
 		Mesh* m_MainMesh;
 	};

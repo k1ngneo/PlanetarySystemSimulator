@@ -1,6 +1,8 @@
 #include "StarSystemSim/graphics/skybox.h"
 #include "StarSystemSim/utilities/error.h"
 
+#include <glad/glad.h>
+
 #include <stb_image.h>
 
 namespace graphics {

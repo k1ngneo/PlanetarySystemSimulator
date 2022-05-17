@@ -6,7 +6,8 @@
 namespace physics {
 
 	Engine::Engine()
-		: m_FirstIteration(true)
+		: paused(false),
+		m_SkipIteration(true)
 	{
 		this->timeMultiplier = 1.0f;
 	}
@@ -24,15 +25,19 @@ namespace physics {
 
 	void Engine::update() {
 		m_Timer.measureTime();
-		m_Timer.deltaTime *= this->timeMultiplier;
+		m_Timer.deltaTime *= this->paused ? 0.0f : this->timeMultiplier;
 
-		if (m_FirstIteration) {
-			m_FirstIteration = false;
+		if (m_SkipIteration) {
+			m_SkipIteration = false;
 			return;
 		}
 
 		applyGravityForce();
 		advanceBodies();
+	}
+
+	void Engine::skipIteration() {
+		m_SkipIteration = true;
 	}
 
 	void Engine::applyGravityForce() {

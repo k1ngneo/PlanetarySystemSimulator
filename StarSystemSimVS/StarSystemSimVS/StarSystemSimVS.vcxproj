@@ -167,6 +167,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\source\app\event_manager.cpp" />
     <ClCompile Include="..\..\source\glad.c" />
     <ClCompile Include="..\..\source\graphics\camera.cpp" />
     <ClCompile Include="..\..\source\graphics\mesh.cpp" />
@@ -202,6 +203,7 @@
     <ClInclude Include="..\..\include\imgui\imstb_rectpack.h" />
     <ClInclude Include="..\..\include\imgui\imstb_textedit.h" />
     <ClInclude Include="..\..\include\imgui\imstb_truetype.h" />
+    <ClInclude Include="..\..\include\StarSystemSim\app\event_manager.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\camera.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\material.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\mesh.h" />

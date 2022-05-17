@@ -2,6 +2,8 @@
 
 #include "StarSystemSim/utilities/error.h"
 
+#include <glad/glad.h>
+
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
@@ -123,7 +125,7 @@ namespace graphics {
 
 	Mesh* Model::processAssimpMesh(aiMesh* mesh, const aiScene* scene) {
 		std::vector<Mesh::VertexData> vertices;
-		std::vector<unsigned int> indices;
+		std::vector<uint32_t> indices;
 
 		for (unsigned int vertInd = 0; vertInd < mesh->mNumVertices; ++vertInd) {
 			Mesh::VertexData vertex;

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <GLAD/glad.h>
 
 #include <glm/glm.hpp>
 
@@ -16,6 +15,7 @@ class Shader
 	uint32_t m_Program;
 	uint32_t m_VertexShaderID;
 	uint32_t m_FragmentShaderID;
+	uint32_t m_GeometryShaderID;
 
 	std::string m_Path;
 	std::filesystem::file_time_type m_LastModTime;

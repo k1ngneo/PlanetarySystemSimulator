@@ -1,8 +1,10 @@
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#include "StarSystemSim/app/event_manager.h"
+
 #include "StarSystemSim/graphics/shader.h"
 #include "StarSystemSim/graphics/camera.h"
-#include "StarSystemSim/utilities/timer.h"
-#include "StarSystemSim/utilities/load_text_file.h"
-
 #include "StarSystemSim/graphics/primitives/plane.h"
 #include "StarSystemSim/graphics/primitives/cube.h"
 #include "StarSystemSim/graphics/primitives/point_light.h"
@@ -13,8 +15,9 @@
 
 #include "StarSystemSim/physics/engine.h"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "StarSystemSim/utilities/timer.h"
+#include "StarSystemSim/utilities/load_text_file.h"
+
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
@@ -31,7 +34,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_press_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void processInput(GLFWwindow* window);
 
 const unsigned int SCR_WIDTH = 1500;
 const unsigned int SCR_HEIGHT = 900;
@@ -83,10 +85,6 @@ int main() {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
 
-    Shader basicShader;
-    basicShader.compileShaders(utils::loadTextFile("shaders/basic.shader").c_str());
-    basicShader.linkShaders();
-
     Shader lightingShader;
     lightingShader.compileShaders("shaders/lighting.shader", true);
     lightingShader.linkShaders();
@@ -103,7 +101,9 @@ int main() {
     skyboxShader.compileShaders("shaders/skybox.shader", true);
     skyboxShader.linkShaders();
 
-    graphics::primitives::Cube::initVBO();
+    Shader TBNShader;
+    TBNShader.compileShaders("shaders/TBN.shader", true);
+    TBNShader.linkShaders();
 
     //graphics::primitives::Plane floor;
     //floor.scale(glm::vec3(3.0f));
@@ -155,7 +155,7 @@ int main() {
     while (!glfwWindowShouldClose(window)) {
         timer.measureTime();
         physicsEngine.update();
-        processInput(window);
+        app::processInput(window);
         mainCamera.dir = earth.getPos() - mainCamera.pos;
 
         projMat4 = glm::perspective(glm::radians(mainCamera.fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.01f, 100.0f);
@@ -186,11 +186,6 @@ int main() {
 
         skybox.draw(skyboxShader);
 
-        basicShader.use();
-        basicShader.setUniformMat4("_projMat", projMat4);
-        basicShader.setUniformMat4("_viewMat", viewMat4);
-        basicShader.unuse();
-
 
 
         lightingShader.use();
@@ -215,8 +210,15 @@ int main() {
 
         lightingShader.unuse();
 
+        TBNShader.use();
+        TBNShader.setUniformMat4("_projMat", projMat4);
+        TBNShader.setUniformMat4("_viewMat", viewMat4);
+        TBNShader.setUniform3f("_viewPos", mainCamera.pos);
+        TBNShader.unuse();
+
         earth.rotate(0.02f, glm::vec3(0.0f, 1.0f, 0.0f));
         earth.draw(lightingShader);
+        earth.draw(TBNShader, GL_POINTS);
         moon.draw(lightingShader);
         sun.draw(starShader);
         sun2.draw(starShader);
@@ -229,9 +231,10 @@ int main() {
         {
             ImGui::Begin("Control Panel");
 
-            ImGui::SliderFloat("float", &physicsEngine.timeMultiplier, 0.0f, 10.0f);
+            ImGui::Checkbox("Pause Simulation", &physicsEngine.paused);
+            ImGui::SliderFloat("Time Speed", &physicsEngine.timeMultiplier, 0.0f, 10.0f);
 
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
             ImGui::End();
         }
 
@@ -247,8 +250,6 @@ int main() {
         lightingShader.reload();
     }
 
-    graphics::primitives::Cube::destroyVBO();
-
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
@@ -258,63 +259,9 @@ int main() {
     return 0;
 }
 
-void processInput(GLFWwindow* window) {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-
-    float camSpeed;
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        camSpeed = 2.0f;
-    else
-        camSpeed = 1.0f;
-
-    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
-        if (!x_pressed) {
-            x_pressed = true;
-        
-            switch (render_mode++) {
-            case 0:
-                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                break;
-            case 1:
-                glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-                break;
-            case 2:
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                break;
-            }
-
-            render_mode = render_mode % 3;
-        }
-    }
-    else {
-        x_pressed = false;
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        glm::vec3 camRight = glm::normalize(glm::cross(mainCamera.front, mainCamera.up));
-        mainCamera.pos += glm::normalize(glm::cross(mainCamera.up, camRight)) * camSpeed * timer.deltaTime;
-    }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        glm::vec3 camRight = glm::normalize(glm::cross(mainCamera.front, mainCamera.up));
-        mainCamera.pos -= glm::normalize(glm::cross(mainCamera.up, camRight)) * camSpeed * timer.deltaTime;
-    }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        mainCamera.pos -= glm::normalize(glm::cross(mainCamera.front, mainCamera.up)) * camSpeed * timer.deltaTime;
-    }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        mainCamera.pos += glm::normalize(glm::cross(mainCamera.front, mainCamera.up)) * camSpeed * timer.deltaTime;
-    }
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        mainCamera.pos += camSpeed * mainCamera.up * timer.deltaTime;
-    }
-    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-        mainCamera.pos -= camSpeed * mainCamera.up * timer.deltaTime;
-    }
-}
-
 void key_press_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (glfwGetKey(window, GLFW_KEY_GRAVE_ACCENT) == GLFW_PRESS) {
+    //if (glfwGetKey(window, GLFW_KEY_GRAVE_ACCENT) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
         if (isCursorVisible) {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             isFirstMouseMovement = true;

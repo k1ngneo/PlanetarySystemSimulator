@@ -30,7 +30,7 @@ namespace graphics {
 		std::string m_Path;
 
 		void loadModel(const std::string& path);
-		GLuint loadTexture(const std::string& path);
+		unsigned int loadTexture(const std::string& path);
 
 		void processAssimpNode(aiNode* node, const aiScene* scene);
 		Mesh* processAssimpMesh(aiMesh* mesh, const aiScene* scene);

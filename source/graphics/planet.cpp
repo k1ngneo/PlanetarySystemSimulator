@@ -1,6 +1,8 @@
 #include "StarSystemSim/graphics/planet.h"
 #include "StarSystemSim/utilities/error.h"
 
+#include <glad/glad.h>
+
 #include <glm/vec3.hpp>
 
 #include <iostream>
@@ -13,11 +15,13 @@
 namespace graphics {
 
 	static std::vector<Mesh::VertexData> vertices;
-	static std::vector<GLuint> indices;
+	static std::vector<uint32_t> depths;
 
-	static std::map<std::pair<GLuint, GLuint>, GLuint> lookup;
+	static std::vector<uint32_t> indices;
 
-	static std::map<std::string, GLuint> loadedTextures;
+	static std::map<std::pair<uint32_t, uint32_t>, uint32_t> lookup;
+
+	static std::map<std::string, uint64_t> loadedTextures;
 
 
 	Planet::Planet(const char* name)
@@ -25,7 +29,7 @@ namespace graphics {
 	{
 		init();
 
-		subdivide(4);
+		subdivide(5);
 		calcUVs();
 		fixUVs();
 		calcNormalsTangents();
@@ -39,9 +43,9 @@ namespace graphics {
 			delete m_MainMesh;
 	}
 
-	void Planet::draw(Shader& shader) {
+	void Planet::draw(Shader& shader, uint32_t renderMode) {
 		setPos(m_Body.pos);
-		m_MainMesh->draw(shader);
+		m_MainMesh->draw(shader, renderMode);
 	}
 
 	void Planet::setPos(const glm::vec3& position) {
@@ -71,9 +75,9 @@ namespace graphics {
 		m_Body.activate(engine);
 	}
 
-	void Planet::subdivide(int depth) {
+	void Planet::subdivide(uint32_t depth) {
 		std::vector<Mesh::VertexData> nVertices;
-		std::vector<GLuint> nIndices;
+		std::vector<uint32_t> nIndices;
 
 		for (int i = 0; i < depth; ++i) {
 			for (uint64_t triangle = 0; triangle < (indices.size() + 1) / 3; ++triangle) {
@@ -92,7 +96,7 @@ namespace graphics {
 		}
 	}
 
-	void Planet::divideTriangle(std::vector<Mesh::VertexData>& nVertices, std::vector<GLuint>& nIndices, int ind1, int ind2, int ind3) {
+	void Planet::divideTriangle(std::vector<Mesh::VertexData>& nVertices, std::vector<uint32_t>& nIndices, int ind1, int ind2, int ind3) {
 		// indices
 		GLuint oi1, oi2, oi3;
 		GLuint ii1, ii2, ii3;
@@ -264,26 +268,32 @@ namespace graphics {
 			Mesh::VertexData* vertA = &vertices[indices[triangleInd * 3 + 0]];
 			Mesh::VertexData* vertB = &vertices[indices[triangleInd * 3 + 1]];
 			Mesh::VertexData* vertC = &vertices[indices[triangleInd * 3 + 2]];
-		
+			
 			glm::vec3 dPos1 = vertB->pos - vertA->pos;
 			glm::vec3 dPos2 = vertC->pos - vertA->pos;
 			glm::vec2 dUV1 = vertB->uv - vertA->uv;
 			glm::vec2 dUV2 = vertC->uv - vertA->uv;
-		
+			
 			float f = 1.0f / (dUV1.x * dUV2.y - dUV2.x * dUV1.y);
-		
+			
 			glm::vec3 tan;
 			tan.x = f * (dUV2.y * dPos1.x - dUV1.y * dPos2.x);
 			tan.y = f * (dUV2.y * dPos1.y - dUV1.y * dPos2.y);
 			tan.z = f * (dUV2.y * dPos1.z - dUV1.y * dPos2.z);
-		
+			
+			tan = glm::normalize(tan);
+
 			auto setTan = [&readyVertices, tan](Mesh::VertexData* v) mutable {
 				if (readyVertices.count(v) == 0) {
-					v->tan = tan;
+					// making the tangent vector orthogonal to the normal vector of a vertex
+					glm::vec3 orthTan;
+					orthTan = glm::normalize(tan - glm::dot(tan, v->normal) * v->normal);
+
+					v->tan = orthTan;
 					readyVertices.insert(v);
 				}
 			};
-		
+			
 			setTan(vertA);
 			setTan(vertB);
 			setTan(vertC);
@@ -291,8 +301,8 @@ namespace graphics {
 	}
 
 
-	GLuint Planet::lookUpOrAdd(std::vector<Mesh::VertexData>& nVertices, std::pair<int, int> pair) {
-		GLuint lastInd = nVertices.size();
+	uint64_t Planet::lookUpOrAdd(std::vector<Mesh::VertexData>& nVertices, std::pair<int, int> pair) {
+		uint64_t lastInd = nVertices.size();
 
 		if (pair.second > pair.first) {
 			std::swap(pair.first, pair.second);
@@ -346,7 +356,7 @@ namespace graphics {
 		vertices.push_back(vertex);
 
 		const size_t N_FACES = 20;
-		GLuint inds[N_FACES * 3] =
+		uint32_t inds[N_FACES * 3] =
 		{
 			4,1,0,
 			4,0,10,
@@ -383,7 +393,7 @@ namespace graphics {
 		m_MainMesh->bindTexture(loadTexture(path + "nightmap.jpg"), Mesh::TextureType::NIGHT);
 	}
 
-	GLuint Planet::loadTexture(const std::string& path, bool required) {
+	uint64_t Planet::loadTexture(const std::string& path, bool required) {
 		GLuint textureID = 0;
 
 		if (loadedTextures.find(path.c_str()) != loadedTextures.end()) {

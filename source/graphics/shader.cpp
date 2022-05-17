@@ -3,6 +3,8 @@
 #include "StarSystemSim/utilities/load_text_file.h"
 #include "StarSystemSim/utilities/string_manipulations.h"
 
+#include <glad/glad.h>
+
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <iostream>
@@ -13,7 +15,7 @@
 unsigned int Shader::numAttributes = 0;
 
 Shader::Shader()
-	: m_FragmentShaderID(0), m_VertexShaderID(0), m_Program(0), m_AttributeNum(0)
+	: m_FragmentShaderID(0), m_VertexShaderID(0), m_GeometryShaderID(0), m_Program(0), m_AttributeNum(0)
 {
 }
 
@@ -115,6 +117,8 @@ void Shader::compileShaders(const char* src, bool path) {
 		else if (!line.compare(geometryShaderPrep)) {
 			shader_type = ShaderType::GEOMETRY_SHADER;
 			isItPrepCom = true;
+
+			m_GeometryShaderID = glCreateShader(GL_GEOMETRY_SHADER);
 		}
 
 		if (!isItPrepCom) {
@@ -139,28 +143,51 @@ void Shader::compileShaders(const char* src, bool path) {
 	}
 
 	//printf( "VERTEX_SHADER:\n%s", vertexSource.c_str() );
+	//printf( "GEOMETRY_SHADER:\n%s", geometrySource.c_str() );
 	//printf( "FRAGMENT_SHADER:\n%s", fragmentSource.c_str() );
 
-	const char* contentsPtr = vertexSource.c_str();
-	glShaderSource(m_VertexShaderID, 1, &contentsPtr, NULL);
-	glCompileShader(m_VertexShaderID);
+	const char* contentsPtr;
 
 	GLint success;
 	GLchar infoLog[512];
-	glGetShaderiv(m_VertexShaderID, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		glGetShaderInfoLog(m_VertexShaderID, 512, NULL, infoLog);
-		std::cout << "ERROR::VERTEX_SHADER::COMPILATION_FAILED\n" << infoLog << std::endl;
+	
+	// vertex shader compilation
+	{
+		contentsPtr = vertexSource.c_str();
+		glShaderSource(m_VertexShaderID, 1, &contentsPtr, NULL);
+		glCompileShader(m_VertexShaderID);
+
+		glGetShaderiv(m_VertexShaderID, GL_COMPILE_STATUS, &success);
+		if (!success) {
+			glGetShaderInfoLog(m_VertexShaderID, 512, NULL, infoLog);
+			std::cout << "ERROR::VERTEX_SHADER::COMPILATION_FAILED\n" << infoLog << '\n';
+		}
 	}
 
-	contentsPtr = fragmentSource.c_str();
-	glShaderSource(m_FragmentShaderID, 1, &contentsPtr, NULL);
-	glCompileShader(m_FragmentShaderID);
+	// geometry shader compilation
+	if (m_GeometryShaderID != 0) {
+		contentsPtr = geometrySource.c_str();
+		glShaderSource(m_GeometryShaderID, 1, &contentsPtr, NULL);
+		glCompileShader(m_GeometryShaderID);
 
-	glGetShaderiv(m_FragmentShaderID, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		glGetShaderInfoLog(m_FragmentShaderID, 512, NULL, infoLog);
-		std::cout << "ERROR::FRAGMENT_SHADER::COMPILATION_FAILED\n" << infoLog << std::endl;
+		glGetShaderiv(m_GeometryShaderID, GL_COMPILE_STATUS, &success);
+		if (!success) {
+			glGetShaderInfoLog(m_GeometryShaderID, 512, NULL, infoLog);
+			std::cout << "ERROR::GEOMETRY_SHADER::COMPILATION_FAILED\n" << infoLog << '\n';
+		}
+	}
+
+	// fragment shader compilation
+	{
+		contentsPtr = fragmentSource.c_str();
+		glShaderSource(m_FragmentShaderID, 1, &contentsPtr, NULL);
+		glCompileShader(m_FragmentShaderID);
+
+		glGetShaderiv(m_FragmentShaderID, GL_COMPILE_STATUS, &success);
+		if (!success) {
+			glGetShaderInfoLog(m_FragmentShaderID, 512, NULL, infoLog);
+			std::cout << "ERROR::FRAGMENT_SHADER::COMPILATION_FAILED\n" << infoLog << '\n';
+		}
 	}
 }
 
@@ -178,8 +205,15 @@ void Shader::linkShaders() {
 	GLint success;
 	GLchar infoLog[512];
 
-	glAttachShader(m_Program, m_VertexShaderID);
-	glAttachShader(m_Program, m_FragmentShaderID);
+	if (m_VertexShaderID) {
+		glAttachShader(m_Program, m_VertexShaderID);
+	}
+	if (m_GeometryShaderID) {
+		glAttachShader(m_Program, m_GeometryShaderID);
+	}
+	if (m_FragmentShaderID) {
+		glAttachShader(m_Program, m_FragmentShaderID);
+	}
 	glLinkProgram(m_Program);
 
 	glGetProgramiv(m_Program, GL_LINK_STATUS, &success);
@@ -188,10 +222,18 @@ void Shader::linkShaders() {
 		std::cout << "Failed to link shader program!\n " << infoLog << std::endl;
 	}
 
-	glDetachShader(m_Program, m_VertexShaderID);
-	glDetachShader(m_Program, m_FragmentShaderID);
-	glDeleteShader(m_VertexShaderID);
-	glDeleteShader(m_FragmentShaderID);
+	if (m_VertexShaderID) {
+		glDetachShader(m_Program, m_VertexShaderID);
+		glDeleteShader(m_VertexShaderID);
+	}
+	if (m_GeometryShaderID) {
+		glDetachShader(m_Program, m_GeometryShaderID);
+		glDeleteShader(m_GeometryShaderID);
+	}
+	if (m_FragmentShaderID) {
+		glDetachShader(m_Program, m_FragmentShaderID);
+		glDeleteShader(m_FragmentShaderID);
+	}
 }
 
 void Shader::reload() {

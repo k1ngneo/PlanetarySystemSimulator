@@ -1,10 +1,12 @@
 #include "StarSystemSim/graphics/mesh.h"
 
+#include <glad/glad.h>
+
 #include "StarSystemSim/utilities/error.h"
 
 namespace graphics {
 
-	Mesh::Mesh(std::vector<VertexData>& vert, std::vector<unsigned int>& ind)
+	Mesh::Mesh(std::vector<VertexData>& vert, std::vector<uint32_t>& ind)
 		: m_VAO(0), m_VBO(0), m_EBO(0),
 		m_DiffuseTex(0), m_SpecularTex(0), m_NormalTex(0), m_NightTex(0)
 	{
@@ -36,7 +38,7 @@ namespace graphics {
 		m_VAO = m_VBO = m_EBO = 0;
 	}
 
-	void Mesh::draw(Shader& shader) {
+	void Mesh::draw(Shader& shader, uint32_t renderMode) {
 		updateModelMat();
 
 		shader.use();
@@ -58,13 +60,13 @@ namespace graphics {
 		}
 
 		glBindVertexArray(m_VAO);
-		glDrawElements(GL_TRIANGLES, m_Indices.size(), GL_UNSIGNED_INT, 0);
+		glDrawElements(renderMode, m_Indices.size(), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 
 		shader.unuse();
 	}
 
-	void Mesh::bindTexture(GLuint textureID, TextureType type)
+	void Mesh::bindTexture(uint64_t textureID, TextureType type)
 	{
 		switch (type) {
 			case TextureType::DIFFUSE:
@@ -88,7 +90,7 @@ namespace graphics {
 		}
 	}
 
-	void Mesh::buildMesh(std::vector<VertexData>& vert, std::vector<GLuint>& ind) {
+	void Mesh::buildMesh(std::vector<VertexData>& vert, std::vector<uint32_t>& ind) {
 		m_Vertices = std::move(vert);
 		m_Indices = std::move(ind);
 

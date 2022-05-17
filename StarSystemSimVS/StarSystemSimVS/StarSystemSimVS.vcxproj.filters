@@ -46,6 +46,12 @@
     <Filter Include="Header Files\StarSystemSim\imgui">
       <UniqueIdentifier>{2dac42b4-dfb8-47a1-a850-80f0157a9eb7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\app">
+      <UniqueIdentifier>{2ef41333-5687-439b-b8dc-89f29255c308}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\StarSystemSim\app">
+      <UniqueIdentifier>{ebfa48b6-6755-4080-9a01-7f594b5b364b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\glad.c">
@@ -122,6 +128,9 @@
     </ClCompile>
     <ClCompile Include="..\..\source\imgui\imgui_draw.cpp">
       <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\app\event_manager.cpp">
+      <Filter>Source Files\app</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -205,6 +214,9 @@
     </ClInclude>
     <ClInclude Include="..\..\include\imgui\imgui.h">
       <Filter>Header Files\StarSystemSim\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StarSystemSim\app\event_manager.h">
+      <Filter>Header Files\StarSystemSim\app</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
