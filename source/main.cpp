@@ -35,8 +35,11 @@ void key_press_callback(GLFWwindow* window, int key, int scancode, int action, i
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
-const unsigned int SCR_WIDTH = 1500;
-const unsigned int SCR_HEIGHT = 900;
+void lookAroundCam();
+void lookAtCam();
+
+unsigned int SCR_WIDTH = 1500;
+unsigned int SCR_HEIGHT = 900;
 
 int render_mode = 0;
 bool x_pressed = false;
@@ -114,28 +117,18 @@ int main() {
 
     graphics::Planet earth("earth");
     earth.translate(glm::vec3(-5.0f, 0.0f, 0.0f));
-    earth.m_Body.mass = 1.0f;
-    earth.m_Body.vel = { 0.0f, 0.0f, -1.0f };
+    earth.scale(glm::vec3(0.2f));
+    earth.body.mass = 1.0f;
+    earth.body.vel = { 0.0f, 0.0f, -10.0f };
     earth.activateBody(physicsEngine);
 
-    graphics::Planet moon("earth");
-    //moon.scale(glm::vec3(0.2f));
-    moon.translate(glm::vec3(5.0f, 0.0f, 0.0f));
-    moon.m_Body.vel = { 0.0f, 0.0f, 1.0f };
-    moon.m_Body.mass = 1.0f;
-    moon.activateBody(physicsEngine);
-
     graphics::Star sun("sun");
-    sun.translate(glm::vec3(0.0f, 0.0f, 5.0f));
-    sun.m_Body.mass = 1.0f;
-    sun.m_Body.vel = { -1.0f, 0.0f, 0.0f };
+    sun.translate(glm::vec3(0.0f, 0.0f, 0.0f));
+    sun.body.mass = 1000.0f;
+    sun.body.vel = { 0.0f, 0.0f, 0.063245f };
     sun.activateBody(physicsEngine);
 
-    graphics::Star sun2("sun");
-    sun2.translate(glm::vec3(0.0f, 0.0f, -5.0f));
-    sun2.m_Body.mass = 1.0f;
-    sun2.m_Body.vel = { 1.0f, 0.0f, 0.0f };
-    sun2.activateBody(physicsEngine);
+    physicsEngine.paused = true;
 
     mainCamera.target = &earth;
 
@@ -157,6 +150,9 @@ int main() {
         physicsEngine.update();
         app::processInput(window);
         mainCamera.dir = earth.getPos() - mainCamera.pos;
+
+        lookAroundCam();
+        //lookAtCam();
 
         projMat4 = glm::perspective(glm::radians(mainCamera.fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.01f, 100.0f);
 
@@ -192,7 +188,7 @@ int main() {
         
         lightingShader.setUniform3f("_viewPos", mainCamera.pos);
 
-        lightingShader.setUniform3f("_light1.pos", sun.m_Body.pos);
+        lightingShader.setUniform3f("_light1.pos", sun.body.pos);
         lightingShader.setUniform3f("_light1.amb", sun.ambientColor);
         lightingShader.setUniform3f("_light1.diff", sun.diffuseColor);
         lightingShader.setUniform3f("_light1.spec", sun.specularColor);
@@ -218,10 +214,8 @@ int main() {
 
         earth.rotate(0.02f, glm::vec3(0.0f, 1.0f, 0.0f));
         earth.draw(lightingShader);
-        earth.draw(TBNShader, GL_POINTS);
-        moon.draw(lightingShader);
+        //earth.draw(TBNShader, GL_POINTS);
         sun.draw(starShader);
-        sun2.draw(starShader);
 
         //////////////////
         // ImGui rendering
@@ -312,9 +306,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
         mainCamera.pitch = 89.0f;
     if (mainCamera.pitch < -89.0f)
         mainCamera.pitch = -89.0f;
-
-    lookAroundCam();
-    //lookAtCam();
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
@@ -327,4 +318,6 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
+    SCR_WIDTH = width;
+    SCR_HEIGHT = height;
 }

@@ -15,8 +15,6 @@
 namespace graphics {
 
 	static std::vector<Mesh::VertexData> vertices;
-	static std::vector<uint32_t> depths;
-
 	static std::vector<uint32_t> indices;
 
 	static std::map<std::pair<uint32_t, uint32_t>, uint32_t> lookup;
@@ -44,7 +42,7 @@ namespace graphics {
 	}
 
 	void Planet::draw(Shader& shader, uint32_t renderMode) {
-		setPos(m_Body.pos);
+		setPos(this->body.pos);
 		m_MainMesh->draw(shader, renderMode);
 	}
 
@@ -58,7 +56,7 @@ namespace graphics {
 	void Planet::translate(const glm::vec3& translation) {
 		((Object*)this)->translate(translation);
 		m_MainMesh->translate(translation);
-		m_Body.pos = getPos();
+		this->body.pos = getPos();
 	}
 
 	void Planet::rotate(float angle, const glm::vec3& axis) {
@@ -72,7 +70,7 @@ namespace graphics {
 	}
 
 	void Planet::activateBody(physics::Engine& engine) {
-		m_Body.activate(engine);
+		this->body.activate(engine);
 	}
 
 	void Planet::subdivide(uint32_t depth) {

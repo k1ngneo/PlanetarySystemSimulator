@@ -24,7 +24,7 @@ namespace graphics {
 
 		void activateBody(physics::Engine& engine);
 
-		physics::Body m_Body;
+		physics::Body body;
 
 	private:
 		void subdivide(uint32_t depth = 1);

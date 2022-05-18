@@ -19,6 +19,10 @@ namespace physics {
 		glm::vec3 pos;
 		glm::vec3 vel;
 		float mass;
+
+		enum class Type {
+			STATIC, DYNAMIC
+		} type;
 	};
 
 }

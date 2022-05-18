@@ -42,7 +42,7 @@ namespace physics {
 
 	void Engine::applyGravityForce() {
 		for (auto iterA = m_Bodies.begin(); iterA != m_Bodies.end(); ++iterA) {
-			for (auto iterB = m_Bodies.begin(); iterB != m_Bodies.end(); ++iterB) {
+			for (auto iterB = iterA; iterB != m_Bodies.end(); ++iterB) {
 				if (iterA == iterB)
 					continue;
 
@@ -51,7 +51,7 @@ namespace physics {
 				glm::vec3 AtoB = (*iterB)->pos - (*iterA)->pos;
 				glm::vec3 AtoBsq = AtoB * AtoB;
 				float dist = sqrt(AtoBsq.x + AtoBsq.y + AtoBsq.z);
-				float forceMag = GRAVITATIONAL_CONSTANT * ((*iterA)->mass * (*iterB)->mass) / dist;
+				float forceMag = GRAVITATIONAL_CONSTANT * ((*iterA)->mass * (*iterB)->mass) / (dist*dist);
 
 				glm::vec3 accA = glm::normalize(AtoB) * (forceMag / (*iterA)->mass);
 				glm::vec3 accB = glm::normalize(-AtoB) * (forceMag / (*iterB)->mass);
@@ -64,7 +64,9 @@ namespace physics {
 
 	void Engine::advanceBodies() {
 		for (auto iter = m_Bodies.begin(); iter != m_Bodies.end(); ++iter) {
-			(*iter)->pos = (*iter)->pos + (*iter)->vel * m_Timer.deltaTime;
+			if ((*iter)->type == Body::Type::DYNAMIC) {
+				(*iter)->pos = (*iter)->pos + (*iter)->vel * m_Timer.deltaTime;
+			}
 		}
 	}
 

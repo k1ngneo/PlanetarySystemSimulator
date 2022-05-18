@@ -10,6 +10,8 @@ namespace graphics {
 		this->specularColor = glm::vec3(1.0f);
 
 		this->attenuation = glm::vec3(1.0f, 0.0001f, 0.00012f);
+
+		this->body.type = physics::Body::Type::STATIC;
 	}
 
 	Star::~Star() {
