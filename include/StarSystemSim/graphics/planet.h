@@ -17,6 +17,7 @@ namespace graphics {
 		void draw(Shader& shader, uint32_t renderMode = GL_TRIANGLES);
 
 		void setPos(const glm::vec3& position);
+		glm::vec3 getPos();
 
 		void translate(const glm::vec3& translation);
 		void rotate(float angle, const glm::vec3& axis);

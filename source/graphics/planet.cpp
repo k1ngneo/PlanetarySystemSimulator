@@ -53,10 +53,15 @@ namespace graphics {
 		this->translate(position);
 	}
 
+	glm::vec3 Planet::getPos() {
+		this->setPos(this->body.pos);
+		return Object::getPos();
+	}
+
 	void Planet::translate(const glm::vec3& translation) {
 		((Object*)this)->translate(translation);
 		m_MainMesh->translate(translation);
-		this->body.pos = getPos();
+		this->body.pos = Object::getPos();
 	}
 
 	void Planet::rotate(float angle, const glm::vec3& axis) {

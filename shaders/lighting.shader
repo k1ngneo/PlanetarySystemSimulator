@@ -116,7 +116,7 @@ vec3 calcPointLight(Light light, Material mater) {
     vec3 reflectDir = reflect(light.dir, mater.norm);
 
     float spec = pow(max(dot(-fragData.viewDir, reflectDir), 0.0), mater.shine);
-    vec3 specularLight = (/*mater.spec */ spec) * light.spec;
+    vec3 specularLight = (mater.spec * spec) * light.spec;
 
     float dist = length(light.pos - fragData.pos);
     float attenuation = 1.0 / (light.attenuation.x + light.attenuation.y * dist

@@ -35,8 +35,8 @@ void key_press_callback(GLFWwindow* window, int key, int scancode, int action, i
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
-void lookAroundCam();
-void lookAtCam();
+void lookAroundCam(glm::mat4& viewMat);
+void lookAtCam(glm::mat4& viewMat, const glm::vec3& target);
 
 unsigned int SCR_WIDTH = 1500;
 unsigned int SCR_HEIGHT = 900;
@@ -151,14 +151,11 @@ int main() {
         app::processInput(window);
         mainCamera.dir = earth.getPos() - mainCamera.pos;
 
-        lookAroundCam();
-        //lookAtCam();
-
-        projMat4 = glm::perspective(glm::radians(mainCamera.fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.01f, 100.0f);
+        projMat4 = glm::perspective(glm::radians(mainCamera.fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.01f, 200.0f);
 
         if (!isCursorVisible) {
-            viewMat4 = glm::lookAt(mainCamera.pos, mainCamera.pos + mainCamera.front, mainCamera.up);
-            //viewMat4 = glm::lookAt(mainCamera.pos, mainCamera.target->getPos(), { 0.0f, 1.0f, 0.0f });
+            //lookAroundCam(viewMat);
+            lookAtCam(viewMat4, ((graphics::Planet*)(mainCamera.target))->getPos());
         }
 
         // ImGui preparing for a new frame
@@ -229,6 +226,10 @@ int main() {
             ImGui::SliderFloat("Time Speed", &physicsEngine.timeMultiplier, 0.0f, 10.0f);
 
             ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+
+            ImGui::Text("Camera\n");
+            ImGui::Text("Yaw: %.1f\nPitch: %.1f", mainCamera.yaw, mainCamera.pitch);
+
             ImGui::End();
         }
 
@@ -268,23 +269,25 @@ void key_press_callback(GLFWwindow* window, int key, int scancode, int action, i
     }
 }
 
-void lookAroundCam() {
+void lookAroundCam(glm::mat4& viewMat) {
     mainCamera.dir.x = cos(glm::radians(mainCamera.yaw)) * cos(glm::radians(mainCamera.pitch));
     mainCamera.dir.y = sin(glm::radians(mainCamera.pitch));
     mainCamera.dir.z = sin(glm::radians(mainCamera.yaw)) * cos(glm::radians(mainCamera.pitch));
     mainCamera.front = glm::normalize(mainCamera.dir);
+
+    viewMat = glm::lookAt(mainCamera.pos, mainCamera.front, mainCamera.up);
 }
 
-void lookAtCam() {
-    if (mainCamera.target) {
-        mainCamera.pos.x = glm::cos(mainCamera.yaw + glm::pi<float>());
-        mainCamera.pos.y = glm::sin(mainCamera.pitch);
-        mainCamera.pos.z = glm::sin(mainCamera.yaw + glm::pi<float>());
+void lookAtCam(glm::mat4& viewMat, const glm::vec3& target) {
+    mainCamera.pos.x = glm::cos(-mainCamera.yaw * 0.022222f);
+    mainCamera.pos.y = glm::sin(mainCamera.pitch * 0.011111f);
+    mainCamera.pos.z = glm::sin(-mainCamera.yaw * 0.022222f);
+    
+    mainCamera.dir = glm::normalize(-mainCamera.pos);
+    
+    mainCamera.pos = target + mainCamera.pos;
 
-        mainCamera.dir = -mainCamera.pos;
-
-        mainCamera.pos = mainCamera.target->getPos() + mainCamera.pos;
-    }
+    viewMat = glm::lookAt(mainCamera.pos, target, mainCamera.up);
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
@@ -302,10 +305,10 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     mainCamera.yaw += offset.x;
     mainCamera.pitch += offset.y;
 
-    if (mainCamera.pitch > 89.0f)
-        mainCamera.pitch = 89.0f;
-    if (mainCamera.pitch < -89.0f)
-        mainCamera.pitch = -89.0f;
+    if (mainCamera.pitch > 90.0f)
+        mainCamera.pitch = 90.0f;
+    if (mainCamera.pitch < -90.0f)
+        mainCamera.pitch = -90.0f;
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
