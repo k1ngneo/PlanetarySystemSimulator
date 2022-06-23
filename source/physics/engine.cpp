@@ -27,6 +27,8 @@ namespace physics {
 		m_Timer.measureTime();
 		m_Timer.deltaTime *= this->paused ? 0.0f : this->timeMultiplier;
 
+		m_Timer.deltaTime = std::min(m_Timer.deltaTime, MAX_DELTA_TIME);
+
 		if (m_SkipIteration) {
 			m_SkipIteration = false;
 			return;

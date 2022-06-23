@@ -22,7 +22,8 @@ namespace graphics {
 		void draw(Shader& shader, uint32_t renderMode = GL_TRIANGLES);
 
 		enum class TextureType {
-			DIFFUSE, SPECULAR, NORMAL, NIGHT
+			DIFFUSE, SPECULAR, NORMAL, NIGHT,
+			OTHER1, OTHER2
 		};
 
 		void bindTexture(uint64_t textureID, TextureType type);
@@ -36,6 +37,7 @@ namespace graphics {
 		std::vector<VertexData> m_Vertices;
 		std::vector<uint32_t> m_Indices;
 		unsigned int m_DiffuseTex, m_SpecularTex, m_NormalTex, m_NightTex;
+		unsigned int m_Other1Tex, m_Other2Tex;
 
 		unsigned int m_VAO, m_VBO, m_EBO;
 

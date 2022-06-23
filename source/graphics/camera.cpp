@@ -1,5 +1,8 @@
 #include "StarSystemSim/graphics/camera.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 namespace graphics {
 
 	Camera::Camera(const glm::vec3& pos) {
@@ -15,6 +18,34 @@ namespace graphics {
         this->fov = 45.0f;
 
         this->target = nullptr;
+
+        m_PosRelTarget = { 0.0f, 0.0f, 0.0f };
 	}
+
+    glm::mat4 Camera::lookAround() {
+        this->dir.x = cos(glm::radians(this->yaw)) * cos(glm::radians(this->pitch));
+        this->dir.y = sin(glm::radians(this->pitch));
+        this->dir.z = sin(glm::radians(this->yaw)) * cos(glm::radians(this->pitch));
+        this->front = glm::normalize(this->dir);
+
+        return glm::lookAt(this->pos, this->front, this->up);
+    }
+
+    glm::mat4 Camera::lookAt(const glm::vec3& target, bool justFollow) {
+        if (!justFollow) {
+            float radPitch = glm::radians(this->pitch);
+            float radYaw = glm::radians(this->yaw);
+
+            m_PosRelTarget.x = glm::cos(-radYaw) * glm::cos(radPitch);
+            m_PosRelTarget.y = glm::sin(radPitch);        
+            m_PosRelTarget.z = glm::sin(-radYaw) * glm::cos(radPitch);
+
+            this->dir = glm::normalize(-m_PosRelTarget);
+        }
+
+        this->pos = target + m_PosRelTarget;
+
+        return glm::lookAt(this->pos, target, this->up);
+    }
 
 }

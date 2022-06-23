@@ -29,14 +29,13 @@
 #include <glm/gtc/constants.hpp>
 
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_press_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-
-void lookAroundCam(glm::mat4& viewMat);
-void lookAtCam(glm::mat4& viewMat, const glm::vec3& target);
 
 unsigned int SCR_WIDTH = 1500;
 unsigned int SCR_HEIGHT = 900;
@@ -89,8 +88,12 @@ int main() {
     ImGui_ImplOpenGL3_Init("#version 330 core");
 
     Shader lightingShader;
-    lightingShader.compileShaders("shaders/lighting.shader", true);
+    lightingShader.compileShaders("shaders/celestial.shader", true);
     lightingShader.linkShaders();
+
+    Shader atmosphereShader;
+    atmosphereShader.compileShaders("shaders/atmosphere.shader", true);
+    atmosphereShader.linkShaders();
 
     Shader lightSourceShader;
     lightSourceShader.compileShaders(utils::loadTextFile("shaders/light_source.shader").c_str());
@@ -136,6 +139,8 @@ int main() {
     glCullFace(GL_FRONT);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_MULTISAMPLE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -144,6 +149,7 @@ int main() {
     bool show_another_window = false;
     float clear_color[3] = { 0.5f, 0.5f, 0.5f };
 
+    utils::Timer frameClock;
 
     while (!glfwWindowShouldClose(window)) {
         timer.measureTime();
@@ -155,7 +161,10 @@ int main() {
 
         if (!isCursorVisible) {
             //lookAroundCam(viewMat);
-            lookAtCam(viewMat4, ((graphics::Planet*)(mainCamera.target))->getPos());
+            viewMat4 = mainCamera.lookAt(((graphics::Planet*)(mainCamera.target))->getPos());
+        }
+        else {
+            viewMat4 = mainCamera.lookAt(((graphics::Planet*)(mainCamera.target))->getPos(), true);
         }
 
         // ImGui preparing for a new frame
@@ -203,16 +212,36 @@ int main() {
 
         lightingShader.unuse();
 
+        atmosphereShader.use();
+
+        atmosphereShader.setUniform3f("_light1.pos", sun.body.pos);
+        atmosphereShader.setUniform3f("_light1.amb", sun.ambientColor);
+        atmosphereShader.setUniform3f("_light1.diff", sun.diffuseColor);
+        atmosphereShader.setUniform3f("_light1.spec", sun.specularColor);
+        atmosphereShader.setUniform3f("_light1.attenuation", sun.attenuation);
+
+        atmosphereShader.setUniformMat4("_projMat", projMat4);
+        atmosphereShader.setUniformMat4("_viewMat", viewMat4);
+
+        atmosphereShader.setUniform3f("_viewPos", mainCamera.pos);
+
+        atmosphereShader.unuse();
+
         TBNShader.use();
         TBNShader.setUniformMat4("_projMat", projMat4);
         TBNShader.setUniformMat4("_viewMat", viewMat4);
         TBNShader.setUniform3f("_viewPos", mainCamera.pos);
         TBNShader.unuse();
 
-        earth.rotate(0.02f, glm::vec3(0.0f, 1.0f, 0.0f));
+        earth.rotate(0.02f * timer.deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
         earth.draw(lightingShader);
-        //earth.draw(TBNShader, GL_POINTS);
         sun.draw(starShader);
+
+        glCullFace(GL_BACK);
+        earth.draw(atmosphereShader);
+        glCullFace(GL_FRONT);
+
+        //earth.draw(TBNShader, GL_POINTS);
 
         //////////////////
         // ImGui rendering
@@ -243,6 +272,12 @@ int main() {
         glfwPollEvents();
 
         lightingShader.reload();
+        atmosphereShader.reload();
+
+        frameClock.measureTime();
+        std::chrono::microseconds sleepTime;
+        sleepTime = std::chrono::microseconds((uint64_t)std::min(1000000.0f / 144.0f, frameClock.deltaTime * 1000000.0f));
+        std::this_thread::sleep_for(sleepTime);
     }
 
     ImGui_ImplOpenGL3_Shutdown();
@@ -269,27 +304,6 @@ void key_press_callback(GLFWwindow* window, int key, int scancode, int action, i
     }
 }
 
-void lookAroundCam(glm::mat4& viewMat) {
-    mainCamera.dir.x = cos(glm::radians(mainCamera.yaw)) * cos(glm::radians(mainCamera.pitch));
-    mainCamera.dir.y = sin(glm::radians(mainCamera.pitch));
-    mainCamera.dir.z = sin(glm::radians(mainCamera.yaw)) * cos(glm::radians(mainCamera.pitch));
-    mainCamera.front = glm::normalize(mainCamera.dir);
-
-    viewMat = glm::lookAt(mainCamera.pos, mainCamera.front, mainCamera.up);
-}
-
-void lookAtCam(glm::mat4& viewMat, const glm::vec3& target) {
-    mainCamera.pos.x = glm::cos(-mainCamera.yaw * 0.022222f);
-    mainCamera.pos.y = glm::sin(mainCamera.pitch * 0.011111f);
-    mainCamera.pos.z = glm::sin(-mainCamera.yaw * 0.022222f);
-    
-    mainCamera.dir = glm::normalize(-mainCamera.pos);
-    
-    mainCamera.pos = target + mainCamera.pos;
-
-    viewMat = glm::lookAt(mainCamera.pos, target, mainCamera.up);
-}
-
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     if (isFirstMouseMovement) {
         mousePos = glm::vec2(xpos, ypos);
@@ -302,13 +316,15 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     float sensitivity = 0.1f;
     offset *= sensitivity;
 
-    mainCamera.yaw += offset.x;
-    mainCamera.pitch += offset.y;
+    if (!isCursorVisible) {
+        mainCamera.yaw += offset.x;
+        mainCamera.pitch += offset.y;
 
-    if (mainCamera.pitch > 90.0f)
-        mainCamera.pitch = 90.0f;
-    if (mainCamera.pitch < -90.0f)
-        mainCamera.pitch = -90.0f;
+        if (mainCamera.pitch > 89.0f)
+            mainCamera.pitch = 89.0f;
+        if (mainCamera.pitch < -89.0f)
+            mainCamera.pitch = -89.0f;
+    }
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {

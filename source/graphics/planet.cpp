@@ -394,6 +394,8 @@ namespace graphics {
 		m_MainMesh->bindTexture(loadTexture(path + "specular.jpg", true), Mesh::TextureType::SPECULAR);
 		m_MainMesh->bindTexture(loadTexture(path + "normal.jpg", true), Mesh::TextureType::NORMAL);
 		m_MainMesh->bindTexture(loadTexture(path + "nightmap.jpg"), Mesh::TextureType::NIGHT);
+		m_MainMesh->bindTexture(loadTexture(path + "waves_normal1.jpg"), Mesh::TextureType::OTHER1);
+		m_MainMesh->bindTexture(loadTexture(path + "waves_normal2.jpg"), Mesh::TextureType::OTHER2);
 	}
 
 	uint64_t Planet::loadTexture(const std::string& path, bool required) {

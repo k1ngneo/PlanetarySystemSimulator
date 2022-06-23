@@ -100,6 +100,8 @@ uniform sampler2D _diffTex;
 uniform sampler2D _specTex;
 uniform sampler2D _normTex;
 uniform sampler2D _nightTex;
+uniform sampler2D _otherTex1;
+uniform sampler2D _otherTex2;
 
 uniform float _time;
 
@@ -135,7 +137,13 @@ void main() {
     mater.spec = _surfM.spec * texture2D(_specTex, fragData.uv).rgb;
     mater.shine = _surfM.shine;
 
-    mater.norm = normalize(texture2D(_normTex, fragData.uv).rgb * 2.0 - 1.0);
+    vec3 wave1 = texture2D(_otherTex1, 10.0*fragData.uv + 0.03*vec2(_time, 0.0)).rgb;
+    vec3 wave2 = texture2D(_otherTex2, 10.0*fragData.uv + 0.03*vec2(0.0, _time)).rgb;
+    vec3 waves_normal = normalize(2.0 * (0.5*(wave1+wave2)) - 1.0);
+    vec3 land_normal = normalize(2.0 * texture2D(_normTex, fragData.uv).rgb - 1.0);
+
+    mater.norm = mix(land_normal, waves_normal, mater.spec.r);
+    mater.norm = mix(mater.norm, vec3(0.0, 0.0, 1.0), 0.8);
 
     mater.night = texture2D(_nightTex, fragData.uv).rgb;
 

@@ -8,25 +8,30 @@ namespace graphics {
 
 	Mesh::Mesh(std::vector<VertexData>& vert, std::vector<uint32_t>& ind)
 		: m_VAO(0), m_VBO(0), m_EBO(0),
-		m_DiffuseTex(0), m_SpecularTex(0), m_NormalTex(0), m_NightTex(0)
+		m_DiffuseTex(0), m_SpecularTex(0), m_NormalTex(0), m_NightTex(0),
+		m_Other1Tex(0), m_Other2Tex(0)
 	{
 		buildMesh(vert, ind);
 	}
 
 	Mesh::~Mesh() {
-		if(m_DiffuseTex)
+		if (m_DiffuseTex)
 			glDeleteTextures(1, &m_DiffuseTex);
-		if(m_SpecularTex)
+		if (m_SpecularTex)
 			glDeleteTextures(1, &m_SpecularTex);
-		if(m_NormalTex)
+		if (m_NormalTex)
 			glDeleteTextures(1, &m_NormalTex);
 		if (m_NightTex)
 			glDeleteTextures(1, &m_NightTex);
+		if (m_Other1Tex)
+			glDeleteTextures(1, &m_Other1Tex);
 
 		m_DiffuseTex = 0;
 		m_SpecularTex = 0;
 		m_NormalTex = 0;
 		m_NightTex = 0;
+		m_Other1Tex = 0;
+		m_Other2Tex = 0;
 		
 		if(m_VAO)
 			glDeleteVertexArrays(1, &m_VAO);
@@ -53,10 +58,21 @@ namespace graphics {
 		glBindTexture(GL_TEXTURE_2D, m_SpecularTex);
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, m_NormalTex);
+
 		if (m_NightTex) {
 			shader.setUniform1i("_nightTex", 3);
 			glActiveTexture(GL_TEXTURE3);
 			glBindTexture(GL_TEXTURE_2D, m_NightTex);
+		}
+		if (m_Other1Tex) {
+			shader.setUniform1i("_otherTex1", 4);
+			glActiveTexture(GL_TEXTURE4);
+			glBindTexture(GL_TEXTURE_2D, m_Other1Tex);
+		}
+		if (m_Other2Tex) {
+			shader.setUniform1i("_otherTex2", 5);
+			glActiveTexture(GL_TEXTURE5);
+			glBindTexture(GL_TEXTURE_2D, m_Other2Tex);
 		}
 
 		glBindVertexArray(m_VAO);
@@ -84,6 +100,14 @@ namespace graphics {
 			case TextureType::NIGHT:
 				if (!m_NightTex)
 					m_NightTex = textureID;
+				break;
+			case TextureType::OTHER1:
+				if (!m_Other1Tex)
+					m_Other1Tex = textureID;
+				break;
+			case TextureType::OTHER2:
+				if (!m_Other2Tex)
+					m_Other2Tex = textureID;
 				break;
 			default:
 				break;
