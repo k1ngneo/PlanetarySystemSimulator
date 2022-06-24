@@ -137,8 +137,9 @@ void main() {
     mater.spec = _surfM.spec * texture2D(_specTex, fragData.uv).rgb;
     mater.shine = _surfM.shine;
 
-    vec3 wave1 = texture2D(_otherTex1, 10.0*fragData.uv + 0.03*vec2(_time, 0.0)).rgb;
-    vec3 wave2 = texture2D(_otherTex2, 10.0*fragData.uv + 0.03*vec2(0.0, _time)).rgb;
+    float waveSize = 20.0;
+    vec3 wave1 = texture2D(_otherTex1, waveSize*fragData.uv + 0.03*vec2(_time, 0.0)).rgb;
+    vec3 wave2 = texture2D(_otherTex2, waveSize*fragData.uv + 0.03*vec2(0.0, _time)).rgb;
     vec3 waves_normal = normalize(2.0 * (0.5*(wave1+wave2)) - 1.0);
     vec3 land_normal = normalize(2.0 * texture2D(_normTex, fragData.uv).rgb - 1.0);
 

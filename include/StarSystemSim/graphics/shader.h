@@ -9,6 +9,7 @@
 
 const int VERTEX_SHADER = 1;
 const int FRAGMENT_SHADER = 2;
+const int GEOMETRY_SHADER = 3;
 
 class Shader
 {

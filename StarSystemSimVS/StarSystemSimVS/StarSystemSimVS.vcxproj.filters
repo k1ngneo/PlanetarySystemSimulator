@@ -132,6 +132,9 @@
     <ClCompile Include="..\..\source\app\event_manager.cpp">
       <Filter>Source Files\app</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\graphics\renderer.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\StarSystemSim\graphics\camera.h">
@@ -216,6 +219,12 @@
       <Filter>Header Files\StarSystemSim\imgui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\StarSystemSim\app\event_manager.h">
+      <Filter>Header Files\StarSystemSim\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StarSystemSim\graphics\renderer.h">
+      <Filter>Header Files\StarSystemSim\graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StarSystemSim\app\app.h">
       <Filter>Header Files\StarSystemSim\app</Filter>
     </ClInclude>
   </ItemGroup>

@@ -26,17 +26,9 @@ Shader::~Shader() {
 
 void Shader::use() {
 	glUseProgram(m_Program);
-
-	for (unsigned int i = 0; i < numAttributes; i++) {
-		glEnableVertexAttribArray(i);
-	}
 }
 void Shader::unuse() {
 	glUseProgram(0);
-
-	for (unsigned int i = 0; i < numAttributes; i++) {
-		glDisableVertexAttribArray(i);
-	}
 }
 
 void Shader::addAttribute(const char* attributeName) {

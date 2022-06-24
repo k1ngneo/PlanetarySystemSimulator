@@ -177,6 +177,7 @@
     <ClCompile Include="..\..\source\graphics\primitives\cube.cpp" />
     <ClCompile Include="..\..\source\graphics\primitives\plane.cpp" />
     <ClCompile Include="..\..\source\graphics\primitives\point_light.cpp" />
+    <ClCompile Include="..\..\source\graphics\renderer.cpp" />
     <ClCompile Include="..\..\source\graphics\shader.cpp" />
     <ClCompile Include="..\..\source\graphics\skybox.cpp" />
     <ClCompile Include="..\..\source\graphics\star.cpp" />
@@ -203,6 +204,7 @@
     <ClInclude Include="..\..\include\imgui\imstb_rectpack.h" />
     <ClInclude Include="..\..\include\imgui\imstb_textedit.h" />
     <ClInclude Include="..\..\include\imgui\imstb_truetype.h" />
+    <ClInclude Include="..\..\include\StarSystemSim\app\app.h" />
     <ClInclude Include="..\..\include\StarSystemSim\app\event_manager.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\camera.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\material.h" />
@@ -213,6 +215,7 @@
     <ClInclude Include="..\..\include\StarSystemSim\graphics\primitives\cube.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\primitives\plane.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\primitives\point_light.h" />
+    <ClInclude Include="..\..\include\StarSystemSim\graphics\renderer.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\shader.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\skybox.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\star.h" />

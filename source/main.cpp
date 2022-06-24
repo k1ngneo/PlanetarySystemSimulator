@@ -1,9 +1,11 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "StarSystemSim/app/app.h"
 #include "StarSystemSim/app/event_manager.h"
 
 #include "StarSystemSim/graphics/shader.h"
+#include "StarSystemSim/graphics/renderer.h"
 #include "StarSystemSim/graphics/camera.h"
 #include "StarSystemSim/graphics/primitives/plane.h"
 #include "StarSystemSim/graphics/primitives/cube.h"
@@ -37,9 +39,6 @@ void key_press_callback(GLFWwindow* window, int key, int scancode, int action, i
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
-unsigned int SCR_WIDTH = 1500;
-unsigned int SCR_HEIGHT = 900;
-
 int render_mode = 0;
 bool x_pressed = false;
 
@@ -60,7 +59,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_SAMPLES, 2);
 
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "StarSystemSim", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(app::SCR_WIDTH, app::SCR_HEIGHT, "StarSystemSim", NULL, NULL);
     if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -86,6 +85,8 @@ int main() {
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
+
+    graphics::Renderer renderer;
 
     Shader lightingShader;
     lightingShader.compileShaders("shaders/celestial.shader", true);
@@ -144,7 +145,6 @@ int main() {
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-
     bool show_demo_window = false;
     bool show_another_window = false;
     float clear_color[3] = { 0.5f, 0.5f, 0.5f };
@@ -157,7 +157,7 @@ int main() {
         app::processInput(window);
         mainCamera.dir = earth.getPos() - mainCamera.pos;
 
-        projMat4 = glm::perspective(glm::radians(mainCamera.fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.01f, 200.0f);
+        projMat4 = glm::perspective(glm::radians(mainCamera.fov), (float)app::SCR_WIDTH / (float)app::SCR_HEIGHT, 0.01f, 200.0f);
 
         if (!isCursorVisible) {
             //lookAroundCam(viewMat);
@@ -172,9 +172,10 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-
+        renderer.bindFramebuffer();
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
 
         skyboxShader.use();
         skyboxShader.setUniformMat4("_viewMat", glm::mat4(glm::mat3(viewMat4)));
@@ -242,6 +243,9 @@ int main() {
         glCullFace(GL_FRONT);
 
         //earth.draw(TBNShader, GL_POINTS);
+        renderer.unbindFramebuffer();
+
+        renderer.drawFrame();
 
         //////////////////
         // ImGui rendering
@@ -337,6 +341,6 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
-    SCR_WIDTH = width;
-    SCR_HEIGHT = height;
+    app::SCR_WIDTH = width;
+    app::SCR_HEIGHT = height;
 }
