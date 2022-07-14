@@ -17,11 +17,46 @@ void main() {
 in vec2 fragUV;
 
 uniform sampler2D _texture;
+uniform sampler2D _bloomTex;
 
-out vec4 outColor;
+layout (location = 0) out vec4 outColor;
 
 void main() {
-	outColor = texture2D(_texture, fragUV);
-	float average = 0.33*(outColor.r + outColor.g + outColor.b);
-	outColor = vec4(average, average, average, 1.0);
+	vec3 mainImage = texture2D(_texture, fragUV).rgb;
+	vec3 bloom = texture2D(_bloomTex, fragUV).rgb;
+
+	vec2 uvOffset = textureSize(_texture, 0);
+	vec2 offsets[9] = vec2[] (
+		vec2(-uvOffset.x,  uvOffset.y),
+		vec2(        0.0,  uvOffset.y),
+		vec2( uvOffset.x,  uvOffset.y),
+		vec2(-uvOffset.x,         0.0),
+		vec2(        0.0,         0.0),
+		vec2( uvOffset.x,         0.0),
+		vec2(-uvOffset.x, -uvOffset.y),
+		vec2(        0.0, -uvOffset.y),
+		vec2( uvOffset.x, -uvOffset.y)
+	);
+
+	float edgesKernel[9] = float[] (
+		1.0, 1.0, 1.0,
+		1.0, -7.0, 1.0,
+		1.0, 1.0, 1.0
+	);
+
+	// normalizing kernel
+	float sum = 0.0;
+	for(int i = 0; i < 9; ++i) {
+		sum += edgesKernel[i];
+	}
+	for(int i = 0; i < 9; ++i) {
+		edgesKernel[i] /= sum;
+	}
+
+	vec3 smoothedImage = vec3(0.0, 0.0, 0.0);
+	for(int i = 0; i < 9; ++i) {
+		smoothedImage += texture2D(_texture, fragUV + offsets[i]).rgb * edgesKernel[i];
+	}
+
+	outColor = vec4(mainImage + bloom, 1.0);
 }

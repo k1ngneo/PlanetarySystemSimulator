@@ -1,6 +1,3 @@
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
 #include "StarSystemSim/app/app.h"
 #include "StarSystemSim/app/event_manager.h"
 
@@ -21,6 +18,8 @@
 #include "StarSystemSim/utilities/load_text_file.h"
 
 
+#include <GLFW/glfw3.h>
+
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
@@ -34,59 +33,18 @@
 #include <chrono>
 #include <thread>
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void key_press_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-
 int render_mode = 0;
 bool x_pressed = false;
 
 physics::Engine physicsEngine;
-
 utils::Timer timer;
-graphics::Camera mainCamera(glm::vec3(0.0f, 0.5f, 3.0f));
-
-glm::vec2 mousePos;
-bool isFirstMouseMovement = true;
-
-bool isCursorVisible = false;
+graphics::Renderer* renderer;
 
 int main() {
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_SAMPLES, 2);
+    App::start();
+    graphics::Camera& camera = App::s_Instance->mainCamera;
 
-    GLFWwindow* window = glfwCreateWindow(app::SCR_WIDTH, app::SCR_HEIGHT, "StarSystemSim", NULL, NULL);
-    if (window == NULL) {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetKeyCallback(window, key_press_callback);
-    glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetScrollCallback(window, scroll_callback);
-    glfwSetWindowPos(window, 20, 60);
-
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-
-    ImGui::StyleColorsDark();
-    
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
-    }
-
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 330 core");
-
-    graphics::Renderer renderer;
+    renderer = new graphics::Renderer;
 
     Shader lightingShader;
     lightingShader.compileShaders("shaders/celestial.shader", true);
@@ -134,7 +92,8 @@ int main() {
 
     physicsEngine.paused = true;
 
-    mainCamera.target = &earth;
+    camera.target = &earth;
+    //camera.target = &sun;
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
@@ -143,7 +102,7 @@ int main() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(App::s_Instance->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     bool show_demo_window = false;
     bool show_another_window = false;
@@ -151,20 +110,20 @@ int main() {
 
     utils::Timer frameClock;
 
-    while (!glfwWindowShouldClose(window)) {
+    while (!glfwWindowShouldClose(App::s_Instance->window)) {
         timer.measureTime();
         physicsEngine.update();
-        app::processInput(window);
-        mainCamera.dir = earth.getPos() - mainCamera.pos;
+        app::processInput(App::s_Instance->window);
+        camera.dir = camera.target->getPos() - camera.pos;
 
-        projMat4 = glm::perspective(glm::radians(mainCamera.fov), (float)app::SCR_WIDTH / (float)app::SCR_HEIGHT, 0.01f, 200.0f);
+        projMat4 = glm::perspective(glm::radians(camera.fov), (float)App::s_Instance->getWindowWidth() / (float)App::s_Instance->getWindowHeight(), 0.01f, 200.0f);
 
-        if (!isCursorVisible) {
+        if (!App::s_Instance->isCursorVisible) {
             //lookAroundCam(viewMat);
-            viewMat4 = mainCamera.lookAt(((graphics::Planet*)(mainCamera.target))->getPos());
+            viewMat4 = camera.lookAt(((graphics::Planet*)(camera.target))->getPos());
         }
         else {
-            viewMat4 = mainCamera.lookAt(((graphics::Planet*)(mainCamera.target))->getPos(), true);
+            viewMat4 = camera.lookAt(((graphics::Planet*)(camera.target))->getPos(), true);
         }
 
         // ImGui preparing for a new frame
@@ -172,8 +131,8 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        renderer.bindFramebuffer();
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        renderer->bindFramebuffer();
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
 
@@ -193,7 +152,7 @@ int main() {
 
         lightingShader.use();
         
-        lightingShader.setUniform3f("_viewPos", mainCamera.pos);
+        lightingShader.setUniform3f("_viewPos", camera.pos);
 
         lightingShader.setUniform3f("_light1.pos", sun.body.pos);
         lightingShader.setUniform3f("_light1.amb", sun.ambientColor);
@@ -224,15 +183,27 @@ int main() {
         atmosphereShader.setUniformMat4("_projMat", projMat4);
         atmosphereShader.setUniformMat4("_viewMat", viewMat4);
 
-        atmosphereShader.setUniform3f("_viewPos", mainCamera.pos);
+        atmosphereShader.setUniform3f("_viewPos", camera.pos);
 
         atmosphereShader.unuse();
 
         TBNShader.use();
         TBNShader.setUniformMat4("_projMat", projMat4);
         TBNShader.setUniformMat4("_viewMat", viewMat4);
-        TBNShader.setUniform3f("_viewPos", mainCamera.pos);
+        TBNShader.setUniform3f("_viewPos", camera.pos);
         TBNShader.unuse();
+
+        switch (renderMode) {
+        case RenderMode::FACES:
+            glPolygonMode(GL_FRONT, GL_FILL);
+            break;
+        case RenderMode::EDGES:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            break;
+        case RenderMode::VERTICES:
+            glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+            break;
+        }
 
         earth.rotate(0.02f * timer.deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
         earth.draw(lightingShader);
@@ -243,13 +214,14 @@ int main() {
         glCullFace(GL_FRONT);
 
         //earth.draw(TBNShader, GL_POINTS);
-        renderer.unbindFramebuffer();
+        renderer->unbindFramebuffer();
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-        renderer.drawFrame();
+        renderer->drawFrame();
 
-        //////////////////
-        // ImGui rendering
-        //////////////////
+        /////////////////////
+        // ImGui rendering //
+        /////////////////////
 
         // Control Panel Window
         {
@@ -261,7 +233,9 @@ int main() {
             ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
 
             ImGui::Text("Camera\n");
-            ImGui::Text("Yaw: %.1f\nPitch: %.1f", mainCamera.yaw, mainCamera.pitch);
+            ImGui::Text("Yaw: %.1f\nPitch: %.1f", camera.yaw, camera.pitch);
+
+            ImGui::SliderInt("Blur Strength", &renderer->blurStr, 0, 20);
 
             ImGui::End();
         }
@@ -272,7 +246,7 @@ int main() {
             ImGui_ImplOpenGL3_RenderDrawData(drawData);
         }
 
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(App::s_Instance->window);
         glfwPollEvents();
 
         lightingShader.reload();
@@ -284,63 +258,9 @@ int main() {
         std::this_thread::sleep_for(sleepTime);
     }
 
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
+    delete renderer;
 
-    glfwDestroyWindow(window);
-    glfwTerminate();
+    App::clear();
+
     return 0;
-}
-
-void key_press_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    //if (glfwGetKey(window, GLFW_KEY_GRAVE_ACCENT) == GLFW_PRESS) {
-    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
-        if (isCursorVisible) {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-            isFirstMouseMovement = true;
-            isCursorVisible = false;
-        }
-        else {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-            isCursorVisible = true;
-        }
-    }
-}
-
-void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-    if (isFirstMouseMovement) {
-        mousePos = glm::vec2(xpos, ypos);
-        isFirstMouseMovement = false;
-    }
-
-    glm::vec2 offset = glm::vec2(xpos - mousePos.x, mousePos.y - ypos);
-    mousePos = glm::vec2(xpos, ypos);
-
-    float sensitivity = 0.1f;
-    offset *= sensitivity;
-
-    if (!isCursorVisible) {
-        mainCamera.yaw += offset.x;
-        mainCamera.pitch += offset.y;
-
-        if (mainCamera.pitch > 89.0f)
-            mainCamera.pitch = 89.0f;
-        if (mainCamera.pitch < -89.0f)
-            mainCamera.pitch = -89.0f;
-    }
-}
-
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-    mainCamera.fov -= (float)yoffset;
-    if (mainCamera.fov < 1.0f)
-        mainCamera.fov = 1.0f;
-    if (mainCamera.fov > 45.0f)
-        mainCamera.fov = 45.0f;
-}
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-    glViewport(0, 0, width, height);
-    app::SCR_WIDTH = width;
-    app::SCR_HEIGHT = height;
 }

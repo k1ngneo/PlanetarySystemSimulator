@@ -1,8 +1,7 @@
 #include "StarSystemSim/graphics/mesh.h"
+#include "StarSystemSim/utilities/error.h"
 
 #include <glad/glad.h>
-
-#include "StarSystemSim/utilities/error.h"
 
 namespace graphics {
 

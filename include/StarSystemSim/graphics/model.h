@@ -3,6 +3,8 @@
 #include "StarSystemSim/graphics/shader.h"
 #include "StarSystemSim/graphics/mesh.h"
 
+#include <glad/glad.h>
+
 #include <glm/vec3.hpp>
 
 #include <assimp/scene.h>

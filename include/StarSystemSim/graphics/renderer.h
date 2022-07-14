@@ -14,16 +14,23 @@ namespace graphics {
 		void bindFramebuffer();
 		void unbindFramebuffer();
 
+		void resize();
+
+		int blurStr;
+
 	private:
-		unsigned int m_frameBuffer;
-		unsigned int m_screenTexture;
-		unsigned int m_renderBuffer;
+		static const size_t s_FBO_COUNT = 3;
+		unsigned int m_FrameBuffers[s_FBO_COUNT];
+		static const size_t s_TEXTURE_COUNT = 4;
+		unsigned int m_ScreenTextures[s_TEXTURE_COUNT];
+		unsigned int m_RenderBuffer;
 
-		unsigned int m_vao, m_vbo, m_ebo;
+		unsigned int m_VAO, m_VBO, m_EBO;
 
-		Shader m_postprocessingShader;
+		Shader m_PostprocessingShader;
+		Shader m_BlurShader;
 
-		void setupFramebuffer();
+		void setupFramebuffers();
 		void setupVertexArray();
 	};
 

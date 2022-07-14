@@ -12,12 +12,18 @@
 extern bool x_pressed;
 extern int render_mode;
 
-extern graphics::Camera mainCamera;
 extern utils::Timer timer;
+
+enum class RenderMode {
+    FACES, EDGES, VERTICES
+};
+
+RenderMode renderMode;
 
 namespace app {
 
 	void processInput(GLFWwindow* window) {
+        graphics::Camera& camera = App::s_Instance->mainCamera;
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
 
@@ -33,12 +39,15 @@ namespace app {
 
                 switch (render_mode++) {
                 case 0:
+                    renderMode = RenderMode::FACES;
                     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                     break;
                 case 1:
+                    renderMode = RenderMode::EDGES;
                     glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
                     break;
                 case 2:
+                    renderMode = RenderMode::VERTICES;
                     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                     break;
                 }
@@ -51,24 +60,24 @@ namespace app {
         }
 
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-            glm::vec3 camRight = glm::normalize(glm::cross(mainCamera.front, mainCamera.up));
-            mainCamera.pos += glm::normalize(glm::cross(mainCamera.up, camRight)) * camSpeed * timer.deltaTime;
+            glm::vec3 camRight = glm::normalize(glm::cross(camera.front, camera.up));
+            camera.pos += glm::normalize(glm::cross(camera.up, camRight)) * camSpeed * timer.deltaTime;
         }
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-            glm::vec3 camRight = glm::normalize(glm::cross(mainCamera.front, mainCamera.up));
-            mainCamera.pos -= glm::normalize(glm::cross(mainCamera.up, camRight)) * camSpeed * timer.deltaTime;
+            glm::vec3 camRight = glm::normalize(glm::cross(camera.front, camera.up));
+            camera.pos -= glm::normalize(glm::cross(camera.up, camRight)) * camSpeed * timer.deltaTime;
         }
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-            mainCamera.pos -= glm::normalize(glm::cross(mainCamera.front, mainCamera.up)) * camSpeed * timer.deltaTime;
+            camera.pos -= glm::normalize(glm::cross(camera.front, camera.up)) * camSpeed * timer.deltaTime;
         }
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-            mainCamera.pos += glm::normalize(glm::cross(mainCamera.front, mainCamera.up)) * camSpeed * timer.deltaTime;
+            camera.pos += glm::normalize(glm::cross(camera.front, camera.up)) * camSpeed * timer.deltaTime;
         }
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            mainCamera.pos += camSpeed * mainCamera.up * timer.deltaTime;
+            camera.pos += camSpeed * camera.up * timer.deltaTime;
         }
         if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-            mainCamera.pos -= camSpeed * mainCamera.up * timer.deltaTime;
+            camera.pos -= camSpeed * camera.up * timer.deltaTime;
         }
 	}
 

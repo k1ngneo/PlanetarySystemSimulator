@@ -152,6 +152,7 @@ void Shader::compileShaders(const char* src, bool path) {
 		glGetShaderiv(m_VertexShaderID, GL_COMPILE_STATUS, &success);
 		if (!success) {
 			glGetShaderInfoLog(m_VertexShaderID, 512, NULL, infoLog);
+			std::cout << "Shader: " << src << '\n';
 			std::cout << "ERROR::VERTEX_SHADER::COMPILATION_FAILED\n" << infoLog << '\n';
 		}
 	}
@@ -165,6 +166,7 @@ void Shader::compileShaders(const char* src, bool path) {
 		glGetShaderiv(m_GeometryShaderID, GL_COMPILE_STATUS, &success);
 		if (!success) {
 			glGetShaderInfoLog(m_GeometryShaderID, 512, NULL, infoLog);
+			std::cout << "Shader: " << src << '\n';
 			std::cout << "ERROR::GEOMETRY_SHADER::COMPILATION_FAILED\n" << infoLog << '\n';
 		}
 	}
@@ -178,6 +180,7 @@ void Shader::compileShaders(const char* src, bool path) {
 		glGetShaderiv(m_FragmentShaderID, GL_COMPILE_STATUS, &success);
 		if (!success) {
 			glGetShaderInfoLog(m_FragmentShaderID, 512, NULL, infoLog);
+			std::cout << "Shader: " << src << '\n';
 			std::cout << "ERROR::FRAGMENT_SHADER::COMPILATION_FAILED\n" << infoLog << '\n';
 		}
 	}

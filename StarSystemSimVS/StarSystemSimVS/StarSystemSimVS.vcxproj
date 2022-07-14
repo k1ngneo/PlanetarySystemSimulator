@@ -167,6 +167,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\source\app\app.cpp" />
     <ClCompile Include="..\..\source\app\event_manager.cpp" />
     <ClCompile Include="..\..\source\glad.c" />
     <ClCompile Include="..\..\source\graphics\camera.cpp" />
