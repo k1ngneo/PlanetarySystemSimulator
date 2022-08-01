@@ -1,5 +1,7 @@
 #pragma once
 
+#include "StarSystemSim/graphics/shader.h"
+
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
 #include <glm/mat4x4.hpp>
@@ -8,6 +10,8 @@ namespace graphics {
 
 	class Object {
 	public:
+		virtual void draw(Shader& shader, uint32_t renderMode) = 0;
+
 		glm::mat4 modelMat;
 
 		void translate(const glm::vec3& trans);

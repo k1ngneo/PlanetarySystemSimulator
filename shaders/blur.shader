@@ -31,17 +31,17 @@ void main() {
 
 	if(_horizontal) {
 		for(int i = 1; i < 5; ++i) {
-			offsetPos = vec2(min(1.0, fragUV.x + texelSize.x * i), fragUV.y);
+			offsetPos = vec2(max(1.0, fragUV.x + texelSize.x * i), fragUV.y);
 			result += texture2D(_texture, offsetPos).rgb * _weight[i];
-			offsetPos = vec2(max(0.0, fragUV.x - texelSize.x * i), fragUV.y);
+			offsetPos = vec2(min(0.0, fragUV.x - texelSize.x * i), fragUV.y);
 			result += texture2D(_texture, offsetPos).rgb * _weight[i];
 		}
 	}
 	else {
 		for(int i = 1; i < 5; ++i) {
-			offsetPos = vec2(fragUV.x, min(1.0, fragUV.y + texelSize.y * i));
+			offsetPos = vec2(fragUV.x, max(1.0, fragUV.y + texelSize.y * i));
 			result += texture2D(_texture, offsetPos).rgb * _weight[i];
-			offsetPos = vec2(fragUV.x, max(0.0, fragUV.y - texelSize.y * i));
+			offsetPos = vec2(fragUV.x, min(0.0, fragUV.y - texelSize.y * i));
 			result += texture2D(_texture, offsetPos).rgb * _weight[i];
 		}
 	}

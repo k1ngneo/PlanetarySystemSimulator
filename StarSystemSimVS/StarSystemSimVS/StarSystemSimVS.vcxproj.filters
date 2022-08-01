@@ -230,5 +230,8 @@
     <ClInclude Include="..\..\include\StarSystemSim\app\app.h">
       <Filter>Header Files\StarSystemSim\app</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\StarSystemSim\graphics\render_mode.h">
+      <Filter>Header Files\StarSystemSim\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

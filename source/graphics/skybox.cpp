@@ -12,7 +12,6 @@ namespace graphics {
 		m_CubeMapTex(0)
 	{
 		initVAO();
-		loadTexture("models/skybox/");
 	}
 
 	Skybox::~Skybox() {
@@ -26,8 +25,8 @@ namespace graphics {
 
 	void Skybox::draw(Shader& shader) {
 		shader.use();
-
-		glActiveTexture(0);
+		
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, m_CubeMapTex);
 		shader.setUniform1i("_cubeMap", 0);
 
@@ -37,6 +36,39 @@ namespace graphics {
 		glBindVertexArray(0);
 		glDepthMask(GL_TRUE);
 		shader.unuse();
+	}
+
+	void Skybox::loadTexture(const std::string& path) {
+		if (!m_CubeMapTex)
+			glGenTextures(1, &m_CubeMapTex);
+
+		glBindTexture(GL_TEXTURE_CUBE_MAP, m_CubeMapTex);
+
+		auto loadTexture = [](const std::string& path, GLuint side) {
+			int width, height, nrChannels;
+			unsigned char* data = nullptr;
+			data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+			if (data) {
+				glTexImage2D(side, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+				stbi_image_free(data);
+			}
+			else {
+				utils::printError("Failed to load skybox texture");
+			}
+		};
+
+		loadTexture(path + "cubemap+x.jpg", GL_TEXTURE_CUBE_MAP_POSITIVE_X);
+		loadTexture(path + "cubemap-x.jpg", GL_TEXTURE_CUBE_MAP_NEGATIVE_X);
+		loadTexture(path + "cubemap+y.jpg", GL_TEXTURE_CUBE_MAP_POSITIVE_Y);
+		loadTexture(path + "cubemap-y.jpg", GL_TEXTURE_CUBE_MAP_NEGATIVE_Y);
+		loadTexture(path + "cubemap+z.jpg", GL_TEXTURE_CUBE_MAP_POSITIVE_Z);
+		loadTexture(path + "cubemap-z.jpg", GL_TEXTURE_CUBE_MAP_NEGATIVE_Z);
+
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	}
 
 	void Skybox::initVAO() {
@@ -79,39 +111,6 @@ namespace graphics {
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 36 * sizeof(GLuint), indices, GL_STATIC_DRAW);
 		
 		glBindVertexArray(0);
-	}
-
-	void Skybox::loadTexture(const std::string& path) {
-		if (!m_CubeMapTex)
-			glGenTextures(1, &m_CubeMapTex);
-
-		glBindTexture(GL_TEXTURE_CUBE_MAP, m_CubeMapTex);
-
-		auto loadTexture = [](const std::string& path, GLuint side) {
-			int width, height, nrChannels;
-			unsigned char* data = nullptr;
-			data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
-			if (data) {
-				glTexImage2D(side, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-				stbi_image_free(data);
-			}
-			else {
-				utils::printError("Failed to load skybox texture");
-			}
-		};
-
-		loadTexture(path + "cubemap+x.jpg", GL_TEXTURE_CUBE_MAP_POSITIVE_X);
-		loadTexture(path + "cubemap-x.jpg", GL_TEXTURE_CUBE_MAP_NEGATIVE_X);
-		loadTexture(path + "cubemap+y.jpg", GL_TEXTURE_CUBE_MAP_POSITIVE_Y);
-		loadTexture(path + "cubemap-y.jpg", GL_TEXTURE_CUBE_MAP_NEGATIVE_Y);
-		loadTexture(path + "cubemap+z.jpg", GL_TEXTURE_CUBE_MAP_POSITIVE_Z);
-		loadTexture(path + "cubemap-z.jpg", GL_TEXTURE_CUBE_MAP_NEGATIVE_Z);
-
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	}
 
 }

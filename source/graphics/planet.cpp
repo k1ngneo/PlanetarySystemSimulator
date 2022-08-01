@@ -404,8 +404,6 @@ namespace graphics {
 			return loadedTextures[path];
 		}
 
-		utils::print("Loading texture... %s", path.c_str());
-
 		// load and generate the texture
 		int width, height, nrChannels;
 		unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
@@ -434,6 +432,7 @@ namespace graphics {
 		stbi_image_free(data);
 
 		loadedTextures.insert(std::pair<std::string, GLuint>(path, textureID));
+		utils::print("Loaded texture: %s", path.c_str());
 
 		return textureID;
 	}

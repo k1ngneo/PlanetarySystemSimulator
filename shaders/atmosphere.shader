@@ -67,7 +67,8 @@ in struct FragData {
     Light light1;
 } fragData;
 
-out vec4 outColor;
+layout (location = 0) out vec4 outColor;
+layout (location = 1) out float outLuminosity;
 
 float calcPointLight(Light light) {
     vec3 lightSum;
@@ -95,4 +96,7 @@ float calcPointLight(Light light) {
 void main() {
 	float colorAlpha = calcPointLight(fragData.light1);
     outColor = vec4(0.1, 0.1, 0.9, colorAlpha);
+
+    // calculating luminosity for FXAA
+    outLuminosity = sqrt(0.299 * outColor.r + 0.587 * outColor.g + 0.114 * outColor.b);
 }

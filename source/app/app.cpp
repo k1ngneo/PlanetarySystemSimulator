@@ -7,9 +7,12 @@
 #include <imgui/imgui_impl_opengl3.h>
 
 #include <glm/vec2.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <cstdlib>
 
+utils::Timer App::mainTimer;
+utils::Timer App::frameClock;
 App* App::s_Instance = nullptr;
 extern graphics::Renderer* renderer;
 
@@ -26,6 +29,24 @@ void App::clear() {
     delete s_Instance;
     s_Instance = nullptr;
     glfwTerminate();
+}
+
+uint32_t App::getWindowWidth() {
+    if (s_Instance) {
+        return s_Instance->m_ScrWidth;
+    }
+    else {
+        return 0;
+    }
+}
+
+uint32_t App::getWindowHeight() {
+    if (s_Instance) {
+        return s_Instance->m_ScrHeight;
+    }
+    else {
+        return 0;
+    }
 }
 
 App::App(uint32_t windowWidth, uint32_t windowHeight)
@@ -71,6 +92,8 @@ App::App(uint32_t windowWidth, uint32_t windowHeight)
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
+
+    mainCamera.projMatrix = glm::perspective(mainCamera.fov, (float)m_ScrWidth / (float)m_ScrHeight, 0.1f, 200.0f);
 }
 
 App::~App() {
@@ -84,6 +107,8 @@ App::~App() {
 void App::resize(uint32_t width, uint32_t height) {
     m_ScrWidth = width;
     m_ScrHeight = height;
+
+    mainCamera.projMatrix = glm::perspective(mainCamera.fov, (float)App::getWindowWidth() / (float)App::getWindowHeight(), 0.1f, 200.0f);
 }
 
 namespace app {
@@ -129,11 +154,15 @@ namespace app {
     }
 
     void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-        App::s_Instance->mainCamera.fov -= (float)yoffset;
-        if (App::s_Instance->mainCamera.fov < 1.0f)
-            App::s_Instance->mainCamera.fov = 1.0f;
-        if (App::s_Instance->mainCamera.fov > 45.0f)
-            App::s_Instance->mainCamera.fov = 45.0f;
+        graphics::Camera& camera = App::s_Instance->mainCamera;
+
+        camera.fov -= 0.01f * (float)yoffset;
+        if (camera.fov < 1.0f)
+            camera.fov = 1.0f;
+        if (camera.fov > 45.0f)
+            camera.fov = 45.0f;
+
+        camera.projMatrix = glm::perspective(camera.fov, (float)App::getWindowWidth() / (float)App::getWindowHeight(), 0.1f, 200.0f);
     }
 
     void framebuffer_size_callback(GLFWwindow* window, int width, int height) {

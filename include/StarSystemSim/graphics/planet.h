@@ -14,7 +14,7 @@ namespace graphics {
 		Planet(const char* name);
 		~Planet();
 
-		void draw(Shader& shader, uint32_t renderMode = GL_TRIANGLES);
+		void draw(Shader& shader, uint32_t renderMode = GL_TRIANGLES) override;
 
 		void setPos(const glm::vec3& position);
 		glm::vec3 getPos();

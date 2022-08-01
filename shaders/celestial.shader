@@ -24,7 +24,6 @@ uniform mat4 _modelMat;
 uniform vec3 _viewPos;
 
 uniform Light _light1;
-uniform Light _light2;
 
 out struct FragData {
     vec3 pos;
@@ -93,7 +92,6 @@ struct Material {
     vec3 night;
 };
 
-uniform Material _surfM;
 uniform mat4 _viewMat;
 
 uniform sampler2D _diffTex;
@@ -105,7 +103,8 @@ uniform sampler2D _otherTex2;
 
 uniform float _time;
 
-out vec4 outColor;
+layout (location = 0) out vec4 outColor;
+layout (location = 1) out vec4 outHDRColor;
 
 vec3 calcPointLight(Light light, Material mater) {
     vec3 lightSum;
@@ -132,10 +131,10 @@ vec3 calcPointLight(Light light, Material mater) {
 
 void main() {
     Material mater;
-    mater.amb = _surfM.amb;
-    mater.diff = _surfM.diff * texture2D(_diffTex, fragData.uv).rgb;
-    mater.spec = _surfM.spec * texture2D(_specTex, fragData.uv).rgb;
-    mater.shine = _surfM.shine;
+    mater.amb = vec3(0.0);
+    mater.diff = texture2D(_diffTex, fragData.uv).rgb;
+    mater.spec = texture2D(_specTex, fragData.uv).rgb;
+    mater.shine = 32.0;
 
     float waveSize = 20.0;
     vec3 wave1 = texture2D(_otherTex1, waveSize*fragData.uv + 0.03*vec2(_time, 0.0)).rgb;
@@ -151,7 +150,8 @@ void main() {
     vec3 pointLights = calcPointLight(fragData.light1, mater);
 
     float darkness = 0.3334 * (pointLights.r + pointLights.g + pointLights.b);
-    vec3 nightLights = smoothstep(0.1, 0.0, darkness) * mater.night;
+    vec3 nightLights = smoothstep(0.08, 0.0, darkness) * mater.night;
 
     outColor = vec4(pointLights + nightLights, 1.0);
+    outHDRColor = vec4(0.0, 0.0, 0.0, 1.0);
 }

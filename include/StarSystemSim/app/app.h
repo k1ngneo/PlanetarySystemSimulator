@@ -1,6 +1,7 @@
 #pragma once
 
 #include <StarSystemSim/graphics/camera.h>
+#include <StarSystemSim/utilities/timer.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -11,8 +12,14 @@
 
 
 struct App {
-	static void start(uint32_t width = 900, uint32_t height = 600);
+	static utils::Timer mainTimer;
+	static utils::Timer frameClock;
+
+	static void start(uint32_t width = 1400, uint32_t height = 900);
 	static void clear();
+
+	static uint32_t getWindowWidth();
+	static uint32_t getWindowHeight();
 
 	static App* s_Instance;
 
@@ -27,8 +34,6 @@ struct App {
 	App(uint32_t windowWidth, uint32_t windowHeight);
 	~App();
 
-	inline uint32_t getWindowWidth() { return m_ScrWidth; }
-	inline uint32_t getWindowHeight() { return m_ScrHeight; }
 
 	void resize(uint32_t width, uint32_t height);
 

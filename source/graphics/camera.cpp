@@ -19,19 +19,23 @@ namespace graphics {
 
         this->target = nullptr;
 
+        this->viewMatrix = glm::mat4x4(1.0f);
+        this->projMatrix = glm::mat4x4(1.0f);
+
         m_PosRelTarget = { 0.0f, 0.0f, 0.0f };
 	}
 
-    glm::mat4 Camera::lookAround() {
+    glm::mat4& Camera::lookAround() {
         this->dir.x = cos(glm::radians(this->yaw)) * cos(glm::radians(this->pitch));
         this->dir.y = sin(glm::radians(this->pitch));
         this->dir.z = sin(glm::radians(this->yaw)) * cos(glm::radians(this->pitch));
         this->front = glm::normalize(this->dir);
 
-        return glm::lookAt(this->pos, this->front, this->up);
+        this->viewMatrix = glm::lookAt(this->pos, this->front, this->up);
+        return this->viewMatrix;
     }
 
-    glm::mat4 Camera::lookAt(const glm::vec3& target, bool justFollow) {
+    glm::mat4& Camera::lookAt(const glm::vec3& target, bool justFollow) {
         if (!justFollow) {
             float radPitch = glm::radians(this->pitch);
             float radYaw = glm::radians(this->yaw);
@@ -45,7 +49,8 @@ namespace graphics {
 
         this->pos = target + m_PosRelTarget;
 
-        return glm::lookAt(this->pos, target, this->up);
+        this->viewMatrix = glm::lookAt(this->pos, target, this->up);
+        return this->viewMatrix;
     }
 
 }

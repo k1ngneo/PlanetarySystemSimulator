@@ -20,9 +20,11 @@ in vec3 fragUV;
 
 uniform samplerCube _cubeMap;
 
-out vec4 outColor;
+layout (location = 0) out vec4 outColor;
+layout (location = 1) out vec4 outHDRColor;
 
 void main() {
 	vec3 background = texture(_cubeMap, fragUV).rgb;
 	outColor = vec4(background, 1.0);
+	outHDRColor = vec4(vec3(0.0), 1.0);
 }

@@ -1,8 +1,8 @@
 #vertex_shader
 #version 330 core
 
-layout (location=0) in vec2 inPos;
-layout (location=1) in vec2 inUV;
+layout (location = 0) in vec2 inPos;
+layout (location = 1) in vec2 inUV;
 
 out vec2 fragUV;
 
@@ -26,37 +26,18 @@ void main() {
 	vec3 bloom = texture2D(_bloomTex, fragUV).rgb;
 
 	vec2 uvOffset = textureSize(_texture, 0);
-	vec2 offsets[9] = vec2[] (
-		vec2(-uvOffset.x,  uvOffset.y),
-		vec2(        0.0,  uvOffset.y),
-		vec2( uvOffset.x,  uvOffset.y),
-		vec2(-uvOffset.x,         0.0),
-		vec2(        0.0,         0.0),
-		vec2( uvOffset.x,         0.0),
-		vec2(-uvOffset.x, -uvOffset.y),
-		vec2(        0.0, -uvOffset.y),
-		vec2( uvOffset.x, -uvOffset.y)
+	vec2 invScrSize = 1.0 / uvOffset;
+	vec2 offsets[8] = vec2[] (
+		vec2(-uvOffset.x,  uvOffset.y), // (0) left up
+		vec2(        0.0,  uvOffset.y), // (1) up
+		vec2( uvOffset.x,  uvOffset.y), // (2) right up
+		vec2(-uvOffset.x,         0.0), // (3) left
+		vec2( uvOffset.x,         0.0), // (4) right
+		vec2(-uvOffset.x, -uvOffset.y), // (5) left down
+		vec2(        0.0, -uvOffset.y), // (6) down
+		vec2( uvOffset.x, -uvOffset.y)  // (7) right down
 	);
 
-	float edgesKernel[9] = float[] (
-		1.0, 1.0, 1.0,
-		1.0, -7.0, 1.0,
-		1.0, 1.0, 1.0
-	);
-
-	// normalizing kernel
-	float sum = 0.0;
-	for(int i = 0; i < 9; ++i) {
-		sum += edgesKernel[i];
-	}
-	for(int i = 0; i < 9; ++i) {
-		edgesKernel[i] /= sum;
-	}
-
-	vec3 smoothedImage = vec3(0.0, 0.0, 0.0);
-	for(int i = 0; i < 9; ++i) {
-		smoothedImage += texture2D(_texture, fragUV + offsets[i]).rgb * edgesKernel[i];
-	}
-
-	outColor = vec4(mainImage + bloom, 1.0);
+	outColor = vec4(mainImage, 1.0);
+	//outColor = vec4(bloom, 1.0);
 }

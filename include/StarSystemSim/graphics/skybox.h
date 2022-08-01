@@ -12,13 +12,13 @@ namespace graphics {
 		~Skybox();
 
 		void draw(Shader& shader);
+		void loadTexture(const std::string& path);
 
 	private:
 		unsigned int m_VAO, m_VBO, m_EBO;
 		unsigned int m_CubeMapTex;
 
 		void initVAO();
-		void loadTexture(const std::string& path);
 	};
 
 }
