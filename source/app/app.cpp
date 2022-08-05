@@ -156,11 +156,20 @@ namespace app {
     void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
         graphics::Camera& camera = App::s_Instance->mainCamera;
 
-        camera.fov -= 0.01f * (float)yoffset;
-        if (camera.fov < 1.0f)
-            camera.fov = 1.0f;
-        if (camera.fov > 45.0f)
-            camera.fov = 45.0f;
+        if (camera.mode == graphics::Camera::Mode::LOOK_AROUND) {
+            camera.fov -= 0.01f * (float)yoffset;
+            if (camera.fov < 1.0f)
+                camera.fov = 1.0f;
+            if (camera.fov > 45.0f)
+                camera.fov = 45.0f;
+        }
+        else if (camera.mode == graphics::Camera::Mode::LOOK_AT) {
+            camera.radius += 0.01f * (float)yoffset;
+            if (camera.radius < 1.0f)
+                camera.radius = 1.0f;
+            if (camera.radius > 10.0f)
+                camera.radius = 10.0f;
+        }
 
         camera.projMatrix = glm::perspective(camera.fov, (float)App::getWindowWidth() / (float)App::getWindowHeight(), 0.1f, 200.0f);
     }

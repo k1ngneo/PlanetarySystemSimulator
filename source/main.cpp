@@ -61,6 +61,8 @@ int main() {
 
     physicsEngine.paused = true;
 
+    camera.mode = graphics::Camera::Mode::LOOK_AT;
+    camera.radius = 3.14f;
     camera.target = &earth;
     //camera.target = &sun;
 
@@ -79,11 +81,7 @@ int main() {
         camera.dir = camera.target->getPos() - camera.pos;
 
         if (!App::s_Instance->isCursorVisible) {
-            //lookAroundCam(viewMat);
-            *viewMat4 = camera.lookAt(((graphics::Planet*)(camera.target))->getPos());
-        }
-        else {
-            *viewMat4 = camera.lookAt(((graphics::Planet*)(camera.target))->getPos(), true);
+            camera.update(viewMat4);
         }
 
         // ImGui preparing for a new frame

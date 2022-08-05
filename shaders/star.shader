@@ -28,5 +28,5 @@ layout (location = 1) out vec4 outHDRColor;
 void main() {
 	vec3 texCol = texture2D(_diffTex, fragUV).rgb;
 	outColor = vec4(texCol, 1.0);
-	outHDRColor = vec4(100.0 * outColor.rgb, 1.0);
+	outHDRColor = vec4(10.0 * outColor.rgb, 1.0);
 }

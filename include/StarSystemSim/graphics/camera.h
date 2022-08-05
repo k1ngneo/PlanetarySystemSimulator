@@ -9,9 +9,11 @@ namespace graphics {
 
     class Camera {
     public:
-        glm::mat4& lookAround();
-        glm::mat4& lookAt(const glm::vec3& target, bool justFollow = false);
+        enum class Mode {
+            LOOK_AROUND, LOOK_AT
+        } mode;
 
+        void update(glm::mat4x4* viewMatrix = nullptr);
 
         glm::vec3 pos;
         glm::vec3 front;
@@ -20,7 +22,9 @@ namespace graphics {
         glm::vec3 dir;
 
         float pitch, yaw, roll;
+
         float fov;
+        float radius;
 
         Object* target;
 
@@ -30,6 +34,8 @@ namespace graphics {
         Camera(const glm::vec3& pos);
 
     private:
+        glm::mat4& lookAround();
+        glm::mat4& lookAt(const glm::vec3& target, bool justFollow = false);
         glm::vec3 m_PosRelTarget;
     };
 

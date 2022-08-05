@@ -38,6 +38,20 @@ void main() {
 		vec2( uvOffset.x, -uvOffset.y)  // (7) right down
 	);
 
-	outColor = vec4(mainImage, 1.0);
-	//outColor = vec4(bloom, 1.0);
+	/*float middlePixelX = uvOffset.x * 0.5;
+	float middlePixelY = uvOffset.y * 0.5;
+	if(fragUV.x * uvOffset.x > middlePixelX - 1.0 && fragUV.x * uvOffset.x < middlePixelX + 1.0) {
+		outColor = vec4(vec3(0.1), 1.0);
+	}
+	else if(fragUV.y * uvOffset.y <= middlePixelY + 1.0 && fragUV.y * uvOffset.y >= middlePixelY - 1.0) {
+		outColor = vec4(vec3(0.1), 1.0);
+	}
+	else if(fragUV.y * uvOffset.y < middlePixelY - 1.0){
+		outColor = vec4(bloom, 1.0);
+	}
+	else{
+		outColor = vec4(mainImage + bloom, 1.0);
+	}*/
+
+	outColor = vec4(mainImage + bloom, 1.0);
 }

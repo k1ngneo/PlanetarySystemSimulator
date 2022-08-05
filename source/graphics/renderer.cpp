@@ -23,7 +23,7 @@ namespace graphics {
 		}
 
 		for (int i = 0; i < s_TEXTURE_COUNT; ++i) {
-			m_ScreenTextures[i] = 0;
+			m_BlurTextures[i] = 0;
 		}
 
 		setupFramebuffers();
@@ -63,75 +63,78 @@ namespace graphics {
 			glDeleteTextures(1, &m_MainTexture);
 		if (!m_HDRTexture)
 			glDeleteTextures(1, &m_HDRTexture);
-		if (!m_ScreenTextures[0])
-			glDeleteTextures(s_TEXTURE_COUNT, m_ScreenTextures);
+		if (!m_BlurTextures[0])
+			glDeleteTextures(s_TEXTURE_COUNT, m_BlurTextures);
 	}
 
 	void Renderer::drawFrame(uint32_t renderMode) {
 
-		glBindFramebuffer(GL_FRAMEBUFFER, m_MSFramebuffer);
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glEnable(GL_DEPTH_TEST);
-		glDisable(GL_BLEND);
-
-		// drawing skybox
+		// rendering scene's objects
 		{
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glBindFramebuffer(GL_FRAMEBUFFER, m_MSFramebuffer);
+			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glEnable(GL_DEPTH_TEST);
+			glDisable(GL_BLEND);
 
-			m_SkyboxShader.use();
-			m_SkyboxShader.setUniformMat4("_projMat", App::s_Instance->mainCamera.projMatrix);
-			m_SkyboxShader.setUniformMat4("_viewMat", glm::mat4(glm::mat3(App::s_Instance->mainCamera.viewMatrix)));
-			m_SkyboxShader.unuse();
-
-			m_Skybox.draw(m_SkyboxShader);
-		}
-
-		switch ((RenderMode)renderMode) {
-			case RenderMode::FACES:
+			// drawing skybox
+			{
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				break;
-			case RenderMode::LINES:
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				break;
-			case RenderMode::POINTS:
-				glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-				break;
-			default:
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		}
 
-		// drawing stars
-		{
-			m_StarShader.use();
-			m_StarShader.setUniformMat4("_projMat", App::s_Instance->mainCamera.projMatrix);
-			m_StarShader.setUniformMat4("_viewMat", App::s_Instance->mainCamera.viewMatrix);
-			m_StarShader.unuse();
+				m_SkyboxShader.use();
+				m_SkyboxShader.setUniformMat4("_projMat", App::s_Instance->mainCamera.projMatrix);
+				m_SkyboxShader.setUniformMat4("_viewMat", glm::mat4(glm::mat3(App::s_Instance->mainCamera.viewMatrix)));
+				m_SkyboxShader.unuse();
 
-			for (Star* star : m_Stars) {
-				star->draw(m_StarShader);
+				m_Skybox.draw(m_SkyboxShader);
 			}
-		}
 
-		// drawing planets
-		{
-			m_CelestialShader.use();
-			m_CelestialShader.setUniformMat4("_projMat", App::s_Instance->mainCamera.projMatrix);
-			m_CelestialShader.setUniformMat4("_viewMat", App::s_Instance->mainCamera.viewMatrix);
+			switch ((RenderMode)renderMode) {
+				case RenderMode::FACES:
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+					break;
+				case RenderMode::LINES:
+					glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+					break;
+				case RenderMode::POINTS:
+					glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+					break;
+				default:
+					glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			}
 
-			m_CelestialShader.setUniform3f("_viewPos", App::s_Instance->mainCamera.pos);
+			// drawing stars
+			{
+				m_StarShader.use();
+				m_StarShader.setUniformMat4("_projMat", App::s_Instance->mainCamera.projMatrix);
+				m_StarShader.setUniformMat4("_viewMat", App::s_Instance->mainCamera.viewMatrix);
+				m_StarShader.unuse();
 
-			m_CelestialShader.setUniform3f("_light1.pos", m_Stars[0]->getPos());
-			m_CelestialShader.setUniform3f("_light1.amb", m_Stars[0]->ambientColor);
-			m_CelestialShader.setUniform3f("_light1.diff", m_Stars[0]->diffuseColor);
-			m_CelestialShader.setUniform3f("_light1.spec", m_Stars[0]->specularColor);
-			m_CelestialShader.setUniform3f("_light1.attenuation", m_Stars[0]->attenuation);
+				for (Star* star : m_Stars) {
+					star->draw(m_StarShader);
+				}
+			}
 
-			m_CelestialShader.setUniform1f("_time", App::mainTimer.lastTime);
-			m_CelestialShader.unuse();
+			// drawing planets
+			{
+				m_CelestialShader.use();
+				m_CelestialShader.setUniformMat4("_projMat", App::s_Instance->mainCamera.projMatrix);
+				m_CelestialShader.setUniformMat4("_viewMat", App::s_Instance->mainCamera.viewMatrix);
 
-			for (Object* object : m_Objects) {
-				object->draw(m_CelestialShader, GL_TRIANGLES);
+				m_CelestialShader.setUniform3f("_viewPos", App::s_Instance->mainCamera.pos);
+
+				m_CelestialShader.setUniform3f("_light1.pos", m_Stars[0]->getPos());
+				m_CelestialShader.setUniform3f("_light1.amb", m_Stars[0]->ambientColor);
+				m_CelestialShader.setUniform3f("_light1.diff", m_Stars[0]->diffuseColor);
+				m_CelestialShader.setUniform3f("_light1.spec", m_Stars[0]->specularColor);
+				m_CelestialShader.setUniform3f("_light1.attenuation", m_Stars[0]->attenuation);
+
+				m_CelestialShader.setUniform1f("_time", App::mainTimer.lastTime);
+				m_CelestialShader.unuse();
+
+				for (Object* object : m_Objects) {
+					object->draw(m_CelestialShader, GL_TRIANGLES);
+				}
 			}
 		}
 		
@@ -151,74 +154,59 @@ namespace graphics {
 			glReadBuffer(GL_COLOR_ATTACHMENT1);
 			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_IntermediateMSFramebuffer);
 			glDrawBuffer(GL_COLOR_ATTACHMENT1);
-			glClearColor(1.0f, 0.1f, 0.1f, 1.0);
-			glClear(GL_COLOR_BUFFER_BIT);
 			glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_LINEAR);
 		}
 
-		// preparing starting texture for bloom effect
-		//{
-		//	glBindFramebuffer(GL_FRAMEBUFFER, m_HDRFramebuffer);
-		//	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		//	glClear(GL_COLOR_BUFFER_BIT);
-		//	
-		//	m_HDRShader.use();
-		//
-		//	glActiveTexture(GL_TEXTURE0);
-		//	glBindTexture(GL_TEXTURE_2D, m_MainTexture);
-		//	m_HDRShader.setUniform1i("_texture", 0);
-		//
-		//	glBindVertexArray(m_VAO);
-		//	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
-		//	glBindVertexArray(0);
-		//	m_HDRShader.unuse();
-		//}
+		glDisable(GL_DEPTH_TEST);
 
 		// calculating bloom effect
-		//m_BlurShader.use();
-		//
-		//bool horizontal = true;
-		//
-		//glBindVertexArray(m_VAO);
-		//for (int i = 0; i < this->blurStr * 2; ++i) {
-		//	int inputTextureIndex = 2 + ((i + 1) % 2);
-		//	glBindFramebuffer(GL_FRAMEBUFFER, m_BlurFramebuffers[i % 2]);
-		//	glClearColor(0.0, 0.0, 0.0, 1.0);
-		//	glClear(GL_COLOR_BUFFER_BIT);
-		//
-		//	m_BlurShader.setUniform1i("_texture", 0);
-		//	glActiveTexture(GL_TEXTURE0);
-		//	if(i == 0)
-		//		glBindTexture(GL_TEXTURE_2D, m_ScreenTextures[1]);
-		//	else
-		//		glBindTexture(GL_TEXTURE_2D, m_ScreenTextures[inputTextureIndex]);
-		//
-		//	m_BlurShader.setUniform1i("_horizontal", horizontal);
-		//	horizontal = !horizontal;
-		//
-		//	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
-		//}
-		//
-		//m_BlurShader.unuse();
+		{
+			m_BlurShader.use();
+		
+			bool horizontal = true;
+		
+			glBindVertexArray(m_VAO);
+			for (int i = 0; i < this->blurStr * 2; ++i) {
+				int inputTextureIndex = ((i + 1) % 2);
+				glBindFramebuffer(GL_FRAMEBUFFER, m_BlurFramebuffers[i % 2]);
+				//glClearColor(0.0, 0.0, 0.0, 1.0);
+				//glClear(GL_COLOR_BUFFER_BIT);
+		
+				m_BlurShader.setUniform1i("_texture", 0);
+				glActiveTexture(GL_TEXTURE0);
+				if(i == 0)
+					glBindTexture(GL_TEXTURE_2D, m_HDRTexture);
+				else
+					glBindTexture(GL_TEXTURE_2D, m_BlurTextures[inputTextureIndex]);
+		
+				m_BlurShader.setUniform1i("_horizontal", horizontal);
+				horizontal = !horizontal;
+		
+				glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
+			}
+
+			m_BlurShader.unuse();
+		}
+		
 
 		// drawing to screen
 		{
 			glViewport(0, 0, App::getWindowWidth(), App::getWindowHeight());
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		
+			
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
-		
+			
 			m_PostprocessingShader.use();
 			m_PostprocessingShader.setUniform1i("_texture", 0);
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, m_MainTexture);
-		
+			
 			m_PostprocessingShader.setUniform1i("_bloomTex", 1);
 			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, m_HDRTexture);
-		
+			glBindTexture(GL_TEXTURE_2D, m_BlurTextures[0]);
+			
 			glBindVertexArray(m_VAO);
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 			glBindVertexArray(0);
@@ -227,6 +215,7 @@ namespace graphics {
 
 		m_PostprocessingShader.reload();
 		m_CelestialShader.reload();
+		m_BlurShader.reload();
 	}
 
 	void Renderer::resize() {
@@ -242,7 +231,6 @@ namespace graphics {
 	}
 
 	void Renderer::setupFramebuffers() {
-
 		// reloading framebuffers if necessary
 		{
 			if (m_MSFramebuffer)
@@ -264,18 +252,6 @@ namespace graphics {
 
 		// setting up textures
 		{
-			if (m_ScreenTextures[0] != 0)
-				glDeleteTextures(s_TEXTURE_COUNT, m_ScreenTextures);
-
-			glGenTextures(s_TEXTURE_COUNT, m_ScreenTextures);
-			for (int textureInd = 0; textureInd < s_TEXTURE_COUNT; ++textureInd) {
-				glBindTexture(GL_TEXTURE_2D, m_ScreenTextures[textureInd]);
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, App::getWindowWidth(), App::getWindowHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				glBindTexture(GL_TEXTURE_2D, 0);
-			}
-
 			// Main Texture
 			{
 				if (m_MainTexture)
@@ -301,12 +277,28 @@ namespace graphics {
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 				glBindTexture(GL_TEXTURE_2D, 0);
 			}
+
+			// switching blur buffer textures
+			{
+				if (m_BlurTextures[0] != 0)
+					glDeleteTextures(s_TEXTURE_COUNT, m_BlurTextures);
+
+				glGenTextures(s_TEXTURE_COUNT, m_BlurTextures);
+				for (int textureInd = 0; textureInd < s_TEXTURE_COUNT; ++textureInd) {
+					glBindTexture(GL_TEXTURE_2D, m_BlurTextures[textureInd]);
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, App::getWindowWidth(), App::getWindowHeight(), 0, GL_RGB, GL_FLOAT, nullptr);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+					glBindTexture(GL_TEXTURE_2D, 0);
+				}
+			}
 		}
 
 		// main (lighting) framebuffer
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, m_MSFramebuffer);
 			
+			unsigned int colorAttachments[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 
 			if (m_RenderBuffers[0] != 0)
 				glDeleteRenderbuffers(3, m_RenderBuffers);
@@ -326,24 +318,10 @@ namespace graphics {
 			glBindRenderbuffer(GL_RENDERBUFFER, 0);
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_RenderBuffers[2]);
 
+			glDrawBuffers(2, colorAttachments);
 
 			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 				utils::printError("Failed to create main frame buffer!");
-			}
-		}
-
-		// HDR transition framebuffer
-		{
-			unsigned int colorAttachments[] = { GL_COLOR_ATTACHMENT0 };
-
-			glBindFramebuffer(GL_FRAMEBUFFER, m_HDRFramebuffer);
-
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_HDRTexture, 0);
-
-			glDrawBuffers(1, colorAttachments);
-
-			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-				utils::printError("Failed to create HDR frame buffer");
 			}
 		}
 
@@ -353,7 +331,7 @@ namespace graphics {
 			
 			for (int i = 0; i < 2; ++i) {
 				glBindFramebuffer(GL_FRAMEBUFFER, m_BlurFramebuffers[i]);
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ScreenTextures[i], 0);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_BlurTextures[i], 0);
 
 				glDrawBuffers(1, colorAttachments);
 

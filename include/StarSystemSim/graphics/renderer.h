@@ -44,14 +44,14 @@ namespace graphics {
 		// switching blur framebuffers
 		unsigned int m_BlurFramebuffers[2];
 
-		static const size_t s_TEXTURE_COUNT = 2;
 		// Textures:
 		// Main texture
 		unsigned int m_MainTexture;
 		// HDR texture
 		unsigned int m_HDRTexture;
 		// 2. and 3. buffers for blur calculations
-		unsigned int m_ScreenTextures[s_TEXTURE_COUNT];
+		static const size_t s_TEXTURE_COUNT = 2;
+		unsigned int m_BlurTextures[s_TEXTURE_COUNT];
 
 		// multisampled render buffers
 		unsigned int m_RenderBuffers[3];
