@@ -62,7 +62,7 @@ App::App(uint32_t windowWidth, uint32_t windowHeight)
 
     // setting up window and OpenGL
     glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_SAMPLES, 4);
@@ -164,7 +164,7 @@ namespace app {
                 camera.fov = 45.0f;
         }
         else if (camera.mode == graphics::Camera::Mode::LOOK_AT) {
-            camera.radius += 0.01f * (float)yoffset;
+            camera.radius -= 0.05f * (float)yoffset;
             if (camera.radius < 1.0f)
                 camera.radius = 1.0f;
             if (camera.radius > 10.0f)

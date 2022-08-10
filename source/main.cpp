@@ -107,7 +107,7 @@ int main() {
             ImGui::Text("Camera\n");
             ImGui::Text("Yaw: %.1f\nPitch: %.1f", camera.yaw, camera.pitch);
 
-            ImGui::SliderInt("Blur Strength", &renderer->blurStr, 0, 20);
+            ImGui::SliderInt("Blur Step", &renderer->currentBloomTexture, 0, renderer->getBloomTextureCount()-1);
 
             ImGui::End();
         }

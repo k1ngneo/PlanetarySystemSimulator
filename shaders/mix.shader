@@ -16,14 +16,12 @@ void main() {
 
 in vec2 fragUV;
 
-uniform sampler2D _texture;
-uniform sampler2D _bloomTex;
+uniform sampler2D _texture1;
+uniform sampler2D _texture2;
 
 layout (location = 0) out vec4 outColor;
 
 void main() {
-	vec3 mainImage = texture2D(_texture, fragUV).rgb;
-	vec3 bloom = texture2D(_bloomTex, fragUV).rgb;
-
-	outColor = vec4(mainImage + bloom, 1.0);
+	vec3 mixedColors = 0.5 * (texture2D(_texture1, fragUV).rgb + texture2D(_texture2, fragUV).rgb);
+	outColor = vec4(mixedColors, 1.0);
 }

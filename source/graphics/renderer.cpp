@@ -7,23 +7,20 @@
 #include <glad/glad.h>
 #include <glm/vec2.hpp>
 
+#include <memory>
+
 namespace graphics {
 
 	Renderer::Renderer()
 		: m_VAO(0), m_VBO(0), m_EBO(0),
 		MSAA_samples(8), blurStr(5),
-		m_MSFramebuffer(0), m_HDRFramebuffer(0), m_IntermediateMSFramebuffer(0),
-		m_MainTexture(0), m_HDRTexture(0)
+		m_MSFramebuffer(0), m_HDRFramebuffer(0), m_IntermediateMSFramebuffer(0), m_BloomFramebuffers(nullptr),
+		m_MainTexture(0), m_HDRTexture(0), m_BloomTextures(nullptr)
 	{
-		m_BlurFramebuffers[0] = 0;
-		m_BlurFramebuffers[1] = 0;
+		this->currentBloomTexture = 1;
 
 		for (int i = 0; i < 3; ++i) {
 			m_RenderBuffers[i] = 0;
-		}
-
-		for (int i = 0; i < s_TEXTURE_COUNT; ++i) {
-			m_BlurTextures[i] = 0;
 		}
 
 		setupFramebuffers();
@@ -41,30 +38,32 @@ namespace graphics {
 	}
 
 	Renderer::~Renderer() {
-		if (!m_VAO)
+		if (m_VAO)
 			glDeleteVertexArrays(1, &m_VAO);
-		if (!m_VBO)
+		if (m_VBO)
 			glDeleteBuffers(1, &m_VBO);
-		if (!m_EBO)
+		if (m_EBO)
 			glDeleteBuffers(1, &m_EBO);
-		if (!m_MSFramebuffer)
+		if (m_MSFramebuffer)
 			glDeleteFramebuffers(1, &m_MSFramebuffer);
-		if (!m_IntermediateMSFramebuffer)
+		if (m_IntermediateMSFramebuffer)
 			glDeleteFramebuffers(1, &m_IntermediateMSFramebuffer);
-		if (!m_HDRFramebuffer)
+		if (m_HDRFramebuffer)
 			glDeleteFramebuffers(1, &m_HDRFramebuffer);
-		if (!m_BlurFramebuffers[0])
-			glDeleteFramebuffers(1, &m_BlurFramebuffers[0]);
-		if (!m_BlurFramebuffers[1])
-			glDeleteFramebuffers(1, &m_BlurFramebuffers[1]);
-		if (!m_RenderBuffers[0])
+		if (m_BloomFramebuffers) {
+			glDeleteFramebuffers(m_BloomTextureCount, m_BloomFramebuffers);
+			delete[] m_BloomFramebuffers;
+		}
+		if (m_RenderBuffers[0])
 			glDeleteRenderbuffers(3, m_RenderBuffers);
-		if (!m_MainTexture)
+		if (m_MainTexture)
 			glDeleteTextures(1, &m_MainTexture);
-		if (!m_HDRTexture)
+		if (m_HDRTexture)
 			glDeleteTextures(1, &m_HDRTexture);
-		if (!m_BlurTextures[0])
-			glDeleteTextures(s_TEXTURE_COUNT, m_BlurTextures);
+		if (m_BloomTextures) {
+			glDeleteTextures(m_BloomTextureCount, m_BloomTextures);
+			delete[] m_BloomTextures;
+		}
 	}
 
 	void Renderer::drawFrame(uint32_t renderMode) {
@@ -161,31 +160,74 @@ namespace graphics {
 
 		// calculating bloom effect
 		{
+			// downscaling
 			m_BlurShader.use();
-		
+			m_BlurShader.setUniform1i("_texture", 0);
 			bool horizontal = true;
-		
+
+			int32_t texWidth = App::getWindowWidth(), texHeight = App::getWindowHeight();
+
 			glBindVertexArray(m_VAO);
-			for (int i = 0; i < this->blurStr * 2; ++i) {
-				int inputTextureIndex = ((i + 1) % 2);
-				glBindFramebuffer(GL_FRAMEBUFFER, m_BlurFramebuffers[i % 2]);
-				//glClearColor(0.0, 0.0, 0.0, 1.0);
-				//glClear(GL_COLOR_BUFFER_BIT);
-		
-				m_BlurShader.setUniform1i("_texture", 0);
+
+			for (int texIter = 0; texIter < m_BloomTextureCount; ++texIter) {
+				glBindFramebuffer(GL_FRAMEBUFFER, m_BloomFramebuffers[texIter]);
+				glViewport(0, 0, texWidth, texHeight);
+
+				if (texIter % 2) {
+					texWidth /= 2;
+					texHeight /= 2;
+				}
+
 				glActiveTexture(GL_TEXTURE0);
-				if(i == 0)
-					glBindTexture(GL_TEXTURE_2D, m_HDRTexture);
-				else
-					glBindTexture(GL_TEXTURE_2D, m_BlurTextures[inputTextureIndex]);
-		
+				glBindTexture(GL_TEXTURE_2D, texIter > 0 ? m_BloomTextures[texIter - 1] : m_HDRTexture);
+
 				m_BlurShader.setUniform1i("_horizontal", horizontal);
 				horizontal = !horizontal;
-		
+
 				glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 			}
 
 			m_BlurShader.unuse();
+
+			// upscaling
+			m_MixShader.use();
+			m_MixShader.setUniform1i("_texture1", 0);
+			m_MixShader.setUniform1i("_texture2", 1);
+
+			glBindVertexArray(m_VAO);
+
+			glBindFramebuffer(GL_FRAMEBUFFER, m_BloomFramebuffers[m_BloomTextureCount - 4]);
+
+			GLint width, height;
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, m_BloomTextures[m_BloomTextureCount - 4]);
+			glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texWidth);
+			glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texHeight);
+			glViewport(0, 0, texWidth, texHeight);
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, m_BloomTextures[m_BloomTextureCount - 1]);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, m_BloomTextures[m_BloomTextureCount - 3]);
+
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+			for (int texIter = m_BloomTextureCount-4; texIter >= 2; texIter -= 2) {
+				glBindFramebuffer(GL_FRAMEBUFFER, m_BloomFramebuffers[texIter - 2]);
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, m_BloomTextures[texIter - 2]);
+				glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texWidth);
+				glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &texHeight);
+				glViewport(0, 0, texWidth, texHeight);
+
+				glActiveTexture(GL_TEXTURE0);
+				glBindTexture(GL_TEXTURE_2D, m_BloomTextures[texIter - 0]);
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, m_BloomTextures[texIter - 1]);
+
+				glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+			}
+			m_MixShader.unuse();
 		}
 		
 
@@ -205,7 +247,7 @@ namespace graphics {
 			
 			m_PostprocessingShader.setUniform1i("_bloomTex", 1);
 			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, m_BlurTextures[0]);
+			glBindTexture(GL_TEXTURE_2D, m_BloomTextures[this->currentBloomTexture]);
 			
 			glBindVertexArray(m_VAO);
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
@@ -241,9 +283,7 @@ namespace graphics {
 				glDeleteFramebuffers(1, &m_HDRFramebuffer);
 			glGenFramebuffers(1, &m_HDRFramebuffer);
 
-			if (m_BlurFramebuffers[0])
-				glDeleteFramebuffers(2, m_BlurFramebuffers);
-			glGenFramebuffers(2, m_BlurFramebuffers);
+			// bloom framebuffers are dealt with just before setting up
 
 			if (m_IntermediateMSFramebuffer)
 				glDeleteFramebuffers(1, &m_IntermediateMSFramebuffer);
@@ -278,18 +318,59 @@ namespace graphics {
 				glBindTexture(GL_TEXTURE_2D, 0);
 			}
 
-			// switching blur buffer textures
+			// bloom buffer textures
 			{
-				if (m_BlurTextures[0] != 0)
-					glDeleteTextures(s_TEXTURE_COUNT, m_BlurTextures);
+				// deleting old texture buffers and framebuffers if they already exist
+				if (m_BloomTextures != nullptr) {
+					glDeleteTextures(m_BloomTextureCount, m_BloomTextures);
+					delete[] m_BloomTextures;
+					m_BloomTextures = nullptr;
 
-				glGenTextures(s_TEXTURE_COUNT, m_BlurTextures);
-				for (int textureInd = 0; textureInd < s_TEXTURE_COUNT; ++textureInd) {
-					glBindTexture(GL_TEXTURE_2D, m_BlurTextures[textureInd]);
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, App::getWindowWidth(), App::getWindowHeight(), 0, GL_RGB, GL_FLOAT, nullptr);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-					glBindTexture(GL_TEXTURE_2D, 0);
+					if (m_BloomFramebuffers != nullptr) {
+						glDeleteFramebuffers(m_BloomTextureCount, m_BloomFramebuffers);
+						delete[] m_BloomFramebuffers;
+						m_BloomFramebuffers = nullptr;
+					}
+				}
+
+				// calculating number of textures
+				{
+					m_BloomTextureCount = 0;
+					size_t width = App::getWindowWidth(), height = App::getWindowHeight();
+					while (width > 10 && height > 10) {
+						width /= 2;
+						height /= 2;
+						m_BloomTextureCount += 2;
+					}
+
+					// when this is even the blur is longer vertically
+					m_BloomTextureCount = m_BloomTextureCount - 1;
+
+					m_BloomTextures = new unsigned int[m_BloomTextureCount];
+					for (int texInd = 0; texInd < m_BloomTextureCount; ++texInd) {
+						m_BloomTextures[texInd] = 0;
+					}
+				}
+
+				glGenTextures(m_BloomTextureCount, m_BloomTextures);
+				{
+					// creating downscaled pairs of textures
+					size_t texWidth = App::getWindowWidth(), texHeight = App::getWindowHeight();
+					for (size_t stepIter = 0; stepIter < m_BloomTextureCount; stepIter += 2) {
+						// horizontal and vertical textures
+						for (size_t axisIter = 0; axisIter < 2 && stepIter + axisIter < m_BloomTextureCount; ++axisIter) {
+							glBindTexture(GL_TEXTURE_2D, m_BloomTextures[stepIter+axisIter]);
+							glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, texWidth, texHeight, 0, GL_RGB, GL_FLOAT, nullptr);
+							glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+							glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+							glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+							glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+							glBindTexture(GL_TEXTURE_2D, 0);
+						}
+
+						texWidth = texWidth / 2;
+						texHeight = texHeight / 2;
+					}
 				}
 			}
 		}
@@ -327,11 +408,17 @@ namespace graphics {
 
 		// bloom framebuffers
 		{
+			if (m_BloomFramebuffers != nullptr)
+				utils::fatalError("Bloom framebuffers aren't deallocating properly");
+
+			m_BloomFramebuffers = new unsigned int[m_BloomTextureCount];
+			glGenFramebuffers(m_BloomTextureCount, m_BloomFramebuffers);
+
 			unsigned int colorAttachments[] = { GL_COLOR_ATTACHMENT0 };
 			
-			for (int i = 0; i < 2; ++i) {
-				glBindFramebuffer(GL_FRAMEBUFFER, m_BlurFramebuffers[i]);
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_BlurTextures[i], 0);
+			for (int i = 0; i < m_BloomTextureCount; ++i) {
+				glBindFramebuffer(GL_FRAMEBUFFER, m_BloomFramebuffers[i]);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_BloomTextures[i], 0);
 
 				glDrawBuffers(1, colorAttachments);
 
@@ -401,6 +488,9 @@ namespace graphics {
 
 		m_BlurShader.compileShaders("shaders/blur.shader", true);
 		m_BlurShader.linkShaders();
+
+		m_MixShader.compileShaders("shaders/mix.shader", true);
+		m_MixShader.linkShaders();
 
 		m_SkyboxShader.compileShaders("shaders/skybox.shader", true);
 		m_SkyboxShader.linkShaders();

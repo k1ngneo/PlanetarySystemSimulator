@@ -10,6 +10,7 @@
 #include <glad/glad.h>
 
 #include <vector>
+#include <memory>
 
 namespace graphics {
 
@@ -28,6 +29,9 @@ namespace graphics {
 		uint8_t MSAA_samples;
 		int blurStr;
 
+		int currentBloomTexture;
+		inline int getBloomTextureCount() { return m_BloomTextureCount; }
+
 	private:
 		Skybox m_Skybox;
 		std::vector<Star*> m_Stars;
@@ -41,17 +45,17 @@ namespace graphics {
 		unsigned int m_IntermediateMSFramebuffer;
 		// HDR transition framebuffer
 		unsigned int m_HDRFramebuffer;
-		// switching blur framebuffers
-		unsigned int m_BlurFramebuffers[2];
+		// switching bloom framebuffers
+		unsigned int* m_BloomFramebuffers;
 
 		// Textures:
 		// Main texture
 		unsigned int m_MainTexture;
 		// HDR texture
 		unsigned int m_HDRTexture;
-		// 2. and 3. buffers for blur calculations
-		static const size_t s_TEXTURE_COUNT = 2;
-		unsigned int m_BlurTextures[s_TEXTURE_COUNT];
+		// buffers for bloom calculations
+		size_t m_BloomTextureCount;
+		unsigned int* m_BloomTextures;
 
 		// multisampled render buffers
 		unsigned int m_RenderBuffers[3];
@@ -61,6 +65,7 @@ namespace graphics {
 		
 		Shader m_PostprocessingShader;
 		Shader m_BlurShader;
+		Shader m_MixShader;
 		Shader m_SkyboxShader;
 		Shader m_CelestialShader;
 		Shader m_StarShader;
