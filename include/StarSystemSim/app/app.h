@@ -9,7 +9,9 @@
 #include <glm/vec2.hpp>
 
 #include <cstdint>
+#include <vector>
 
+class graphics::Object;
 
 struct App {
 	static utils::Timer mainTimer;
@@ -26,6 +28,8 @@ struct App {
 	GLFWwindow* window;
 
 	graphics::Camera mainCamera;
+	std::vector<graphics::Object*> camTargets;
+
 
 	bool isCursorVisible;
 	bool isFirstMouseMovement;

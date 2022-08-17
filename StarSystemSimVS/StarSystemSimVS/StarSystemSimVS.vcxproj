@@ -192,6 +192,7 @@
     <ClCompile Include="..\..\source\physics\body.cpp" />
     <ClCompile Include="..\..\source\physics\engine.cpp" />
     <ClCompile Include="..\..\source\utilities\error.cpp" />
+    <ClCompile Include="..\..\source\utilities\lerp.cpp" />
     <ClCompile Include="..\..\source\utilities\load_text_file.cpp" />
     <ClCompile Include="..\..\source\utilities\string_manipulations.cpp" />
     <ClCompile Include="..\..\source\utilities\timer.cpp" />
@@ -224,6 +225,7 @@
     <ClInclude Include="..\..\include\StarSystemSim\physics\body.h" />
     <ClInclude Include="..\..\include\StarSystemSim\physics\engine.h" />
     <ClInclude Include="..\..\include\StarSystemSim\utilities\error.h" />
+    <ClInclude Include="..\..\include\StarSystemSim\utilities\lerp.h" />
     <ClInclude Include="..\..\include\StarSystemSim\utilities\load_text_file.h" />
     <ClInclude Include="..\..\include\StarSystemSim\utilities\string_manipulations.h" />
     <ClInclude Include="..\..\include\StarSystemSim\utilities\timer.h" />

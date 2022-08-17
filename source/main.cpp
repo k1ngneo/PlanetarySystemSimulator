@@ -64,7 +64,9 @@ int main() {
     camera.mode = graphics::Camera::Mode::LOOK_AT;
     camera.radius = 3.14f;
     camera.target = &earth;
-    //camera.target = &sun;
+
+    App::s_Instance->camTargets.push_back(&earth);
+    App::s_Instance->camTargets.push_back(&sun);
 
     glfwSetInputMode(App::s_Instance->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -78,11 +80,9 @@ int main() {
         App::mainTimer.measureTime();
         physicsEngine.update();
         app::EventManager::processInput(App::s_Instance->window);
-        camera.dir = camera.target->getPos() - camera.pos;
 
-        if (!App::s_Instance->isCursorVisible) {
-            camera.update(viewMat4);
-        }
+        camera.dir = camera.target->getPos() - camera.pos;
+        camera.update();
 
         // ImGui preparing for a new frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -106,8 +106,6 @@ int main() {
 
             ImGui::Text("Camera\n");
             ImGui::Text("Yaw: %.1f\nPitch: %.1f", camera.yaw, camera.pitch);
-
-            ImGui::SliderInt("Blur Step", &renderer->currentBloomTexture, 0, renderer->getBloomTextureCount()-1);
 
             ImGui::End();
         }

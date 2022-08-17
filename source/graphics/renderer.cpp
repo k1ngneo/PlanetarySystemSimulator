@@ -247,7 +247,7 @@ namespace graphics {
 			
 			m_PostprocessingShader.setUniform1i("_bloomTex", 1);
 			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, m_BloomTextures[this->currentBloomTexture]);
+			glBindTexture(GL_TEXTURE_2D, m_BloomTextures[1]);
 			
 			glBindVertexArray(m_VAO);
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
@@ -258,6 +258,7 @@ namespace graphics {
 		m_PostprocessingShader.reload();
 		m_CelestialShader.reload();
 		m_BlurShader.reload();
+		m_StarShader.reload();
 	}
 
 	void Renderer::resize() {

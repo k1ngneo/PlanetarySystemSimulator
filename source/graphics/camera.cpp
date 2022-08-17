@@ -1,7 +1,9 @@
 #include "StarSystemSim/graphics/camera.h"
 
+#include "StarSystemSim/app/app.h"
 #include "StarSystemSim/graphics/object.h"
 #include "StarSystemSim/utilities/error.h"
+#include "StarSystemSim/utilities/lerp.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -69,17 +71,18 @@ namespace graphics {
             float radYaw = glm::radians(this->yaw);
 
             m_PosRelTarget.x = glm::cos(-radYaw) * glm::cos(radPitch);
-            m_PosRelTarget.y = glm::sin(radPitch);        
+            m_PosRelTarget.y = glm::sin(radPitch);
             m_PosRelTarget.z = glm::sin(-radYaw) * glm::cos(radPitch);
 
             m_PosRelTarget *= this->radius;
 
-            this->dir = glm::normalize(-m_PosRelTarget);
+            //this->dir = glm::normalize(-m_PosRelTarget);
         }
 
-        this->pos = target + m_PosRelTarget;
+        this->pos = utils::lerp(this->pos, target + m_PosRelTarget, 0.99f * App::s_Instance->mainTimer.deltaTime);
+        this->front = utils::lerp(this->front, target, 0.95f * App::s_Instance->mainTimer.deltaTime);
 
-        this->viewMatrix = glm::lookAt(this->pos, target, this->up);
+        this->viewMatrix = glm::lookAt(this->pos, this->front, this->up);
         return this->viewMatrix;
     }
 

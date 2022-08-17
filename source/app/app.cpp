@@ -125,6 +125,14 @@ namespace app {
                 App::s_Instance->isCursorVisible = true;
             }
         }
+        if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
+            for (size_t i = 0; i < App::s_Instance->camTargets.size(); ++i) {
+                if (App::s_Instance->mainCamera.target == App::s_Instance->camTargets[i]) {
+                    App::s_Instance->mainCamera.target = App::s_Instance->camTargets[(i + 1) % App::s_Instance->camTargets.size()];
+                    break;
+                }
+            }
+        }
     }
 
     void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
@@ -164,7 +172,7 @@ namespace app {
                 camera.fov = 45.0f;
         }
         else if (camera.mode == graphics::Camera::Mode::LOOK_AT) {
-            camera.radius -= 0.05f * (float)yoffset;
+            camera.radius -= 0.1f * (float)yoffset;
             if (camera.radius < 1.0f)
                 camera.radius = 1.0f;
             if (camera.radius > 10.0f)
