@@ -179,6 +179,7 @@
     <ClCompile Include="..\..\source\graphics\primitives\plane.cpp" />
     <ClCompile Include="..\..\source\graphics\primitives\point_light.cpp" />
     <ClCompile Include="..\..\source\graphics\renderer.cpp" />
+    <ClCompile Include="..\..\source\graphics\scene.cpp" />
     <ClCompile Include="..\..\source\graphics\shader.cpp" />
     <ClCompile Include="..\..\source\graphics\skybox.cpp" />
     <ClCompile Include="..\..\source\graphics\star.cpp" />

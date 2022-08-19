@@ -14,6 +14,8 @@ namespace graphics {
 		Skybox skybox;
 		std::vector<Star*> stars;
 		std::vector<Planet*> planets;
+
+		~Scene();
 	};
 
 }

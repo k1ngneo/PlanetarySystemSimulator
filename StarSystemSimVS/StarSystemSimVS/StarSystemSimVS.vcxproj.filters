@@ -141,6 +141,9 @@
     <ClCompile Include="..\..\source\utilities\lerp.cpp">
       <Filter>Source Files\utilities</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\graphics\scene.cpp">
+      <Filter>Source Files\graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\StarSystemSim\graphics\camera.h">
