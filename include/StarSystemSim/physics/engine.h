@@ -4,6 +4,7 @@
 #include "StarSystemSim/utilities/timer.h"
 
 #include <glm/vec3.hpp>
+#include <vector>
 #include <set>
 
 namespace physics {
@@ -30,6 +31,9 @@ namespace physics {
 
 	private:
 		std::set<Body*> m_Bodies;
+		std::set<Body*> m_BodiesDynamic;
+		std::set<Body*> m_BodiesStatic;
+
 		utils::Timer m_Timer;
 		bool m_SkipIteration;
 

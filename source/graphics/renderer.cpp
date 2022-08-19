@@ -7,13 +7,12 @@
 #include <glad/glad.h>
 #include <glm/vec2.hpp>
 
-#include <memory>
-
 namespace graphics {
 
 	Renderer::Renderer()
 		: m_VAO(0), m_VBO(0), m_EBO(0),
 		MSAA_samples(8), blurStr(5),
+		m_CurrentScene(nullptr),
 		m_MSFramebuffer(0), m_HDRFramebuffer(0), m_IntermediateMSFramebuffer(0), m_BloomFramebuffers(nullptr),
 		m_MainTexture(0), m_HDRTexture(0), m_BloomTextures(nullptr)
 	{
@@ -26,8 +25,6 @@ namespace graphics {
 		setupFramebuffers();
 		setupVertexArray();
 		setupShaders();
-
-		m_Skybox.loadTexture("models/skybox/");
 
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
@@ -69,7 +66,7 @@ namespace graphics {
 	void Renderer::drawFrame(uint32_t renderMode) {
 
 		// rendering scene's objects
-		{
+		if(m_CurrentScene != nullptr) {
 			glBindFramebuffer(GL_FRAMEBUFFER, m_MSFramebuffer);
 			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -85,7 +82,7 @@ namespace graphics {
 				m_SkyboxShader.setUniformMat4("_viewMat", glm::mat4(glm::mat3(App::s_Instance->mainCamera.viewMatrix)));
 				m_SkyboxShader.unuse();
 
-				m_Skybox.draw(m_SkyboxShader);
+				m_CurrentScene->skybox.draw(m_SkyboxShader);
 			}
 
 			switch ((RenderMode)renderMode) {
@@ -109,7 +106,7 @@ namespace graphics {
 				m_StarShader.setUniformMat4("_viewMat", App::s_Instance->mainCamera.viewMatrix);
 				m_StarShader.unuse();
 
-				for (Star* star : m_Stars) {
+				for (Star* star : m_CurrentScene->stars) {
 					star->draw(m_StarShader);
 				}
 			}
@@ -122,16 +119,16 @@ namespace graphics {
 
 				m_CelestialShader.setUniform3f("_viewPos", App::s_Instance->mainCamera.pos);
 
-				m_CelestialShader.setUniform3f("_light1.pos", m_Stars[0]->getPos());
-				m_CelestialShader.setUniform3f("_light1.amb", m_Stars[0]->ambientColor);
-				m_CelestialShader.setUniform3f("_light1.diff", m_Stars[0]->diffuseColor);
-				m_CelestialShader.setUniform3f("_light1.spec", m_Stars[0]->specularColor);
-				m_CelestialShader.setUniform3f("_light1.attenuation", m_Stars[0]->attenuation);
+				m_CelestialShader.setUniform3f("_light1.pos", m_CurrentScene->stars[0]->getPos());
+				m_CelestialShader.setUniform3f("_light1.amb", m_CurrentScene->stars[0]->ambientColor);
+				m_CelestialShader.setUniform3f("_light1.diff", m_CurrentScene->stars[0]->diffuseColor);
+				m_CelestialShader.setUniform3f("_light1.spec", m_CurrentScene->stars[0]->specularColor);
+				m_CelestialShader.setUniform3f("_light1.attenuation", m_CurrentScene->stars[0]->attenuation);
 
 				m_CelestialShader.setUniform1f("_time", App::mainTimer.lastTime);
 				m_CelestialShader.unuse();
 
-				for (Object* object : m_Objects) {
+				for (Object* object : m_CurrentScene->planets) {
 					object->draw(m_CelestialShader, GL_TRIANGLES);
 				}
 			}
@@ -261,19 +258,22 @@ namespace graphics {
 		m_StarShader.reload();
 	}
 
+	void Renderer::bindScene(Scene* scene) {
+		m_CurrentScene = scene;
+	}
+
 	void Renderer::resize() {
 		setupFramebuffers();
 	}
-
-	void Renderer::addStar(Star* star) {
-		m_Stars.push_back(star);
-	}
-
-	void Renderer::addObject(Object* obj) {
-		m_Objects.push_back(obj);
+	void Renderer::resize(uint16_t width, uint16_t height) {
+		setupFramebuffers(width, height);
 	}
 
 	void Renderer::setupFramebuffers() {
+		if (App::s_Instance)
+			setupFramebuffers(App::getWindowWidth(), App::getWindowHeight());
+	}
+	void Renderer::setupFramebuffers(uint16_t scrWidth, uint16_t scrHeight) {
 		// reloading framebuffers if necessary
 		{
 			if (m_MSFramebuffer)
@@ -300,7 +300,7 @@ namespace graphics {
 				glGenTextures(1, &m_MainTexture);
 
 				glBindTexture(GL_TEXTURE_2D, m_MainTexture);
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, App::getWindowWidth(), App::getWindowHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scrWidth, scrHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 				glBindTexture(GL_TEXTURE_2D, 0);
@@ -313,7 +313,7 @@ namespace graphics {
 				glGenTextures(1, &m_HDRTexture);
 
 				glBindTexture(GL_TEXTURE_2D, m_HDRTexture);
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, App::getWindowWidth(), App::getWindowHeight(), 0, GL_RGB, GL_FLOAT, nullptr);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, scrWidth, scrHeight, 0, GL_RGB, GL_FLOAT, nullptr);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 				glBindTexture(GL_TEXTURE_2D, 0);
@@ -337,7 +337,7 @@ namespace graphics {
 				// calculating number of textures
 				{
 					m_BloomTextureCount = 0;
-					size_t width = App::getWindowWidth(), height = App::getWindowHeight();
+					size_t width = scrWidth, height = scrHeight;
 					while (width > 10 && height > 10) {
 						width /= 2;
 						height /= 2;
@@ -356,7 +356,7 @@ namespace graphics {
 				glGenTextures(m_BloomTextureCount, m_BloomTextures);
 				{
 					// creating downscaled pairs of textures
-					size_t texWidth = App::getWindowWidth(), texHeight = App::getWindowHeight();
+					size_t texWidth = scrWidth, texHeight = scrHeight;
 					for (size_t stepIter = 0; stepIter < m_BloomTextureCount; stepIter += 2) {
 						// horizontal and vertical textures
 						for (size_t axisIter = 0; axisIter < 2 && stepIter + axisIter < m_BloomTextureCount; ++axisIter) {
@@ -388,15 +388,15 @@ namespace graphics {
 			glGenRenderbuffers(3, m_RenderBuffers);
 
 			glBindRenderbuffer(GL_RENDERBUFFER, m_RenderBuffers[0]);
-			glRenderbufferStorageMultisample(GL_RENDERBUFFER, MSAA_samples, GL_RGB, App::getWindowWidth(), App::getWindowHeight());
+			glRenderbufferStorageMultisample(GL_RENDERBUFFER, MSAA_samples, GL_RGB, scrWidth, scrHeight);
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, m_RenderBuffers[0]);
 
 			glBindRenderbuffer(GL_RENDERBUFFER, m_RenderBuffers[1]);
-			glRenderbufferStorageMultisample(GL_RENDERBUFFER, MSAA_samples, GL_RGBA32F, App::getWindowWidth(), App::getWindowHeight());
+			glRenderbufferStorageMultisample(GL_RENDERBUFFER, MSAA_samples, GL_RGBA32F, scrWidth, scrHeight);
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_RENDERBUFFER, m_RenderBuffers[1]);
 
 			glBindRenderbuffer(GL_RENDERBUFFER, m_RenderBuffers[2]);
-			glRenderbufferStorageMultisample(GL_RENDERBUFFER, MSAA_samples, GL_DEPTH24_STENCIL8, App::getWindowWidth(), App::getWindowHeight());
+			glRenderbufferStorageMultisample(GL_RENDERBUFFER, MSAA_samples, GL_DEPTH24_STENCIL8, scrWidth, scrHeight);
 			glBindRenderbuffer(GL_RENDERBUFFER, 0);
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_RenderBuffers[2]);
 
@@ -445,7 +445,6 @@ namespace graphics {
 			}
 		}
 	}
-
 	void Renderer::setupVertexArray() {
 		struct VertexData {
 			glm::vec2 pos;

@@ -219,6 +219,7 @@
     <ClInclude Include="..\..\include\StarSystemSim\graphics\primitives\point_light.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\renderer.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\render_mode.h" />
+    <ClInclude Include="..\..\include\StarSystemSim\graphics\scene.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\shader.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\skybox.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\star.h" />

@@ -239,5 +239,8 @@
     <ClInclude Include="..\..\include\StarSystemSim\utilities\lerp.h">
       <Filter>Header Files\StarSystemSim\utilities</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\StarSystemSim\graphics\scene.h">
+      <Filter>Header Files\StarSystemSim\graphics</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

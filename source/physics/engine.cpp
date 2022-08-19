@@ -6,21 +6,30 @@
 namespace physics {
 
 	Engine::Engine()
-		: paused(false),
+		: paused(true),
 		m_SkipIteration(true)
 	{
 		this->timeMultiplier = 1.0f;
 	}
 
 	Engine::~Engine() {
+		m_Bodies.clear();
+		m_BodiesDynamic.clear();
+		m_BodiesStatic.clear();
 	}
 
 	void Engine::addBody(Body* body) {
 		m_Bodies.insert(body);
+		if (body->type == Body::Type::DYNAMIC)
+			m_BodiesDynamic.insert(body);
+		else if (body->type == Body::Type::STATIC)
+			m_BodiesStatic.insert(body);
 	}
 
 	void Engine::remBody(Body* body) {
 		m_Bodies.erase(body);
+		m_BodiesDynamic.erase(body);
+		m_BodiesStatic.erase(body);
 	}
 
 	void Engine::update() {
