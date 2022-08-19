@@ -33,42 +33,40 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
-
-physics::Engine physicsEngine;
-graphics::Renderer* renderer;
+#include <algorithm>
 
 int main() {
     App::start();
     graphics::Camera& camera = App::s_Instance->mainCamera;
     glm::mat4x4* viewMat4 = &camera.viewMatrix;
-
-    renderer = new graphics::Renderer;
     
+    graphics::Skybox skybox;
+    skybox.loadTexture("models/skybox/");
+    App::setSkybox(skybox);
+
+    graphics::Object* camTarget = nullptr;
+
     graphics::Planet earth("earth");
-    renderer->addObject(&earth);
     earth.translate(glm::vec3(-5.0f, 0.0f, 0.0f));
     earth.scale(glm::vec3(0.2f));
     earth.body.mass = 1.0f;
     earth.body.vel = { 0.0f, 0.0f, -10.0f };
-    earth.activateBody(physicsEngine);
+    camTarget = App::addToScene(earth);
+    App::s_Instance->camTargets.push_back(camTarget);
 
     graphics::Star sun("sun");
-    renderer->addStar(&sun);
     sun.translate(glm::vec3(0.0f, 0.0f, 0.0f));
     sun.body.mass = 1000.0f;
     sun.body.vel = { 0.0f, 0.0f, 0.063245f };
-    sun.activateBody(physicsEngine);
-
-    physicsEngine.paused = true;
+    camTarget = App::addToScene(sun);
+    App::s_Instance->camTargets.push_back(camTarget);
 
     camera.mode = graphics::Camera::Mode::LOOK_AT;
     camera.radius = 3.14f;
-    camera.target = &earth;
+    camera.target = camTarget;
 
-    App::s_Instance->camTargets.push_back(&earth);
-    App::s_Instance->camTargets.push_back(&sun);
 
-    glfwSetInputMode(App::s_Instance->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(App::s_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     bool show_demo_window = false;
     bool show_another_window = false;
@@ -76,10 +74,13 @@ int main() {
 
     camera.yaw = 190.0f;
 
-    while (!glfwWindowShouldClose(App::s_Instance->window)) {
+    physics::Engine& physicsEngine = App::s_Instance->physicsEngine;
+    graphics::Renderer& renderer = App::s_Instance->renderer;
+
+    while (!glfwWindowShouldClose(App::s_Window)) {
         App::mainTimer.measureTime();
         physicsEngine.update();
-        app::EventManager::processInput(App::s_Instance->window);
+        app::EventManager::processInput(App::s_Window);
 
         camera.dir = camera.target->getPos() - camera.pos;
         camera.update();
@@ -89,7 +90,7 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        renderer->drawFrame();
+        renderer.drawFrame();
 
         /////////////////////
         // ImGui rendering //
@@ -116,7 +117,7 @@ int main() {
             ImGui_ImplOpenGL3_RenderDrawData(drawData);
         }
 
-        glfwSwapBuffers(App::s_Instance->window);
+        glfwSwapBuffers(App::s_Window);
         glfwPollEvents();
 
         App::frameClock.measureTime();
@@ -124,8 +125,6 @@ int main() {
         sleepTime = std::chrono::microseconds((uint64_t)std::min(1000000.0f / 144.0f, App::frameClock.deltaTime * 1000000.0f));
         std::this_thread::sleep_for(sleepTime);
     }
-
-    delete renderer;
 
     App::clear();
 

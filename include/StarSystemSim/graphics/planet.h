@@ -6,6 +6,7 @@
 #include <glad/glad.h>
 
 #include <string>
+#include <memory>
 
 namespace graphics {
 
@@ -23,8 +24,6 @@ namespace graphics {
 		void rotate(float angle, const glm::vec3& axis);
 		void scale(const glm::vec3& sc);
 
-		void activateBody(physics::Engine& engine);
-
 		physics::Body body;
 
 	private:
@@ -40,7 +39,7 @@ namespace graphics {
 		void loadTextures(const std::string& name);
 		uint64_t loadTexture(const std::string& path, bool required = false);
 
-		Mesh* m_MainMesh;
+		std::shared_ptr<Mesh> m_MainMesh;
 	};
 
 }

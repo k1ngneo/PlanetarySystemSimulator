@@ -31,13 +31,12 @@ namespace graphics {
 		fixUVs();
 		calcNormalsTangents();
 
-		m_MainMesh = new Mesh(vertices, indices);
+		m_MainMesh = std::shared_ptr<Mesh>(new Mesh(vertices, indices));
 		loadTextures(name);
 	}
 
 	Planet::~Planet() {
-		if (m_MainMesh)
-			delete m_MainMesh;
+		m_MainMesh = nullptr;
 	}
 
 	void Planet::draw(Shader& shader, uint32_t renderMode) {
@@ -71,10 +70,6 @@ namespace graphics {
 	void Planet::scale(const glm::vec3& sc) {
 		((Object*)this)->scale(sc);
 		m_MainMesh->scale(sc);
-	}
-
-	void Planet::activateBody(physics::Engine& engine) {
-		this->body.activate(engine);
 	}
 
 	void Planet::subdivide(uint32_t depth) {

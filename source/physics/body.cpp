@@ -19,8 +19,4 @@ namespace physics {
 	Body::~Body() {
 	}
 
-	void Body::activate(physics::Engine& engine) {
-		engine.addBody(this);
-	}
-
 }

@@ -53,7 +53,7 @@ namespace graphics {
 				stbi_image_free(data);
 			}
 			else {
-				utils::printError("Failed to load skybox texture");
+				utils::printError("Failed to load skybox texture: %s", path.c_str());
 			}
 		};
 

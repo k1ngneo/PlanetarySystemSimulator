@@ -1,6 +1,7 @@
 #pragma once
 
 #include "StarSystemSim/graphics/shader.h"
+#include "StarSystemSim/graphics/scene.h"
 #include "StarSystemSim/graphics/camera.h"
 #include "StarSystemSim/graphics/skybox.h"
 #include "StarSystemSim/graphics/object.h"
@@ -21,10 +22,10 @@ namespace graphics {
 
 		void drawFrame(uint32_t renderMode = (uint32_t)RenderMode::FACES);
 
-		void resize();
+		void bindScene(Scene* scene);
 
-		void addStar(Star* star);
-		void addObject(Object* obj);
+		void resize();
+		void resize(uint16_t width, uint16_t height);
 
 		uint8_t MSAA_samples;
 		int blurStr;
@@ -33,9 +34,7 @@ namespace graphics {
 		inline int getBloomTextureCount() { return m_BloomTextureCount; }
 
 	private:
-		Skybox m_Skybox;
-		std::vector<Star*> m_Stars;
-		std::vector<Object*> m_Objects;
+		Scene* m_CurrentScene;
 
 
 		// Framebuffers:
@@ -71,6 +70,7 @@ namespace graphics {
 		Shader m_StarShader;
 
 		void setupFramebuffers();
+		void setupFramebuffers(uint16_t width, uint16_t height);
 		void setupVertexArray();
 		void setupShaders();
 	};

@@ -1,7 +1,10 @@
 #pragma once
 
-#include <StarSystemSim/graphics/camera.h>
-#include <StarSystemSim/utilities/timer.h>
+#include "StarSystemSim/graphics/renderer.h"
+#include "StarSystemSim/graphics/scene.h"
+#include "StarSystemSim/graphics/camera.h"
+#include "StarSystemSim/physics/engine.h"
+#include "StarSystemSim/utilities/timer.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -23,10 +26,18 @@ struct App {
 	static uint32_t getWindowWidth();
 	static uint32_t getWindowHeight();
 
+	static graphics::Planet* addToScene(graphics::Planet& planet);
+	static graphics::Star* addToScene(graphics::Star& star);
+	static void setSkybox(const graphics::Skybox& skybox);
+
 	static App* s_Instance;
+	static GLFWwindow* s_Window;
 
-	GLFWwindow* window;
 
+	graphics::Renderer renderer;
+	physics::Engine physicsEngine;
+
+	graphics::Scene scene;
 	graphics::Camera mainCamera;
 	std::vector<graphics::Object*> camTargets;
 
@@ -42,8 +53,8 @@ struct App {
 	void resize(uint32_t width, uint32_t height);
 
 private:
-	uint32_t m_ScrWidth;
-	uint32_t m_ScrHeight;
+	uint16_t m_ScrWidth;
+	uint16_t m_ScrHeight;
 };
 
 namespace app {
