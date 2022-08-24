@@ -66,9 +66,6 @@
     <ClCompile Include="..\..\source\graphics\mesh.cpp">
       <Filter>Source Files\graphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\graphics\model.cpp">
-      <Filter>Source Files\graphics</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\graphics\object.cpp">
       <Filter>Source Files\graphics</Filter>
     </ClCompile>
@@ -153,9 +150,6 @@
       <Filter>Header Files\StarSystemSim\graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\StarSystemSim\graphics\mesh.h">
-      <Filter>Header Files\StarSystemSim\graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\StarSystemSim\graphics\model.h">
       <Filter>Header Files\StarSystemSim\graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\StarSystemSim\graphics\object.h">

@@ -172,7 +172,6 @@
     <ClCompile Include="..\..\source\glad.c" />
     <ClCompile Include="..\..\source\graphics\camera.cpp" />
     <ClCompile Include="..\..\source\graphics\mesh.cpp" />
-    <ClCompile Include="..\..\source\graphics\model.cpp" />
     <ClCompile Include="..\..\source\graphics\object.cpp" />
     <ClCompile Include="..\..\source\graphics\planet.cpp" />
     <ClCompile Include="..\..\source\graphics\primitives\cube.cpp" />
@@ -212,7 +211,6 @@
     <ClInclude Include="..\..\include\StarSystemSim\graphics\camera.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\material.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\mesh.h" />
-    <ClInclude Include="..\..\include\StarSystemSim\graphics\model.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\object.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\planet.h" />
     <ClInclude Include="..\..\include\StarSystemSim\graphics\primitives\cube.h" />

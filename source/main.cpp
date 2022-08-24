@@ -7,7 +7,6 @@
 #include "StarSystemSim/graphics/primitives/plane.h"
 #include "StarSystemSim/graphics/primitives/cube.h"
 #include "StarSystemSim/graphics/primitives/point_light.h"
-#include "StarSystemSim/graphics/model.h"
 #include "StarSystemSim/graphics/planet.h"
 #include "StarSystemSim/graphics/star.h"
 #include "StarSystemSim/graphics/skybox.h"
@@ -142,7 +141,8 @@ int main() {
 
         App::frameClock.measureTime();
         std::chrono::microseconds sleepTime;
-        sleepTime = std::chrono::microseconds((uint64_t)std::min(1000000.0f / 144.0f, App::frameClock.deltaTime * 1000000.0f));
+        double maxTime = 1000000.0f / 144.0f;
+        sleepTime = std::chrono::microseconds((uint64_t)std::max(0.0f, (float)std::min(maxTime, maxTime - (double)App::frameClock.deltaTime * 1000000.0f)));
         std::this_thread::sleep_for(sleepTime);
     }
 
