@@ -97,6 +97,9 @@ int main() {
     physics::Engine& physicsEngine = App::s_Instance->physicsEngine;
     graphics::Renderer& renderer = App::s_Instance->renderer;
 
+    std::vector<glm::vec3> lines;
+    renderer.lines = &lines;
+
     while (!glfwWindowShouldClose(App::s_Window)) {
         App::mainTimer.measureTime();
         physicsEngine.update();
@@ -109,6 +112,8 @@ int main() {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+
+        physicsEngine.getPredictedPos(lines);
 
         renderer.drawFrame();
 
