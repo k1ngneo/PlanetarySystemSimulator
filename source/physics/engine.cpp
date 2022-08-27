@@ -8,7 +8,7 @@
 namespace physics {
 
 	Engine::Engine()
-		: paused(true),
+		: paused(true), predCalculated(false),
 		m_SkipIteration(true)
 	{
 		this->timeMultiplier = 1.0f;
@@ -16,22 +16,14 @@ namespace physics {
 
 	Engine::~Engine() {
 		m_Bodies.clear();
-		m_BodiesDynamic.clear();
-		m_BodiesStatic.clear();
 	}
 
 	void Engine::addBody(Body* body) {
 		m_Bodies.insert(body);
-		if (body->type == Body::Type::DYNAMIC)
-			m_BodiesDynamic.insert(body);
-		else if (body->type == Body::Type::STATIC)
-			m_BodiesStatic.insert(body);
 	}
 
 	void Engine::remBody(Body* body) {
 		m_Bodies.erase(body);
-		m_BodiesDynamic.erase(body);
-		m_BodiesStatic.erase(body);
 	}
 
 	void Engine::update() {
@@ -48,7 +40,8 @@ namespace physics {
 			advanceBodies();
 		}
 
-		calcFuturePos(100, 0.02f);
+		if (!paused || !predCalculated)
+			calcFuturePos(300, 0.04f);
 	}
 
 	void Engine::skipIteration() {
@@ -59,6 +52,9 @@ namespace physics {
 		positions.clear();
 		
 		for (size_t iter1 = 0; iter1 < m_PosPrediction.size(); ++iter1) {
+			if (m_PosPrediction[iter1][0].type == Body::Type::STATIC)
+				continue;
+
 			for (size_t iter2 = 0; iter2 < m_PosPrediction[iter1].size() - 1; ++iter2) {
 				positions.push_back(m_PosPrediction[iter1][iter2 + 0].pos);
 				positions.push_back(m_PosPrediction[iter1][iter2 + 1].pos);
@@ -72,12 +68,12 @@ namespace physics {
 				if (iterA == iterB)
 					continue;
 
-				calcGravityVelChange(**iterA, **iterB);
+				calcGravityVelChange(**iterA, **iterB, m_Timer.deltaTime);
 			}
 		}
 	}
 
-	void Engine::calcGravityVelChange(Body& bodyA, Body& bodyB) {
+	void Engine::calcGravityVelChange(Body& bodyA, Body& bodyB, float deltaTime) {
 		// calculating the gravity force
 		// F = m * a = G * (M1 * M2) / (R^2)
 		glm::vec3 AtoB = bodyB.pos - bodyA.pos;
@@ -88,8 +84,8 @@ namespace physics {
 		glm::vec3 accA = glm::normalize(AtoB) * (forceMag / bodyA.mass);
 		glm::vec3 accB = glm::normalize(-AtoB) * (forceMag / bodyB.mass);
 
-		bodyA.vel += accA * m_Timer.deltaTime;
-		bodyB.vel += accB * m_Timer.deltaTime;
+		bodyA.vel += accA * deltaTime;
+		bodyB.vel += accB * deltaTime;
 	}
 
 	void Engine::advanceBodies() {
@@ -116,17 +112,19 @@ namespace physics {
 		for (uint16_t step = 1; step < steps; ++step) {
 
 			for (size_t iter1 = 0; iter1 < m_PosPrediction.size(); ++iter1) {
-				for (size_t iter2 = iter1; iter2 < m_PosPrediction.size(); ++iter2) {
+				for (size_t iter2 = iter1 + 1; iter2 < m_PosPrediction.size(); ++iter2) {
 					if (iter1 == iter2)
 						continue;
 
-					calcGravityVelChange(m_PosPrediction[iter1][step], m_PosPrediction[iter2][step]);
+					calcGravityVelChange(m_PosPrediction[iter1][step-1], m_PosPrediction[iter2][step-1], timeOffset);
+					m_PosPrediction[iter1][step] = m_PosPrediction[iter1][step - 1];
+					m_PosPrediction[iter2][step] = m_PosPrediction[iter2][step - 1];
 				}
 			}
 
-			for (size_t iter = 0; iter < m_PosPrediction[step].size(); ++iter) {
+			for (size_t iter = 0; iter < m_PosPrediction.size(); ++iter) {
 				if (m_PosPrediction[iter][step].type == Body::Type::DYNAMIC) {
-					m_PosPrediction[iter][step].pos += m_PosPrediction[iter][step-1].vel * timeOffset;
+					m_PosPrediction[iter][step].pos += m_PosPrediction[iter][step].vel * timeOffset;
 				}
 			}
 		}

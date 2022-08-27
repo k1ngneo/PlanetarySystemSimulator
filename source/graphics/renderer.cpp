@@ -527,7 +527,7 @@ namespace graphics {
 		m_StarShader.compileShaders("shaders/star.shader", true);
 		m_StarShader.linkShaders();
 
-		m_LineShader.compileShaders("shaders/line.shader");
+		m_LineShader.compileShaders("shaders/line.shader", true);
 		m_LineShader.linkShaders();
 	}
 }
