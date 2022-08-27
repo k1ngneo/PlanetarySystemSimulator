@@ -11,7 +11,6 @@
 #include <glad/glad.h>
 
 #include <vector>
-#include <memory>
 
 namespace graphics {
 
@@ -32,6 +31,8 @@ namespace graphics {
 
 		int currentBloomTexture;
 		inline int getBloomTextureCount() { return m_BloomTextureCount; }
+
+		std::vector<glm::vec3>* lines;
 
 	private:
 		Scene* m_CurrentScene;
@@ -68,6 +69,7 @@ namespace graphics {
 		Shader m_SkyboxShader;
 		Shader m_CelestialShader;
 		Shader m_StarShader;
+		Shader m_LineShader;
 
 		void setupFramebuffers();
 		void setupFramebuffers(uint16_t width, uint16_t height);

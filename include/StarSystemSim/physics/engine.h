@@ -4,6 +4,7 @@
 #include "StarSystemSim/utilities/timer.h"
 
 #include <glm/vec3.hpp>
+#include <memory>
 #include <vector>
 #include <set>
 
@@ -26,19 +27,23 @@ namespace physics {
 
 		void skipIteration();
 
-		bool paused;
+		void getPredictedPos(std::vector<glm::vec3>& pos);
+
+		bool paused, predCalculated;
 		float timeMultiplier;
 
 	private:
 		std::set<Body*> m_Bodies;
-		std::set<Body*> m_BodiesDynamic;
-		std::set<Body*> m_BodiesStatic;
+
+		std::vector<std::vector<Body>> m_PosPrediction;
 
 		utils::Timer m_Timer;
 		bool m_SkipIteration;
 
 		void applyGravityForce();
+		void calcGravityVelChange(Body& body1, Body& body2, float deltaTime);
 		void advanceBodies();
+		void calcFuturePos(uint16_t steps, float timeOffset);
 	};
 
 }

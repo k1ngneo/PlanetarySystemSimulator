@@ -16,6 +16,15 @@ namespace physics {
 		this->type = Type::DYNAMIC;
 	}
 
+	const Body& Body::operator=(const Body& otherBody) {
+		this->pos = otherBody.pos;
+		this->vel = otherBody.vel;
+		this->mass = otherBody.mass;
+		this->type = otherBody.type;
+
+		return *this;
+	}
+
 	Body::~Body() {
 	}
 

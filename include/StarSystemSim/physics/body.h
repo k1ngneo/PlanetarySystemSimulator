@@ -21,6 +21,8 @@ namespace physics {
 		enum class Type {
 			STATIC, DYNAMIC
 		} type;
+
+		const Body& operator=(const Body& otherBody);
 	};
 
 }

@@ -45,44 +45,24 @@ int main() {
 
     graphics::Object* camTarget = nullptr;
     
-    //graphics::Planet earth("earth");
-    //earth.translate(glm::vec3(-5.0f, 0.0f, 0.0f));
-    //earth.scale(glm::vec3(0.2f));
-    //earth.body.mass = 1.0f;
-    //earth.body.vel = { 0.0f, 0.0f, -10.0f };
-    //camTarget = App::addToScene(earth);
-    //App::s_Instance->camTargets.push_back(camTarget);
-    //
-    //graphics::Star sun("sun");
-    //sun.translate(glm::vec3(0.0f, 0.0f, 0.0f));
-    //sun.body.mass = 1000.0f;
-    //sun.body.vel = { 0.0f, 0.0f, 0.063245f };
-    //camTarget = App::addToScene(sun);
-    //App::s_Instance->camTargets.push_back(camTarget);
-
-    graphics::Star star1("sun");
-    star1.translate(glm::vec3(2.0f, 0.0f, 0.0f));
-    star1.body.mass = 1000.0f;
-    star1.body.vel = { 0.0f, 0.0f, 0.001f };
-    star1.body.type = physics::Body::Type::DYNAMIC;
-    camTarget = App::addToScene(star1);
+    graphics::Planet earth("earth");
+    earth.translate(glm::vec3(-5.0f, 0.0f, 0.0f));
+    earth.scale(glm::vec3(0.2f));
+    earth.body.mass = 1.0f;
+    earth.body.vel = { 0.0f, 0.0f, -10.0f };
+    camTarget = App::addToScene(earth);
     App::s_Instance->camTargets.push_back(camTarget);
-
-    graphics::Star star2("sun");
-    star2.translate(glm::vec3(-2.0f, 0.0f, 0.0f));
-    star2.body.mass = 1000.0f;
-    star2.body.vel = { 0.0f, 0.0f, -0.001f };
-    star2.body.type = physics::Body::Type::DYNAMIC;
-    camTarget = App::addToScene(star2);
+    
+    graphics::Star sun("sun");
+    sun.translate(glm::vec3(0.0f, 0.0f, 0.0f));
+    sun.body.mass = 1000.0f;
+    sun.body.vel = { 0.0f, 0.0f, 0.063245f };
+    camTarget = App::addToScene(sun);
     App::s_Instance->camTargets.push_back(camTarget);
 
     camera.mode = graphics::Camera::Mode::LOOK_AT;
     camera.radius = 3.14f;
     camera.target = camTarget;
-
-    graphics::Planet earth("earth");
-    earth.translate(glm::vec3(0.0f, 0.0f, 0.0f));
-    camera.target = &earth;
 
 
     glfwSetInputMode(App::s_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -96,6 +76,9 @@ int main() {
     physics::Engine& physicsEngine = App::s_Instance->physicsEngine;
     graphics::Renderer& renderer = App::s_Instance->renderer;
 
+    std::vector<glm::vec3> lines;
+    renderer.lines = &lines;
+
     while (!glfwWindowShouldClose(App::s_Window)) {
         App::mainTimer.measureTime();
         physicsEngine.update();
@@ -108,6 +91,8 @@ int main() {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+
+        physicsEngine.getPredictedPos(lines);
 
         renderer.drawFrame();
 

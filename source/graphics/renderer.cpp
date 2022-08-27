@@ -132,6 +132,32 @@ namespace graphics {
 					object->draw(m_CelestialShader, GL_TRIANGLES);
 				}
 			}
+
+			// drawing lines
+			{
+				GLuint vao, vbo;
+				glGenVertexArrays(1, &vao);
+				glBindVertexArray(vao);
+			
+				glGenBuffers(1, &vbo);
+				glBindBuffer(GL_ARRAY_BUFFER, vbo);
+				glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * lines->size(), (void*)lines->data(), GL_STATIC_DRAW);
+				glEnableVertexAttribArray(0);
+				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)nullptr);
+			
+				m_LineShader.use();
+				m_LineShader.setUniformMat4("_projMat", App::s_Instance->mainCamera.projMatrix);
+				m_LineShader.setUniformMat4("_viewMat", App::s_Instance->mainCamera.viewMatrix);
+			
+				glDrawArrays(GL_LINES, 0, lines->size() / 2);
+			
+				m_LineShader.unuse();
+			
+				glBindVertexArray(0);
+			
+				glDeleteBuffers(1, &vbo);
+				glDeleteVertexArrays(1, &vao);
+			}
 		}
 		
 		// blitting from a multisampled frame buffer
@@ -252,10 +278,10 @@ namespace graphics {
 			m_PostprocessingShader.unuse();
 		}
 
-		m_PostprocessingShader.reload();
-		m_CelestialShader.reload();
-		m_BlurShader.reload();
-		m_StarShader.reload();
+		//m_PostprocessingShader.reload();
+		//m_CelestialShader.reload();
+		//m_BlurShader.reload();
+		//m_StarShader.reload();
 	}
 
 	void Renderer::bindScene(Scene* scene) {
@@ -500,5 +526,8 @@ namespace graphics {
 		
 		m_StarShader.compileShaders("shaders/star.shader", true);
 		m_StarShader.linkShaders();
+
+		m_LineShader.compileShaders("shaders/line.shader", true);
+		m_LineShader.linkShaders();
 	}
 }
