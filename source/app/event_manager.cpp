@@ -9,8 +9,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 namespace app {
-	bool EventManager::x_pressed = false;
-	uint32_t EventManager::render_mode = 0;
 
     void EventManager::setCallbackFunctions() {
         glfwSetKeyCallback(App::s_Window, EventManager::key_press_callback);
@@ -29,27 +27,6 @@ namespace app {
             camSpeed = 2.0f;
         else
             camSpeed = 1.0f;
-
-        if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
-            if (!x_pressed) {
-                x_pressed = true;
-
-                switch ((RenderMode)(render_mode & 0x000000FF)) {
-                case RenderMode::FACES:
-                    render_mode = (0xFFFFFF00 & render_mode) | (uint32_t)RenderMode::EDGES;
-                    break;
-                case RenderMode::EDGES:
-                    render_mode = (0xFFFFFF00 & render_mode) | (uint32_t)RenderMode::VERTICES;
-                    break;
-                case RenderMode::VERTICES:
-                    render_mode = (0xFFFFFF00 & render_mode) | (uint32_t)RenderMode::FACES;
-                    break;
-                }
-            }
-        }
-        else {
-            x_pressed = false;
-        }
 
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
             glm::vec3 camRight = glm::normalize(glm::cross(camera.front, camera.up));
@@ -74,14 +51,27 @@ namespace app {
 	}
 
     void EventManager::key_press_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-        
-
         if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
             for (size_t i = 0; i < App::s_Instance->camTargets.size(); ++i) {
                 if (App::s_Instance->mainCamera.target == App::s_Instance->camTargets[i]) {
                     App::s_Instance->mainCamera.target = App::s_Instance->camTargets[(i + 1) % App::s_Instance->camTargets.size()];
                     break;
                 }
+            }
+        }
+
+        graphics::RenderMode& renderMode = App::s_Instance->renderMode;
+        if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) {
+            switch (renderMode) {
+            case graphics::RenderMode::FACES:
+                renderMode = graphics::RenderMode::LINES;
+                break;
+            case graphics::RenderMode::LINES:
+                renderMode = graphics::RenderMode::POINTS;
+                break;
+            case graphics::RenderMode::POINTS:
+                renderMode = graphics::RenderMode::FACES;
+                break;
             }
         }
     }
@@ -95,6 +85,10 @@ namespace app {
         else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_RELEASE) {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             App::s_Instance->isCursorVisible = true;
+        }
+
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
+            // selecting celestial bodies
         }
     }
 

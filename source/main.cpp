@@ -97,7 +97,7 @@ int main() {
 
         physicsEngine.getPredictedPos(lines);
 
-        renderer.drawFrame();
+        renderer.drawFrame((uint32_t)App::s_Instance->renderMode);
 
         /////////////////////
         // ImGui rendering //
@@ -120,7 +120,7 @@ int main() {
 
         // Selected Celestial Body
         {
-            ImGui::Begin("Celestial Body");
+            ImGui::Begin("Celestial Body", (bool*)0, ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus);
             
             ImGui::DragFloat3("Position", (float*)&((graphics::Planet*)(camera.target))->body.pos);
             ImGui::DragFloat3("Velocity", (float*)&((graphics::Planet*)(camera.target))->body.vel);

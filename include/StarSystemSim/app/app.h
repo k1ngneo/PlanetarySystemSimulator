@@ -35,6 +35,7 @@ struct App {
 
 
 	graphics::Renderer renderer;
+	graphics::RenderMode renderMode;
 	physics::Engine physicsEngine;
 
 	graphics::Scene scene;

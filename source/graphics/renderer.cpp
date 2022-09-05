@@ -183,6 +183,8 @@ namespace graphics {
 
 		// calculating bloom effect
 		{
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 			// downscaling
 			m_BlurShader.use();
 			m_BlurShader.setUniform1i("_texture", 0);
