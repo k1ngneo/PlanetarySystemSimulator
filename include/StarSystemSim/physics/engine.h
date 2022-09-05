@@ -10,7 +10,7 @@
 
 namespace physics {
 
-	const float GRAVITATIONAL_CONSTANT = 0.5f;
+	const float GRAVITATIONAL_CONSTANT = 0.05f;
 	const float MAX_DELTA_TIME = 0.034f;
 
 	class Body;

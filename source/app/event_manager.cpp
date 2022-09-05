@@ -2,6 +2,8 @@
 
 #include "StarSystemSim/graphics/camera.h"
 
+#include "StarSystemSim/utilities/error.h"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -9,6 +11,13 @@
 namespace app {
 	bool EventManager::x_pressed = false;
 	uint32_t EventManager::render_mode = 0;
+
+    void EventManager::setCallbackFunctions() {
+        glfwSetKeyCallback(App::s_Window, EventManager::key_press_callback);
+        glfwSetMouseButtonCallback(App::s_Window, EventManager::mouse_button_callback);
+        glfwSetCursorPosCallback(App::s_Window, EventManager::mouse_callback);
+        glfwSetScrollCallback(App::s_Window, EventManager::scroll_callback);
+    }
 
 	void EventManager::processInput(GLFWwindow* window) {
         graphics::Camera& camera = App::s_Instance->mainCamera;
@@ -63,4 +72,83 @@ namespace app {
             camera.pos -= camSpeed * camera.up * App::mainTimer.deltaTime;
         }
 	}
+
+    void EventManager::key_press_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+        
+
+        if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
+            for (size_t i = 0; i < App::s_Instance->camTargets.size(); ++i) {
+                if (App::s_Instance->mainCamera.target == App::s_Instance->camTargets[i]) {
+                    App::s_Instance->mainCamera.target = App::s_Instance->camTargets[(i + 1) % App::s_Instance->camTargets.size()];
+                    break;
+                }
+            }
+        }
+    }
+
+    void EventManager::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS) {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            App::s_Instance->isFirstMouseMovement = true;
+            App::s_Instance->isCursorVisible = false;
+        }
+        else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_RELEASE) {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            App::s_Instance->isCursorVisible = true;
+        }
+    }
+
+    void EventManager::mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+        if (App::s_Instance->isFirstMouseMovement) {
+            App::s_Instance->mousePos = glm::vec2(xpos, ypos);
+            App::s_Instance->isFirstMouseMovement = false;
+        }
+
+        glm::vec2& mousePos = App::s_Instance->mousePos;
+
+        glm::vec2 offset = glm::vec2(xpos - mousePos.x, mousePos.y - ypos);
+        mousePos = glm::vec2(xpos, ypos);
+
+        float sensitivity = 0.1f;
+        offset *= sensitivity;
+
+        if (!App::s_Instance->isCursorVisible) {
+            graphics::Camera& camera = App::s_Instance->mainCamera;
+            camera.yaw += offset.x;
+            camera.pitch += offset.y;
+
+            if (camera.pitch > 89.0f)
+                camera.pitch = 89.0f;
+            if (camera.pitch < -89.0f)
+                camera.pitch = -89.0f;
+        }
+    }
+
+    void EventManager::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+        graphics::Camera& camera = App::s_Instance->mainCamera;
+
+        if (camera.mode == graphics::Camera::Mode::LOOK_AROUND) {
+            camera.fov -= 0.01f * (float)yoffset;
+            if (camera.fov < 1.0f)
+                camera.fov = 1.0f;
+            if (camera.fov > 45.0f)
+                camera.fov = 45.0f;
+        }
+        else if (camera.mode == graphics::Camera::Mode::LOOK_AT) {
+            camera.radius -= 0.1f * (float)yoffset;
+            if (camera.radius < 1.0f)
+                camera.radius = 1.0f;
+            if (camera.radius > 10.0f)
+                camera.radius = 10.0f;
+        }
+
+        camera.projMatrix = glm::perspective(camera.fov, (float)App::getWindowWidth() / (float)App::getWindowHeight(), 0.1f, 200.0f);
+    }
+
+    void EventManager::framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+        if (App::s_Instance) {
+            App::s_Instance->resize(width, height);
+            App::s_Instance->renderer.resize();
+        }
+    }
 }

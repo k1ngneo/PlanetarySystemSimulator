@@ -45,27 +45,30 @@ int main() {
 
     graphics::Object* camTarget = nullptr;
     
-    graphics::Planet earth("earth");
-    earth.translate(glm::vec3(-5.0f, 0.0f, 0.0f));
-    earth.scale(glm::vec3(0.2f));
-    earth.body.mass = 1.0f;
-    earth.body.vel = { 0.0f, 0.0f, -10.0f };
-    camTarget = App::addToScene(earth);
-    App::s_Instance->camTargets.push_back(camTarget);
+    graphics::Planet* earth = nullptr;
+
+    {
+        graphics::Planet e("earth");
+        e.translate(glm::vec3(-5.0f, 0.0f, 0.0f));
+        e.scale(glm::vec3(0.2f));
+        e.body.mass = 1.0f;
+        e.body.vel = { 0.0f, 0.0f, -2.445f };
+        camTarget = App::addToScene(e);
+        earth = (graphics::Planet*)camTarget;
+        App::s_Instance->camTargets.push_back(camTarget);
     
-    graphics::Star sun("sun");
-    sun.translate(glm::vec3(0.0f, 0.0f, 0.0f));
-    sun.body.mass = 1000.0f;
-    sun.body.vel = { 0.0f, 0.0f, 0.063245f };
-    camTarget = App::addToScene(sun);
-    App::s_Instance->camTargets.push_back(camTarget);
+        graphics::Star sun("sun");
+        sun.translate(glm::vec3(0.0f, 0.0f, 0.0f));
+        sun.body.mass = 1000.0f;
+        sun.body.vel = { 0.0f, 0.0f, 0.063245f };
+        camTarget = App::addToScene(sun);
+        App::s_Instance->camTargets.push_back(camTarget);
+    }
 
     camera.mode = graphics::Camera::Mode::LOOK_AT;
     camera.radius = 3.14f;
     camera.target = camTarget;
 
-
-    glfwSetInputMode(App::s_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     bool show_demo_window = false;
     bool show_another_window = false;
@@ -112,6 +115,15 @@ int main() {
             ImGui::Text("Camera\n");
             ImGui::Text("Yaw: %.1f\nPitch: %.1f", camera.yaw, camera.pitch);
 
+            ImGui::End();
+        }
+
+        // Selected Celestial Body
+        {
+            ImGui::Begin("Celestial Body");
+            
+            ImGui::DragFloat3("Position", (float*)&((graphics::Planet*)(camera.target))->body.pos);
+            ImGui::DragFloat3("Velocity", (float*)&((graphics::Planet*)(camera.target))->body.vel);
             ImGui::End();
         }
 
