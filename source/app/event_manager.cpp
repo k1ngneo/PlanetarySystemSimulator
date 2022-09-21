@@ -108,13 +108,23 @@ namespace app {
 
         if (!App::s_Instance->isCursorVisible) {
             graphics::Camera& camera = App::s_Instance->mainCamera;
-            camera.yaw += offset.x;
-            camera.pitch += offset.y;
+            camera.gYaw += offset.x;
 
-            if (camera.pitch > 89.0f)
-                camera.pitch = 89.0f;
-            if (camera.pitch < -89.0f)
-                camera.pitch = -89.0f;
+            int yawQuotient = 360 * (int32_t)(camera.gYaw / 360.0f);
+
+            if (camera.gYaw < 0.0f) {
+                camera.gYaw = (yawQuotient + 1) * 360.0f + camera.gYaw;
+            }
+            else {
+                camera.gYaw = camera.gYaw - (float)yawQuotient;
+            }
+
+            camera.gPitch += offset.y;
+
+            if (camera.gPitch > 89.0f)
+                camera.gPitch = 89.0f;
+            if (camera.gPitch < -89.0f)
+                camera.gPitch = -89.0f;
         }
     }
 

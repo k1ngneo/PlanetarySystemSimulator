@@ -74,8 +74,6 @@ int main() {
     bool show_another_window = false;
     float clear_color[3] = { 0.5f, 0.5f, 0.5f };
 
-    camera.yaw = 190.0f;
-
     physics::Engine& physicsEngine = App::s_Instance->physicsEngine;
     graphics::Renderer& renderer = App::s_Instance->renderer;
 

@@ -14,6 +14,7 @@ namespace graphics {
         } mode;
 
         void update(glm::mat4x4* viewMatrix = nullptr);
+        void changeTarget(Object* newTarget);
 
         glm::vec3 pos;
         glm::vec3 front;
@@ -21,7 +22,10 @@ namespace graphics {
 
         glm::vec3 dir;
 
+        // current pitch, yaw, roll in degrees
         float pitch, yaw, roll;
+        // goal pitch, yaw, roll for linear interpolation
+        float gPitch, gYaw, gRoll;
 
         float fov;
         float radius;
@@ -35,8 +39,9 @@ namespace graphics {
 
     private:
         glm::mat4& lookAround();
-        glm::mat4& lookAt(const glm::vec3& target, bool justFollow = false);
+        glm::mat4& lookAt(const glm::vec3& target);
         glm::vec3 m_PosRelTarget;
+        bool m_CameraLockedOnTarget;
     };
 
 }
