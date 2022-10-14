@@ -53,8 +53,8 @@ namespace app {
     void EventManager::key_press_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
         if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
             for (size_t i = 0; i < App::s_Instance->camTargets.size(); ++i) {
-                if (App::s_Instance->mainCamera.target == App::s_Instance->camTargets[i]) {
-                    App::s_Instance->mainCamera.target = App::s_Instance->camTargets[(i + 1) % App::s_Instance->camTargets.size()];
+                if (App::s_Instance->mainCamera.getTarget() == App::s_Instance->camTargets[i]) {
+                    App::s_Instance->mainCamera.changeTarget(App::s_Instance->camTargets[(i + 1) % App::s_Instance->camTargets.size()]);
                     break;
                 }
             }

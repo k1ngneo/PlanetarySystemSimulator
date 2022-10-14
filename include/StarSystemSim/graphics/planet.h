@@ -33,11 +33,11 @@ namespace graphics {
 		void fixUVs();
 		void calcNormalsTangents();
 
-		uint64_t lookUpOrAdd(std::vector<Mesh::VertexData>& nVertices, std::pair<int, int> pair);
+		uint32_t lookUpOrAdd(std::vector<Mesh::VertexData>& nVertices, std::pair<int, int> pair);
 		
 		void init();
 		void loadTextures(const std::string& name);
-		uint64_t loadTexture(const std::string& path, bool required = false);
+		uint32_t loadTexture(const std::string& path, bool required = false);
 
 		std::shared_ptr<Mesh> m_MainMesh;
 	};

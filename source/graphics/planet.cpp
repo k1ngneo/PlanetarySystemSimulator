@@ -77,7 +77,7 @@ namespace graphics {
 		std::vector<Mesh::VertexData> nVertices;
 		std::vector<uint32_t> nIndices;
 
-		for (int i = 0; i < depth; ++i) {
+		for (uint32_t i = 0; i < depth; ++i) {
 			for (uint64_t triangle = 0; triangle < (indices.size() + 1) / 3; ++triangle) {
 				divideTriangle(nVertices, nIndices, indices[3*triangle], indices[3*triangle + 1], indices[3*triangle + 2]);
 			}
@@ -96,11 +96,11 @@ namespace graphics {
 
 	void Planet::divideTriangle(std::vector<Mesh::VertexData>& nVertices, std::vector<uint32_t>& nIndices, int ind1, int ind2, int ind3) {
 		// indices
-		GLuint oi1, oi2, oi3;
-		GLuint ii1, ii2, ii3;
+		uint64_t oi1, oi2, oi3;
+		uint64_t ii1, ii2, ii3;
 
 		//GLuint startInd = nVertices.size();
-		GLuint lastInd = nVertices.size();
+		uint64_t lastInd = nVertices.size();
 
 		// outer (old) vertices
 		oi1 = lookUpOrAdd(nVertices, std::pair<int, int>(ind1, -1));
@@ -195,21 +195,21 @@ namespace graphics {
 					Mesh::VertexData vertexCopy = vertices[A];
 					uvA.x += 1.0f;
 					vertexCopy.uv = uvA;
-					indices[triangleInd * 3 + 0] = vertices.size();
+					indices[triangleInd * 3 + 0] = (uint32_t)vertices.size();
 					vertices.push_back(vertexCopy);
 				}
 				if (uvB.x < 0.3f) {
 					Mesh::VertexData vertexCopy = vertices[B];
 					uvB.x += 1.0f;
 					vertexCopy.uv = uvB;
-					indices[triangleInd * 3 + 1] = vertices.size();
+					indices[triangleInd * 3 + 1] = (uint32_t)vertices.size();
 					vertices.push_back(vertexCopy);
 				}
 				if (uvC.x < 0.3f) {
 					Mesh::VertexData vertexCopy = vertices[C];
 					uvC.x += 1.0f;
 					vertexCopy.uv = uvC;
-					indices[triangleInd * 3 + 2] = vertices.size();
+					indices[triangleInd * 3 + 2] = (uint32_t)vertices.size();
 					vertices.push_back(vertexCopy);
 				}
 			}
@@ -223,7 +223,7 @@ namespace graphics {
 					vertices[A] = vertexCopy;
 				}
 				else {
-					indices[triangleInd * 3 + 0] = vertices.size();
+					indices[triangleInd * 3 + 0] = (uint32_t)vertices.size();
 					vertices.push_back(vertexCopy);
 				}
 			}
@@ -235,7 +235,7 @@ namespace graphics {
 					vertices[B] = vertexCopy;
 				}
 				else {
-					indices[triangleInd * 3 + 1] = vertices.size();
+					indices[triangleInd * 3 + 1] = (uint32_t)vertices.size();
 					vertices.push_back(vertexCopy);
 				}
 			}
@@ -247,7 +247,7 @@ namespace graphics {
 					vertices[C] = vertexCopy;
 				}
 				else {
-					indices[triangleInd * 3 + 2] = vertices.size();
+					indices[triangleInd * 3 + 2] = (uint32_t)vertices.size();
 					vertices.push_back(vertexCopy);
 				}
 			}
@@ -299,8 +299,8 @@ namespace graphics {
 	}
 
 
-	uint64_t Planet::lookUpOrAdd(std::vector<Mesh::VertexData>& nVertices, std::pair<int, int> pair) {
-		uint64_t lastInd = nVertices.size();
+	uint32_t Planet::lookUpOrAdd(std::vector<Mesh::VertexData>& nVertices, std::pair<int, int> pair) {
+		uint32_t lastInd = nVertices.size();
 
 		if (pair.second > pair.first) {
 			std::swap(pair.first, pair.second);
@@ -393,8 +393,8 @@ namespace graphics {
 		m_MainMesh->bindTexture(loadTexture(path + "waves_normal2.jpg"), Mesh::TextureType::OTHER2);
 	}
 
-	uint64_t Planet::loadTexture(const std::string& path, bool required) {
-		GLuint textureID = 0;
+	uint32_t Planet::loadTexture(const std::string& path, bool required) {
+		uint32_t textureID = 0;
 
 		if (loadedTextures.find(path.c_str()) != loadedTextures.end()) {
 			return loadedTextures[path];

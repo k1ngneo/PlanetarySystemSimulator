@@ -48,7 +48,7 @@ namespace graphics {
 		if (m_HDRFramebuffer)
 			glDeleteFramebuffers(1, &m_HDRFramebuffer);
 		if (m_BloomFramebuffers) {
-			glDeleteFramebuffers(m_BloomTextureCount, m_BloomFramebuffers);
+			glDeleteFramebuffers((GLsizei)m_BloomTextureCount, m_BloomFramebuffers);
 			delete[] m_BloomFramebuffers;
 		}
 		if (m_RenderBuffers[0])
@@ -58,7 +58,7 @@ namespace graphics {
 		if (m_HDRTexture)
 			glDeleteTextures(1, &m_HDRTexture);
 		if (m_BloomTextures) {
-			glDeleteTextures(m_BloomTextureCount, m_BloomTextures);
+			glDeleteTextures((GLsizei)m_BloomTextureCount, m_BloomTextures);
 			delete[] m_BloomTextures;
 		}
 	}
@@ -149,7 +149,7 @@ namespace graphics {
 				m_LineShader.setUniformMat4("_projMat", App::s_Instance->mainCamera.projMatrix);
 				m_LineShader.setUniformMat4("_viewMat", App::s_Instance->mainCamera.viewMatrix);
 			
-				glDrawArrays(GL_LINES, 0, lines->size() / 2);
+				glDrawArrays(GL_LINES, 0, (GLsizei)lines->size() / 2);
 			
 				m_LineShader.unuse();
 			
@@ -223,7 +223,6 @@ namespace graphics {
 
 			glBindFramebuffer(GL_FRAMEBUFFER, m_BloomFramebuffers[m_BloomTextureCount - 4]);
 
-			GLint width, height;
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, m_BloomTextures[m_BloomTextureCount - 4]);
 			glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &texWidth);
@@ -351,12 +350,12 @@ namespace graphics {
 			{
 				// deleting old texture buffers and framebuffers if they already exist
 				if (m_BloomTextures != nullptr) {
-					glDeleteTextures(m_BloomTextureCount, m_BloomTextures);
+					glDeleteTextures((GLsizei)m_BloomTextureCount, m_BloomTextures);
 					delete[] m_BloomTextures;
 					m_BloomTextures = nullptr;
 
 					if (m_BloomFramebuffers != nullptr) {
-						glDeleteFramebuffers(m_BloomTextureCount, m_BloomFramebuffers);
+						glDeleteFramebuffers((GLsizei)m_BloomTextureCount, m_BloomFramebuffers);
 						delete[] m_BloomFramebuffers;
 						m_BloomFramebuffers = nullptr;
 					}
@@ -381,7 +380,7 @@ namespace graphics {
 					}
 				}
 
-				glGenTextures(m_BloomTextureCount, m_BloomTextures);
+				glGenTextures((GLsizei)m_BloomTextureCount, m_BloomTextures);
 				{
 					// creating downscaled pairs of textures
 					size_t texWidth = scrWidth, texHeight = scrHeight;
@@ -389,7 +388,7 @@ namespace graphics {
 						// horizontal and vertical textures
 						for (size_t axisIter = 0; axisIter < 2 && stepIter + axisIter < m_BloomTextureCount; ++axisIter) {
 							glBindTexture(GL_TEXTURE_2D, m_BloomTextures[stepIter+axisIter]);
-							glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, texWidth, texHeight, 0, GL_RGB, GL_FLOAT, nullptr);
+							glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, (GLsizei)texWidth, (GLsizei)texHeight, 0, GL_RGB, GL_FLOAT, nullptr);
 							glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 							glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 							glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -441,7 +440,7 @@ namespace graphics {
 				utils::fatalError("Bloom framebuffers aren't deallocating properly");
 
 			m_BloomFramebuffers = new unsigned int[m_BloomTextureCount];
-			glGenFramebuffers(m_BloomTextureCount, m_BloomFramebuffers);
+			glGenFramebuffers((GLsizei)m_BloomTextureCount, m_BloomFramebuffers);
 
 			unsigned int colorAttachments[] = { GL_COLOR_ATTACHMENT0 };
 			

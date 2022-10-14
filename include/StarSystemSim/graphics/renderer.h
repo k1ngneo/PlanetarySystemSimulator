@@ -30,7 +30,7 @@ namespace graphics {
 		int blurStr;
 
 		int currentBloomTexture;
-		inline int getBloomTextureCount() { return m_BloomTextureCount; }
+		inline size_t getBloomTextureCount() { return m_BloomTextureCount; }
 
 		std::vector<glm::vec3>* lines;
 

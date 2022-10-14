@@ -30,16 +30,18 @@ namespace graphics {
         float fov;
         float radius;
 
-        Object* target;
 
         glm::mat4x4 viewMatrix;
         glm::mat4x4 projMatrix;
 
         Camera(const glm::vec3& pos);
 
+        inline const Object* getTarget() { return m_Target; }
+
     private:
         glm::mat4& lookAround();
         glm::mat4& lookAt(const glm::vec3& target);
+        Object* m_Target;
         glm::vec3 m_PosRelTarget;
         bool m_CameraLockedOnTarget;
     };

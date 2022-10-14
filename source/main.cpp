@@ -67,7 +67,7 @@ int main() {
 
     camera.mode = graphics::Camera::Mode::LOOK_AT;
     camera.radius = 3.14f;
-    camera.target = camTarget;
+    camera.changeTarget(camTarget);
 
 
     bool show_demo_window = false;
@@ -85,7 +85,6 @@ int main() {
         physicsEngine.update();
         app::EventManager::processInput(App::s_Window);
 
-        camera.dir = camera.target->getPos() - camera.pos;
         camera.update();
 
         // ImGui preparing for a new frame
@@ -120,8 +119,8 @@ int main() {
         {
             ImGui::Begin("Celestial Body", (bool*)0, ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus);
             
-            ImGui::DragFloat3("Position", (float*)&((graphics::Planet*)(camera.target))->body.pos);
-            ImGui::DragFloat3("Velocity", (float*)&((graphics::Planet*)(camera.target))->body.vel);
+            ImGui::DragFloat3("Position", (float*)&((graphics::Planet*)(camera.getTarget()))->body.pos);
+            ImGui::DragFloat3("Velocity", (float*)&((graphics::Planet*)(camera.getTarget()))->body.vel);
             ImGui::End();
         }
 

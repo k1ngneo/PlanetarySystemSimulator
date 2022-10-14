@@ -75,13 +75,13 @@ namespace graphics {
 		}
 
 		glBindVertexArray(m_VAO);
-		glDrawElements(renderMode, m_Indices.size(), GL_UNSIGNED_INT, 0);
+		glDrawElements(renderMode, (GLsizei)m_Indices.size(), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 
 		shader.unuse();
 	}
 
-	void Mesh::bindTexture(uint64_t textureID, TextureType type)
+	void Mesh::bindTexture(uint32_t textureID, TextureType type)
 	{
 		switch (type) {
 			case TextureType::DIFFUSE:

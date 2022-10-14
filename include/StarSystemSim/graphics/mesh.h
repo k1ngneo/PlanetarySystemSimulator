@@ -26,7 +26,7 @@ namespace graphics {
 			OTHER1, OTHER2
 		};
 
-		void bindTexture(uint64_t textureID, TextureType type);
+		void bindTexture(uint32_t textureID, TextureType type);
 
 		inline const std::vector<VertexData>& getVertices() { return m_Vertices; }
 		inline const std::vector<uint32_t>& getIndices() { return m_Indices; }
@@ -36,10 +36,10 @@ namespace graphics {
 	private:
 		std::vector<VertexData> m_Vertices;
 		std::vector<uint32_t> m_Indices;
-		unsigned int m_DiffuseTex, m_SpecularTex, m_NormalTex, m_NightTex;
-		unsigned int m_Other1Tex, m_Other2Tex;
+		uint32_t m_DiffuseTex, m_SpecularTex, m_NormalTex, m_NightTex;
+		uint32_t m_Other1Tex, m_Other2Tex;
 
-		unsigned int m_VAO, m_VBO, m_EBO;
+		uint32_t m_VAO, m_VBO, m_EBO;
 
 		void setUpMesh();
 	};
