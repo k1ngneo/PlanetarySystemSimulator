@@ -15,7 +15,7 @@
 unsigned int Shader::numAttributes = 0;
 
 Shader::Shader()
-	: m_FragmentShaderID(0), m_VertexShaderID(0), m_GeometryShaderID(0), m_Program(0), m_AttributeNum(0)
+	: m_Program(0), m_AttributeNum(0)
 {
 }
 
@@ -67,7 +67,7 @@ void Shader::setUniformMat4(const char* name, const glm::mat4& matrix) {
 	glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, &matrix[0][0]);
 }
 
-void Shader::compileShaders(const char* src, bool path) {
+void Shader::buildShaders(const char* src, bool path) {
 	std::string source = src;
 
 	if (path) {
@@ -78,46 +78,75 @@ void Shader::compileShaders(const char* src, bool path) {
 
 	m_Program = glCreateProgram();
 
-	m_VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-	m_FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+	uint32_t vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
+	uint32_t fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+	uint32_t controlShaderID = 0;
+	uint32_t evaluationShaderID = 0;
+	uint32_t geometryShaderID = 0;
 
 	std::string vertexSource = "";
-	std::string fragmentSource = "";
+	std::string controlSource = "";
+	std::string evaluationSource = "";
 	std::string geometrySource = "";
+	std::string fragmentSource = "";
 	std::string line;
 
-	enum class ShaderType { VERTEX_SHADER, FRAGMENT_SHADER, GEOMETRY_SHADER, NO_SHADER } shader_type;
+	enum class ShaderType { VERTEX_SHADER, CONTROL_SHADER, EVALUATION_SHADER, FRAGMENT_SHADER, GEOMETRY_SHADER, NO_SHADER } shader_type;
 	shader_type = ShaderType::NO_SHADER;
 
 	const std::string vertexShaderPrep = "#vertex_shader";
-	const std::string fragmentShaderPrep = "#fragment_shader";
+	const std::string controlShaderPrep = "#control_shader";
+	const std::string evaluationShaderPrep = "#evaluation_shader";
 	const std::string geometryShaderPrep = "#geometry_shader";
+	const std::string fragmentShaderPrep = "#fragment_shader";
 
-	for (unsigned int i = 0; i < utils::howManyLines(source.c_str()); ++i) {
-		line = utils::getLine(source.c_str(), i);
+	// reading a file
+	{
+		for (unsigned int i = 0; i < utils::howManyLines(source.c_str()); ++i) {
+			line = utils::getLine(source.c_str(), i);
 
-		bool isItPrepCom = false;
+			bool isItPrepCom = false;
 
-		if (!line.compare(vertexShaderPrep)) {
-			shader_type = ShaderType::VERTEX_SHADER;
-			isItPrepCom = true;
-		}
-		else if (!line.compare(fragmentShaderPrep)) {
-			shader_type = ShaderType::FRAGMENT_SHADER;
-			isItPrepCom = true;
-		}
-		else if (!line.compare(geometryShaderPrep)) {
-			shader_type = ShaderType::GEOMETRY_SHADER;
-			isItPrepCom = true;
+			if (!line.compare(vertexShaderPrep)) {
+				shader_type = ShaderType::VERTEX_SHADER;
+				isItPrepCom = true;
+			}
+			else if (!line.compare(controlShaderPrep)) {
+				shader_type = ShaderType::CONTROL_SHADER;
+				isItPrepCom = true;
 
-			m_GeometryShaderID = glCreateShader(GL_GEOMETRY_SHADER);
-		}
+				if (controlShaderID == 0)
+					controlShaderID = glCreateShader(GL_TESS_CONTROL_SHADER);
+			}
+			else if (!line.compare(evaluationShaderPrep)) {
+				shader_type = ShaderType::EVALUATION_SHADER;
+				isItPrepCom = true;
 
-		if (!isItPrepCom) {
-			switch (shader_type) {
+				if (evaluationShaderID == 0)
+					evaluationShaderID = glCreateShader(GL_TESS_EVALUATION_SHADER);
+			}
+			else if (!line.compare(geometryShaderPrep)) {
+				shader_type = ShaderType::GEOMETRY_SHADER;
+				isItPrepCom = true;
+
+				if (geometryShaderID == 0)
+					geometryShaderID = glCreateShader(GL_GEOMETRY_SHADER);
+			}
+			else if (!line.compare(fragmentShaderPrep)) {
+				shader_type = ShaderType::FRAGMENT_SHADER;
+				isItPrepCom = true;
+			}
+
+
+			if (!isItPrepCom) {
+				switch (shader_type) {
 				case ShaderType::VERTEX_SHADER:
 				{
 					vertexSource += line + "\n";
+				} break;
+				case ShaderType::CONTROL_SHADER:
+				{
+
 				} break;
 				case ShaderType::FRAGMENT_SHADER:
 				{
@@ -130,11 +159,14 @@ void Shader::compileShaders(const char* src, bool path) {
 				case ShaderType::NO_SHADER:
 				{
 				} break;
+				}
 			}
 		}
 	}
 
 	//printf( "VERTEX_SHADER:\n%s", vertexSource.c_str() );
+	//printf( "CONTROL_SHADER:\n%s", controlSource.c_str() );
+	//printf( "EVALUATION_SHADER:\n%s", evaluationSource.c_str() );
 	//printf( "GEOMETRY_SHADER:\n%s", geometrySource.c_str() );
 	//printf( "FRAGMENT_SHADER:\n%s", fragmentSource.c_str() );
 
@@ -143,91 +175,111 @@ void Shader::compileShaders(const char* src, bool path) {
 	GLint success;
 	GLchar infoLog[512];
 	
-	// vertex shader compilation
+	// compiling shaders
 	{
-		contentsPtr = vertexSource.c_str();
-		glShaderSource(m_VertexShaderID, 1, &contentsPtr, NULL);
-		glCompileShader(m_VertexShaderID);
+		// vertex shader compilation
+		{
+			contentsPtr = vertexSource.c_str();
+			glShaderSource(vertexShaderID, 1, &contentsPtr, NULL);
+			glCompileShader(vertexShaderID);
 
-		glGetShaderiv(m_VertexShaderID, GL_COMPILE_STATUS, &success);
-		if (!success) {
-			glGetShaderInfoLog(m_VertexShaderID, 512, NULL, infoLog);
-			std::cout << "Shader: " << src << '\n';
-			std::cout << "ERROR::VERTEX_SHADER::COMPILATION_FAILED\n" << infoLog << '\n';
+			glGetShaderiv(vertexShaderID, GL_COMPILE_STATUS, &success);
+			if (!success) {
+				glGetShaderInfoLog(vertexShaderID, 512, NULL, infoLog);
+				std::cout << "Shader: " << src << '\n';
+				std::cout << "ERROR::VERTEX_SHADER::COMPILATION_FAILED\n" << infoLog << '\n';
+			}
+
+			glAttachShader(m_Program, vertexShaderID);
+		}
+
+		// control shader compilation
+		if (controlShaderID != 0) {
+			contentsPtr = controlSource.c_str();
+			glShaderSource(controlShaderID, 1, &contentsPtr, NULL);
+			glCompileShader(controlShaderID);
+
+			glGetShaderiv(controlShaderID, GL_COMPILE_STATUS, &success);
+			if (!success) {
+				glGetShaderInfoLog(controlShaderID, 512, NULL, infoLog);
+				std::cout << "Shader: " << src << '\n';
+				std::cout << "ERROR::CONTROL_SHADER::COMPILATION_FAILED\n" << infoLog << '\n';
+			}
+
+			glAttachShader(m_Program, controlShaderID);
+		}
+
+		// evaluation shader compilation
+		if (evaluationShaderID != 0) {
+			contentsPtr = evaluationSource.c_str();
+			glShaderSource(evaluationShaderID, 1, &contentsPtr, NULL);
+			glCompileShader(evaluationShaderID);
+
+			glGetShaderiv(evaluationShaderID, GL_COMPILE_STATUS, &success);
+			if (!success) {
+				glGetShaderInfoLog(evaluationShaderID, 512, NULL, infoLog);
+				std::cout << "Shader: " << src << '\n';
+				std::cout << "ERROR::EVALUATION_SHADER::COMPILATION_FAILED\n" << infoLog << '\n';
+			}
+
+			glAttachShader(m_Program, evaluationShaderID);
+		}
+
+		// geometry shader compilation
+		if (geometryShaderID != 0) {
+			contentsPtr = geometrySource.c_str();
+			glShaderSource(geometryShaderID, 1, &contentsPtr, NULL);
+			glCompileShader(geometryShaderID);
+
+			glGetShaderiv(geometryShaderID, GL_COMPILE_STATUS, &success);
+			if (!success) {
+				glGetShaderInfoLog(geometryShaderID, 512, NULL, infoLog);
+				std::cout << "Shader: " << src << '\n';
+				std::cout << "ERROR::GEOMETRY_SHADER::COMPILATION_FAILED\n" << infoLog << '\n';
+			}
+
+			glAttachShader(m_Program, geometryShaderID);
+		}
+
+		// fragment shader compilation
+		{
+			contentsPtr = fragmentSource.c_str();
+			glShaderSource(fragmentShaderID, 1, &contentsPtr, NULL);
+			glCompileShader(fragmentShaderID);
+
+			glGetShaderiv(fragmentShaderID, GL_COMPILE_STATUS, &success);
+			if (!success) {
+				glGetShaderInfoLog(fragmentShaderID, 512, NULL, infoLog);
+				std::cout << "Shader: " << src << '\n';
+				std::cout << "ERROR::FRAGMENT_SHADER::COMPILATION_FAILED\n" << infoLog << '\n';
+			}
+
+			glAttachShader(m_Program, fragmentShaderID);
 		}
 	}
 
-	// geometry shader compilation
-	if (m_GeometryShaderID != 0) {
-		contentsPtr = geometrySource.c_str();
-		glShaderSource(m_GeometryShaderID, 1, &contentsPtr, NULL);
-		glCompileShader(m_GeometryShaderID);
-
-		glGetShaderiv(m_GeometryShaderID, GL_COMPILE_STATUS, &success);
-		if (!success) {
-			glGetShaderInfoLog(m_GeometryShaderID, 512, NULL, infoLog);
-			std::cout << "Shader: " << src << '\n';
-			std::cout << "ERROR::GEOMETRY_SHADER::COMPILATION_FAILED\n" << infoLog << '\n';
-		}
-	}
-
-	// fragment shader compilation
-	{
-		contentsPtr = fragmentSource.c_str();
-		glShaderSource(m_FragmentShaderID, 1, &contentsPtr, NULL);
-		glCompileShader(m_FragmentShaderID);
-
-		glGetShaderiv(m_FragmentShaderID, GL_COMPILE_STATUS, &success);
-		if (!success) {
-			glGetShaderInfoLog(m_FragmentShaderID, 512, NULL, infoLog);
-			std::cout << "Shader: " << src << '\n';
-			std::cout << "ERROR::FRAGMENT_SHADER::COMPILATION_FAILED\n" << infoLog << '\n';
-		}
-	}
-}
-
-void Shader::compileShaders(const char* vertexPath, const char* fragmentPath) {
-	m_Program = glCreateProgram();
-
-	m_VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-	m_FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-
-	compileShader(m_VertexShaderID, vertexPath);
-	compileShader(m_FragmentShaderID, fragmentPath);
-}
-
-void Shader::linkShaders() {
-	GLint success;
-	GLchar infoLog[512];
-
-	if (m_VertexShaderID) {
-		glAttachShader(m_Program, m_VertexShaderID);
-	}
-	if (m_GeometryShaderID) {
-		glAttachShader(m_Program, m_GeometryShaderID);
-	}
-	if (m_FragmentShaderID) {
-		glAttachShader(m_Program, m_FragmentShaderID);
-	}
+	// linking shaders
 	glLinkProgram(m_Program);
 
-	glGetProgramiv(m_Program, GL_LINK_STATUS, &success);
-	if (!success) {
-		glGetProgramInfoLog(m_Program, 512, NULL, infoLog);
-		std::cout << "Failed to link shader program!\n " << infoLog << std::endl;
+	if (vertexShaderID) {
+		glDetachShader(m_Program, vertexShaderID);
+		glDeleteShader(vertexShaderID);
 	}
-
-	if (m_VertexShaderID) {
-		glDetachShader(m_Program, m_VertexShaderID);
-		glDeleteShader(m_VertexShaderID);
+	if (controlShaderID) {
+		glDetachShader(m_Program, controlShaderID);
+		glDeleteShader(controlShaderID);
 	}
-	if (m_GeometryShaderID) {
-		glDetachShader(m_Program, m_GeometryShaderID);
-		glDeleteShader(m_GeometryShaderID);
+	if (evaluationShaderID) {
+		glDetachShader(m_Program, evaluationShaderID);
+		glDeleteShader(evaluationShaderID);
 	}
-	if (m_FragmentShaderID) {
-		glDetachShader(m_Program, m_FragmentShaderID);
-		glDeleteShader(m_FragmentShaderID);
+	if (geometryShaderID) {
+		glDetachShader(m_Program, geometryShaderID);
+		glDeleteShader(geometryShaderID);
+	}
+	if (fragmentShaderID) {
+		glDetachShader(m_Program, fragmentShaderID);
+		glDeleteShader(fragmentShaderID);
 	}
 }
 
@@ -244,11 +296,10 @@ void Shader::reload() {
 		m_Program = 0;
 	}
 
-	compileShaders(m_Path.c_str(), true);
-	linkShaders();
+	buildShaders(m_Path.c_str(), true);
 }
 
-void Shader::compileShader(GLuint shader, const char* filePath) {
+void Shader::compileShader(uint32_t shader, const char* filePath) {
 	std::string path = std::string("../src/Graphics/Shaders/") + filePath;
 	std::ifstream file(path.c_str());
 	if (file.fail()) {

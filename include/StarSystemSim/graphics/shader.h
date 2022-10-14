@@ -14,9 +14,6 @@ const int GEOMETRY_SHADER = 3;
 class Shader
 {
 	uint32_t m_Program;
-	uint32_t m_VertexShaderID;
-	uint32_t m_FragmentShaderID;
-	uint32_t m_GeometryShaderID;
 
 	std::string m_Path;
 	std::filesystem::file_time_type m_LastModTime;
@@ -34,9 +31,7 @@ private:
 public:
 	Shader();
 	~Shader();
-	void compileShaders(const char* source, bool path = false);
-	void compileShaders(const char* vertexPath, const char* fragmentPath);
-	void linkShaders();
+	void buildShaders(const char* source, bool path = false);
 
 	void reload();
 

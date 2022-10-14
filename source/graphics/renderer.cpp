@@ -32,6 +32,10 @@ namespace graphics {
 		glEnable(GL_MULTISAMPLE);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
+		// tesselation patch vertices
+		glPatchParameteri(GL_PATCH_VERTICES, 3);
 	}
 
 	Renderer::~Renderer() {
@@ -511,25 +515,12 @@ namespace graphics {
 		glBindVertexArray(0);
 	}
 	void Renderer::setupShaders() {
-		m_PostprocessingShader.compileShaders("shaders/postprocessing.shader", true);
-		m_PostprocessingShader.linkShaders();
-
-		m_BlurShader.compileShaders("shaders/blur.shader", true);
-		m_BlurShader.linkShaders();
-
-		m_MixShader.compileShaders("shaders/mix.shader", true);
-		m_MixShader.linkShaders();
-
-		m_SkyboxShader.compileShaders("shaders/skybox.shader", true);
-		m_SkyboxShader.linkShaders();
-
-		m_CelestialShader.compileShaders("shaders/celestial.shader", true);
-		m_CelestialShader.linkShaders();
-		
-		m_StarShader.compileShaders("shaders/star.shader", true);
-		m_StarShader.linkShaders();
-
-		m_LineShader.compileShaders("shaders/line.shader", true);
-		m_LineShader.linkShaders();
+		m_PostprocessingShader.buildShaders("shaders/postprocessing.shader", true);
+		m_BlurShader.buildShaders("shaders/blur.shader", true);
+		m_MixShader.buildShaders("shaders/mix.shader", true);
+		m_SkyboxShader.buildShaders("shaders/skybox.shader", true);
+		m_CelestialShader.buildShaders("shaders/celestial.shader", true);
+		m_StarShader.buildShaders("shaders/star.shader", true);
+		m_LineShader.buildShaders("shaders/line.shader", true);
 	}
 }
