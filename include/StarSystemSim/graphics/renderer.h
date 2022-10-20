@@ -16,6 +16,9 @@ namespace graphics {
 
 	class Renderer {
 	public:
+		static float tessLevelOuter;
+		static float tessLevelInner;
+
 		Renderer();
 		~Renderer();
 

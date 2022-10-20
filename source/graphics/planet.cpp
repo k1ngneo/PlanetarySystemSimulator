@@ -27,7 +27,7 @@ namespace graphics {
 	{
 		init();
 
-		subdivide(5);
+		//subdivide(5);
 		calcUVs();
 		fixUVs();
 		calcNormalsTangents();

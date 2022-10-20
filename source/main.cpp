@@ -58,7 +58,7 @@ int main() {
         App::s_Instance->camTargets.push_back(camTarget);
     
         graphics::Star sun("sun");
-        sun.translate(glm::vec3(0.0f, 0.0f, 0.0f));
+        sun.translate(glm::vec3(5.0f, 0.0f, 0.0f));
         sun.body.mass = 1000.0f;
         sun.body.vel = { 0.0f, 0.0f, 0.063245f };
         camTarget = App::addToScene(sun);
@@ -124,6 +124,14 @@ int main() {
             
             ImGui::DragFloat3("Position", (float*)&((graphics::Planet*)(camera.target))->body.pos);
             ImGui::DragFloat3("Velocity", (float*)&((graphics::Planet*)(camera.target))->body.vel);
+            ImGui::End();
+        }
+
+        // Tessellation Levels
+        {
+            ImGui::Begin("Tessellation Levels");
+            ImGui::DragFloat("Level Outer", &graphics::Renderer::tessLevelOuter);
+            ImGui::DragFloat("Level Inner", &graphics::Renderer::tessLevelInner);
             ImGui::End();
         }
 

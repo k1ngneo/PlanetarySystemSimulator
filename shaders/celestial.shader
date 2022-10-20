@@ -1,11 +1,55 @@
 #vertex_shader
-#version 330 core
+#version 430 core
 
 layout (location = 0) in vec3 inPos;
 layout (location = 1) in vec2 inUV;
 layout (location = 2) in vec3 inNorm;
 layout (location = 3) in vec3 inTan;
 
+out vec3 csPos;
+
+void main() {
+    csPos = inPos;
+}
+
+#control_shader
+#version 430 core
+
+layout (vertices = 3) out;
+
+in vec3 csPos[];
+out vec3 esPos[];
+
+uniform float _TLO;
+uniform float _TLI;
+
+void main() {
+    esPos[gl_InvocationID] = csPos[gl_InvocationID];
+
+    gl_TessLevelOuter[0] = _TLO;
+    gl_TessLevelOuter[1] = _TLO;
+    gl_TessLevelOuter[2] = _TLO;
+    gl_TessLevelInner[0] = _TLI;
+}
+
+#evaluation_shader
+#version 430 core
+
+layout (triangles, equal_spacing, ccw) in;
+
+uniform mat4 _modelMat;
+uniform mat4 _viewMat;
+uniform mat4 _projMat;
+
+in vec3 esPos[];
+
+void main() {
+    vec3 vertexPos = esPos[0] * vec3(gl_TessCoord.x) + esPos[1] * vec3(gl_TessCoord.y) + esPos[2] * vec3(gl_TessCoord.z);
+    vertexPos = normalize(vertexPos);
+    gl_Position = _projMat * _viewMat * _modelMat * vec4(vertexPos, 1.0);
+}
+
+/*
 struct Light {
     vec3 pos;
     vec3 dir;
@@ -56,10 +100,20 @@ void main() {
     fragData.light1.pos = TBN * _light1.pos;
     fragData.light1.dir = normalize(fragData.posTan - fragData.light1.pos);
 }
+*/
 
 #fragment_shader
-#version 330 core
+#version 430 core
 
+layout (location = 0) out vec4 outColor;
+layout (location = 1) out vec4 outHDRColor;
+
+void main() {
+    outColor = vec4(1.0, 0.1, 0.1, 1.0);
+    outHDRColor = vec4(0.0, 0.0, 0.0, 1.0);
+}
+
+/*
 struct Light {
     vec3 pos;
     vec3 dir;
@@ -155,3 +209,4 @@ void main() {
     outColor = vec4(pointLights + nightLights, 1.0);
     outHDRColor = vec4(0.0, 0.0, 0.0, 1.0);
 }
+*/

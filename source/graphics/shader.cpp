@@ -140,25 +140,29 @@ void Shader::buildShaders(const char* src, bool path) {
 
 			if (!isItPrepCom) {
 				switch (shader_type) {
-				case ShaderType::VERTEX_SHADER:
-				{
-					vertexSource += line + "\n";
-				} break;
-				case ShaderType::CONTROL_SHADER:
-				{
-
-				} break;
-				case ShaderType::FRAGMENT_SHADER:
-				{
-					fragmentSource += line + "\n";
-				} break;
-				case ShaderType::GEOMETRY_SHADER:
-				{
-					geometrySource += line + "\n";
-				} break;
-				case ShaderType::NO_SHADER:
-				{
-				} break;
+					case ShaderType::VERTEX_SHADER:
+					{
+						vertexSource += line + "\n";
+					} break;
+					case ShaderType::CONTROL_SHADER:
+					{
+						controlSource += line + "\n";
+					} break;
+					case ShaderType::EVALUATION_SHADER:
+					{
+						evaluationSource += line + "\n";
+					} break;
+					case ShaderType::FRAGMENT_SHADER:
+					{
+						fragmentSource += line + "\n";
+					} break;
+					case ShaderType::GEOMETRY_SHADER:
+					{
+						geometrySource += line + "\n";
+					} break;
+					case ShaderType::NO_SHADER:
+					{
+					} break;
 				}
 			}
 		}

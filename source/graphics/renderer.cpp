@@ -9,6 +9,9 @@
 
 namespace graphics {
 
+	float Renderer::tessLevelOuter = 1.0f;
+	float Renderer::tessLevelInner = 1.0f;
+
 	Renderer::Renderer()
 		: m_VAO(0), m_VBO(0), m_EBO(0),
 		MSAA_samples(8), blurStr(5),
@@ -34,7 +37,7 @@ namespace graphics {
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
-		// tesselation patch vertices
+		// tessellation patch vertices
 		glPatchParameteri(GL_PATCH_VERTICES, 3);
 	}
 
@@ -130,10 +133,14 @@ namespace graphics {
 				m_CelestialShader.setUniform3f("_light1.attenuation", m_CurrentScene->stars[0]->attenuation);
 
 				m_CelestialShader.setUniform1f("_time", App::mainTimer.lastTime);
+
+				m_CelestialShader.setUniform1f("_TLO", tessLevelOuter);
+				m_CelestialShader.setUniform1f("_TLI", tessLevelInner);
+
 				m_CelestialShader.unuse();
 
 				for (Object* object : m_CurrentScene->planets) {
-					object->draw(m_CelestialShader, GL_TRIANGLES);
+					object->draw(m_CelestialShader, GL_PATCHES);
 				}
 			}
 
