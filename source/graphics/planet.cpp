@@ -22,14 +22,14 @@ namespace graphics {
 	static std::map<std::string, uint64_t> loadedTextures;
 
 
-	Planet::Planet(const char* name)
+	Planet::Planet(const char* name, uint32_t subdivLevel)
 		: m_MainMesh(nullptr)
 	{
 		init();
 
-		//subdivide(5);
+		subdivide(subdivLevel);
 		calcUVs();
-		fixUVs();
+		//fixUVs();
 		calcNormalsTangents();
 
 		m_MainMesh = std::shared_ptr<Mesh>(new Mesh(vertices, indices));

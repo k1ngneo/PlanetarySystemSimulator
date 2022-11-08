@@ -48,7 +48,7 @@ int main() {
     graphics::Planet* earth = nullptr;
 
     {
-        graphics::Planet e("earth");
+        graphics::Planet e("earth", 2);
         e.translate(glm::vec3(-5.0f, 0.0f, 0.0f));
         e.scale(glm::vec3(0.2f));
         e.body.mass = 1.0f;
@@ -67,7 +67,7 @@ int main() {
 
     camera.mode = graphics::Camera::Mode::LOOK_AT;
     camera.radius = 3.14f;
-    camera.target = camTarget;
+    camera.target = earth;
 
 
     bool show_demo_window = false;
@@ -130,8 +130,7 @@ int main() {
         // Tessellation Levels
         {
             ImGui::Begin("Tessellation Levels");
-            ImGui::DragFloat("Level Outer", &graphics::Renderer::tessLevelOuter);
-            ImGui::DragFloat("Level Inner", &graphics::Renderer::tessLevelInner);
+            ImGui::DragFloat("Level Outer", &graphics::Renderer::tessLevel);
             ImGui::End();
         }
 

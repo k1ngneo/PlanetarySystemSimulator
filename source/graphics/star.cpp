@@ -3,13 +3,13 @@
 namespace graphics {
 
 	Star::Star(const char* name)
-		: Planet(name)
+		: Planet(name, 5)
 	{
-		this->ambientColor = glm::vec3(0.1f);
-		this->diffuseColor = glm::vec3(1.0f);
-		this->specularColor = glm::vec3(1.0f);
+		this->light.ambientColor = glm::vec3(0.1f);
+		this->light.diffuseColor = glm::vec3(1.0f);
+		this->light.specularColor = glm::vec3(1.0f);
 
-		this->attenuation = glm::vec3(1.0f, 0.0001f, 0.00012f);
+		this->light.attenuation = glm::vec3(1.0f, 0.0001f, 0.00012f);
 
 		this->body.type = physics::Body::Type::STATIC;
 	}

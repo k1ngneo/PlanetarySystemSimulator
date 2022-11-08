@@ -130,8 +130,8 @@ namespace app {
         }
         else if (camera.mode == graphics::Camera::Mode::LOOK_AT) {
             camera.radius -= 0.1f * (float)yoffset;
-            if (camera.radius < 1.0f)
-                camera.radius = 1.0f;
+            if (camera.radius < 0.5f)
+                camera.radius = 0.5f;
             if (camera.radius > 10.0f)
                 camera.radius = 10.0f;
         }

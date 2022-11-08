@@ -9,8 +9,7 @@
 
 namespace graphics {
 
-	float Renderer::tessLevelOuter = 1.0f;
-	float Renderer::tessLevelInner = 1.0f;
+	float Renderer::tessLevel = 1.0f;
 
 	Renderer::Renderer()
 		: m_VAO(0), m_VBO(0), m_EBO(0),
@@ -126,16 +125,13 @@ namespace graphics {
 
 				m_CelestialShader.setUniform3f("_viewPos", App::s_Instance->mainCamera.pos);
 
-				m_CelestialShader.setUniform3f("_light1.pos", m_CurrentScene->stars[0]->getPos());
-				m_CelestialShader.setUniform3f("_light1.amb", m_CurrentScene->stars[0]->ambientColor);
-				m_CelestialShader.setUniform3f("_light1.diff", m_CurrentScene->stars[0]->diffuseColor);
-				m_CelestialShader.setUniform3f("_light1.spec", m_CurrentScene->stars[0]->specularColor);
-				m_CelestialShader.setUniform3f("_light1.attenuation", m_CurrentScene->stars[0]->attenuation);
+				m_CelestialShader.setUniform3f("_light.pos", m_CurrentScene->stars[0]->getPos());
+				m_CelestialShader.setUniform3f("_light.amb", m_CurrentScene->stars[0]->light.ambientColor);
+				m_CelestialShader.setUniform3f("_light.diff", m_CurrentScene->stars[0]->light.diffuseColor);
+				m_CelestialShader.setUniform3f("_light.spec", m_CurrentScene->stars[0]->light.specularColor);
+				m_CelestialShader.setUniform3f("_light.att", m_CurrentScene->stars[0]->light.attenuation);
 
 				m_CelestialShader.setUniform1f("_time", App::mainTimer.lastTime);
-
-				m_CelestialShader.setUniform1f("_TLO", tessLevelOuter);
-				m_CelestialShader.setUniform1f("_TLI", tessLevelInner);
 
 				m_CelestialShader.unuse();
 
@@ -292,7 +288,7 @@ namespace graphics {
 		}
 
 		//m_PostprocessingShader.reload();
-		//m_CelestialShader.reload();
+		m_CelestialShader.reload();
 		//m_BlurShader.reload();
 		//m_StarShader.reload();
 	}

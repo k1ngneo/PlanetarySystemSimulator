@@ -10,11 +10,14 @@ namespace graphics {
 		Star(const char* name);
 		~Star();
 
-		glm::vec3 ambientColor;
-		glm::vec3 diffuseColor;
-		glm::vec3 specularColor;
 
-		glm::vec3 attenuation;
+		struct Light {
+			glm::vec3 ambientColor;
+			glm::vec3 diffuseColor;
+			glm::vec3 specularColor;
+
+			glm::vec3 attenuation;
+		} light;
 	};
 
 }

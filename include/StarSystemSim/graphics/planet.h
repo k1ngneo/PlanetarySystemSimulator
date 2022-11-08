@@ -12,7 +12,7 @@ namespace graphics {
 
 	class Planet : public Object {
 	public:
-		Planet(const char* name);
+		Planet(const char* name, uint32_t subdivLevel = 0);
 		~Planet();
 
 		void draw(Shader& shader, uint32_t renderMode = GL_TRIANGLES) override;
