@@ -127,13 +127,6 @@ int main() {
             ImGui::End();
         }
 
-        // Tessellation Levels
-        {
-            ImGui::Begin("Tessellation Levels");
-            ImGui::DragFloat("Level Outer", &graphics::Renderer::tessLevel);
-            ImGui::End();
-        }
-
         ImGui::Render();
         ImDrawData* drawData = ImGui::GetDrawData();
         if (drawData) {

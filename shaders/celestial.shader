@@ -161,6 +161,7 @@ void main() {
     for(int vertexInd = 0; vertexInd < 3; vertexInd += 1) {
         worldPos[vertexInd] = vec3(_modelMat * vec4(gl_in[vertexInd].gl_Position));
         worldNormal[vertexInd] = vec3(_modelMat * vec4(gl_in[vertexInd].gl_Position.xyz, 0.0));
+        worldNormal[vertexInd] = normalize(worldNormal[vertexInd]);
     }
 
     // fixing uv coordinates
@@ -220,6 +221,7 @@ void main() {
             tan.x = f * (dUV2.y * dPos1.x - dUV1.y * dPos2.x);
 			tan.y = f * (dUV2.y * dPos1.y - dUV1.y * dPos2.y);
 			tan.z = f * (dUV2.y * dPos1.z - dUV1.y * dPos2.z);
+
             tan = normalize(tan);
 
             // making the tangent vector orthogonal to the normal vector
@@ -300,7 +302,7 @@ vec3 calcPointLight(Light light, Material mater) {
     vec3 lightDir = normalize(light.tanPos - fsData.tanPos);
     vec3 viewDir = normalize(fsData.tanCamPos - fsData.tanPos);
 
-    float diff = max(dot(mater.norm, -lightDir), 0.0);
+    float diff = max(dot(mater.norm, lightDir), 0.0);
     vec3 diffuseLight = (mater.diff * diff) * light.diff;
 
     vec3 reflectDir = reflect(lightDir, mater.norm);
@@ -312,8 +314,8 @@ vec3 calcPointLight(Light light, Material mater) {
     float attenuation = 1.0 / (light.att.x + light.att.y * dist
         + light.att.y * (dist*dist));
 
-    lightSum = /*ambientLight +*/ diffuseLight /*+ specularLight*/;
-    //lightSum *= attenuation;
+    lightSum = ambientLight + diffuseLight + specularLight;
+    lightSum *= attenuation;
 
     return lightSum;
 }
@@ -332,7 +334,7 @@ void main() {
     vec3 land_normal = normalize(2.0 * texture2D(_normTex, fsData.uv).rgb - 1.0);
 
     mater.norm = mix(land_normal, waves_normal, mater.spec.r);
-    //mater.norm = mix(mater.norm, vec3(0.0, 0.0, 1.0), 0.8);
+    mater.norm = mix(mater.norm, vec3(0.0, 0.0, 1.0), 0.8);
 
     mater.night = texture2D(_nightTex, fsData.uv).rgb;
 
@@ -343,7 +345,5 @@ void main() {
 
 
     outColor = vec4(pointLights + nightLights, 1.0);
-    outColor = vec4(mater.norm, 1.0);
-    outColor = vec4(fsData.tanCamPos, 1.0);
     outHDRColor = vec4(0.0, 0.0, 0.0, 1.0);
 }

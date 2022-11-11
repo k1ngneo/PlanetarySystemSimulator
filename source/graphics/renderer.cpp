@@ -125,7 +125,7 @@ namespace graphics {
 
 				m_CelestialShader.setUniform3f("_viewPos", App::s_Instance->mainCamera.pos);
 
-				m_CelestialShader.setUniform3f("_light.pos", m_CurrentScene->stars[0]->getPos());
+				m_CelestialShader.setUniform3f("_light.tanPos", m_CurrentScene->stars[0]->getPos());
 				m_CelestialShader.setUniform3f("_light.amb", m_CurrentScene->stars[0]->light.ambientColor);
 				m_CelestialShader.setUniform3f("_light.diff", m_CurrentScene->stars[0]->light.diffuseColor);
 				m_CelestialShader.setUniform3f("_light.spec", m_CurrentScene->stars[0]->light.specularColor);
