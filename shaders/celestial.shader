@@ -2,9 +2,6 @@
 #version 430 core
 
 layout (location = 0) in vec3 inPos;
-layout (location = 1) in vec2 inUV;
-layout (location = 2) in vec3 inNorm;
-layout (location = 3) in vec3 inTan;
 
 uniform mat4 _modelMat;
 uniform mat4 _viewMat;
@@ -33,34 +30,29 @@ uniform mat4 _viewMat;
 void main() {
     esPos[gl_InvocationID] = csPos[gl_InvocationID];
 
-    float tessellationLevel, camDist;
-    const float tessFactor = 4.0;
-
-    // calculating outer tessellation levels
-    vec3 edgePos = 0.5 * (csVPos[gl_InvocationID] + csVPos[(gl_InvocationID+1)%3]);
-    camDist = distance(vec3(0.0), edgePos);
-    tessellationLevel = 0.0001;
-    if(camDist >= 0.0001) {
-        tessellationLevel = tessFactor / (camDist*camDist);
-    }
-
-    gl_TessLevelOuter[gl_InvocationID] = tessellationLevel;
-
-    // calculating inner tessellation level
     if(gl_InvocationID == 0) {
-        tessellationLevel = 0.0001;
-        camDist = distance(vec3(0.0), 0.333 * (csVPos[0] + csVPos[1] + csVPos[2]));
-        if(camDist >= 0.0001) {
-            tessellationLevel = tessFactor / (camDist*camDist);
+        float camDist;
+        const float tessFactor = 4.0;
+
+        // calculating outer tessellation levels
+        for(int vertexInd = 0; vertexInd < 3; vertexInd += 1) {
+            vec3 edgePos = 0.5 * (csVPos[vertexInd] + csVPos[(vertexInd+1)%3]);
+            camDist = -edgePos.z;
+
+            gl_TessLevelOuter[vertexInd] = tessFactor / (camDist);
         }
-        gl_TessLevelInner[0] = tessellationLevel;
+
+        // calculating inner tessellation level
+        vec3 triangleCenter = 0.33333 * (csVPos[0] + csVPos[1] + csVPos[2]);
+        camDist = -triangleCenter.z;
+        gl_TessLevelInner[0] = tessFactor / (camDist);
     }
 }
 
 #evaluation_shader
 #version 430 core
 
-layout (triangles, equal_spacing, ccw) in;
+layout (triangles, fractional_odd_spacing, ccw) in;
 
 in vec3 esPos[];
 
