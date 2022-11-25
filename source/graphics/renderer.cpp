@@ -110,11 +110,13 @@ namespace graphics {
 				m_StarShader.use();
 				m_StarShader.setUniformMat4("_projMat", App::s_Instance->mainCamera.projMatrix);
 				m_StarShader.setUniformMat4("_viewMat", App::s_Instance->mainCamera.viewMatrix);
-				m_StarShader.unuse();
 
 				for (Star* star : m_CurrentScene->stars) {
+					m_StarShader.setUniform3f("_diffColor", star->light.diffuseColor);
 					star->draw(m_StarShader);
 				}
+
+				m_StarShader.unuse();
 			}
 
 			// drawing planets

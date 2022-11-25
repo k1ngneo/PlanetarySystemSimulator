@@ -317,7 +317,7 @@ void main() {
     mater.amb = vec3(0.0);
     mater.diff = texture2D(_diffTex, fsData.uv).rgb;
     mater.spec = texture2D(_specTex, fsData.uv).rgb;
-    mater.shine = 32.0;
+    mater.shine = 16.0;
 
     float waveSize = 20.0;
     vec3 wave1 = texture2D(_otherTex1, waveSize*fsData.uv + 0.03*vec2(_time, 0.0)).rgb;

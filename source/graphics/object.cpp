@@ -27,7 +27,9 @@ namespace graphics {
 		return this->modelMat;
 	}
 
-	Object::Object() {
+	Object::Object(Type objType)
+	: type(objType)
+	{
 		this->modelMat = glm::mat4(1.0f);
 		_transMat = glm::mat4(1.0f);
 		_rotMat = glm::mat4(1.0f);

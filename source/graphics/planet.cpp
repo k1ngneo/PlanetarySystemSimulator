@@ -23,7 +23,7 @@ namespace graphics {
 
 
 	Planet::Planet(const char* name, uint32_t subdivLevel)
-		: m_MainMesh(nullptr)
+		: Object(Type::PLANET), m_MainMesh(nullptr)
 	{
 		init();
 

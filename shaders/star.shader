@@ -21,12 +21,13 @@ void main() {
 in vec2 fragUV;
 
 uniform sampler2D _diffTex;
+uniform vec3 _diffColor;
 
 layout (location = 0) out vec4 outColor;
 layout (location = 1) out vec4 outHDRColor;
 
 void main() {
 	vec3 texCol = texture2D(_diffTex, fragUV).rgb;
-	outColor = vec4(texCol, 1.0);
+	outColor = vec4(_diffColor * texCol, 1.0);
 	outHDRColor = vec4(15.0 * outColor.rgb, 1.0);
 }

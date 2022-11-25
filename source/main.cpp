@@ -124,6 +124,13 @@ int main() {
             
             ImGui::DragFloat3("Position", (float*)&((graphics::Planet*)(camera.target))->body.pos);
             ImGui::DragFloat3("Velocity", (float*)&((graphics::Planet*)(camera.target))->body.vel);
+            
+            if (camera.target->type == graphics::Object::Type::STAR) {
+                graphics::Star& target = *(graphics::Star*)camera.target;
+                ImGui::ColorPicker3("Light Color", (float*)(&target.light.diffuseColor));
+                target.light.specularColor = target.light.diffuseColor;
+            }
+
             ImGui::End();
         }
 

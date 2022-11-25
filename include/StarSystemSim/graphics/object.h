@@ -12,6 +12,9 @@ namespace graphics {
 	public:
 		virtual void draw(Shader& shader, uint32_t renderMode) = 0;
 
+		enum class Type { PLANET, STAR, UNDEFINED };
+		Type type;
+
 		glm::mat4 modelMat;
 
 		void translate(const glm::vec3& trans);
@@ -20,7 +23,7 @@ namespace graphics {
 
 		const glm::mat4& updateModelMat();
 
-		Object();
+		Object(Type type = Type::UNDEFINED);
 
 		glm::vec3 getPos();
 
