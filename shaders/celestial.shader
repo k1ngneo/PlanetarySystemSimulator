@@ -61,9 +61,9 @@ out vec2 gsUV;
 void main() {
     // vertex position
     vec3 vertexPos = vec3(0.0);
-    vertexPos += esPos[0] * gl_TessCoord.x;
-    vertexPos += esPos[1] * gl_TessCoord.y;
-    vertexPos += esPos[2] * gl_TessCoord.z;
+    vertexPos += esPos[0] * gl_TessCoord.y;
+    vertexPos += esPos[1] * gl_TessCoord.z;
+    vertexPos += esPos[2] * gl_TessCoord.x;
     vertexPos = normalize(vertexPos);
 
     gl_Position = vec4(vertexPos, 1.0);
