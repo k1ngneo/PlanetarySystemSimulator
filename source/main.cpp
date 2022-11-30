@@ -48,7 +48,7 @@ int main() {
     graphics::Planet* earth = nullptr;
 
     {
-        graphics::Planet e("earth", 2);
+        graphics::Planet e("earth", 3);
         e.translate(glm::vec3(-5.0f, 0.0f, 0.0f));
         e.scale(glm::vec3(0.2f));
         e.body.mass = 1.0f;

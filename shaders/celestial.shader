@@ -2,16 +2,34 @@
 #version 430 core
 
 layout (location = 0) in vec3 inPos;
+layout (location = 1) in vec2 inUV;
+layout (location = 2) in vec3 inNormal;
+layout (location = 3) in vec3 inTangent;
 
 uniform mat4 _modelMat;
 uniform mat4 _viewMat;
 
-out vec3 csPos;
-out vec3 csVPos;
+out CS_Data {
+    vec3 mPos;
+    vec3 vPos;
+    vec2 uv;
+    mat3 TBNMat;
+
+    vec3 wNormal;
+    vec3 wTangent;
+} csData;
 
 void main() {
-    csPos = inPos;
-    csVPos = vec3(_viewMat * _modelMat * vec4(inPos, 1.0));
+    csData.mPos = inPos;
+    csData.vPos = vec3(_viewMat * _modelMat * vec4(inPos, 1.0));
+    csData.uv = inUV;
+
+    csData.wNormal = normalize(vec3(_modelMat * vec4(inNormal, 0.0)));
+    csData.wTangent = vec3(_modelMat * vec4(inTangent, 0.0));
+
+    csData.wTangent = normalize(csData.wTangent - dot(csData.wTangent, csData.wNormal) * csData.wNormal);
+    vec3 wBiTan = normalize(cross(csData.wNormal, csData.wTangent));
+    csData.TBNMat = transpose(mat3(csData.wTangent, wBiTan, csData.wNormal));
 }
 
 #control_shader
@@ -19,16 +37,35 @@ void main() {
 
 layout (vertices = 3) out;
 
-in vec3 csPos[];
-in vec3 csVPos[];
+in CS_Data {
+    vec3 mPos;
+    vec3 vPos;
+    vec2 uv;
+    mat3 TBNMat;
 
-out vec3 esPos[];
+    vec3 wNormal;
+    vec3 wTangent;
+} csData[];
+
+out ES_Data {
+    vec3 pos;
+    vec2 uv;
+    mat3 TBNMat;
+
+    vec3 wNormal;
+    vec3 wTangent;
+} esData[];
 
 uniform mat4 _modelMat;
 uniform mat4 _viewMat;
 
 void main() {
-    esPos[gl_InvocationID] = csPos[gl_InvocationID];
+    esData[gl_InvocationID].pos = csData[gl_InvocationID].mPos;
+    esData[gl_InvocationID].uv = csData[gl_InvocationID].uv;
+    esData[gl_InvocationID].TBNMat = csData[gl_InvocationID].TBNMat;
+
+    esData[gl_InvocationID].wNormal = csData[gl_InvocationID].wNormal;
+    esData[gl_InvocationID].wTangent = csData[gl_InvocationID].wTangent;
 
     if(gl_InvocationID == 0) {
         float camDist;
@@ -36,14 +73,14 @@ void main() {
 
         // calculating outer tessellation levels
         for(int vertexInd = 0; vertexInd < 3; vertexInd += 1) {
-            vec3 edgePos = 0.5 * (csVPos[vertexInd] + csVPos[(vertexInd+1)%3]);
+            vec3 edgePos = 0.5 * (csData[vertexInd].vPos + csData[(vertexInd+1)%3].vPos);
             camDist = -edgePos.z;
 
             gl_TessLevelOuter[vertexInd] = tessFactor / (camDist);
         }
 
         // calculating inner tessellation level
-        vec3 triangleCenter = 0.33333 * (csVPos[0] + csVPos[1] + csVPos[2]);
+        vec3 triangleCenter = 0.33333 * (csData[0].vPos + csData[1].vPos + csData[2].vPos);
         camDist = -triangleCenter.z;
         gl_TessLevelInner[0] = tessFactor / (camDist);
     }
@@ -54,72 +91,14 @@ void main() {
 
 layout (triangles, fractional_odd_spacing, ccw) in;
 
-in vec3 esPos[];
+in ES_Data {
+    vec3 pos;
+    vec2 uv;
+    mat3 TBNMat;
 
-out vec2 gsUV;
-
-void main() {
-    // vertex position
-    vec3 vertexPos = vec3(0.0);
-    vertexPos += esPos[0] * gl_TessCoord.x;
-    vertexPos += esPos[1] * gl_TessCoord.y;
-    vertexPos += esPos[2] * gl_TessCoord.z;
-    vertexPos = normalize(vertexPos);
-
-    gl_Position = vec4(vertexPos, 1.0);
-
-    // uv coordinates
-    {
-        float lng, lat;
-        const float INFINITY = uintBitsToFloat(0x7F800000);
-        const float PI = 3.14159265359;
-
-        // sina = y / radius
-        // a = arcsin(y / radius)
-        lat = -asin(vertexPos.y);
-
-        float px, pz;
-        if(vertexPos.x > 0.0)
-            px = vertexPos.x;
-        else {
-            px = -vertexPos.x;
-        }
-        
-        if(vertexPos.z > 0.0)
-            pz = vertexPos.z;
-        else {
-            pz = -vertexPos.z;
-        }
-
-        if(px == 0.0 || px == -0.0)
-            lng = atan(INFINITY);
-        else
-            lng = atan(pz / px);
-        
-        if(vertexPos.z >= 0.0 && vertexPos.x >= 0.0) {
-            lng = 0.5 * PI - lng;
-        }
-        else if(vertexPos.z <= 0.0 && vertexPos.x >= 0.0) {
-            lng += 0.5 * PI;
-        }
-        else if(vertexPos.z <= 0.0 && vertexPos.x <= 0.0) {
-            lng = 0.5 * PI - lng;
-            lng += PI;
-        }
-        else if(vertexPos.z >= 0.0 && vertexPos.x < 0.0) {
-            lng += 1.5 * PI;
-        }
-
-        gsUV.x = lng / (2.0 * PI);
-        gsUV.y = (lat + 0.5 * PI) / PI;
-    }
-}
-
-#geometry_shader
-#version 430 core
-
-layout (triangles) in;
-layout (triangle_strip, max_vertices = 3) out;
+    vec3 wNormal;
+    vec3 wTangent;
+} esData[];
 
 struct Light {
     vec3 tanPos;
@@ -130,14 +109,12 @@ struct Light {
     vec3 att;
 };
 
-in vec2 gsUV[3];
-
-uniform mat4 _modelMat;
-uniform mat4 _viewMat;
-uniform mat4 _projMat;
-
-uniform vec3 _viewPos;
 uniform Light _light;
+uniform vec3 _viewPos;
+
+uniform mat4 _projMat;
+uniform mat4 _viewMat;
+uniform mat4 _modelMat;
 
 out FS_Data {
     vec2 uv;
@@ -145,103 +122,46 @@ out FS_Data {
     vec3 tanCamPos;
 
     Light light;
+
+    vec3 wNormal;
+    vec3 wTangent;
 } fsData;
 
 void main() {
+    // vertex position
+    vec3 vertexPos = vec3(0.0);
+    vertexPos += esData[0].pos * gl_TessCoord.y;
+    vertexPos += esData[1].pos * gl_TessCoord.z;
+    vertexPos += esData[2].pos * gl_TessCoord.x;
+    vertexPos = normalize(vertexPos);
+    vertexPos = vec3(_modelMat * vec4(vertexPos, 1.0));
 
-    vec3 worldPos[3], worldNormal[3];
-    for(int vertexInd = 0; vertexInd < 3; vertexInd += 1) {
-        worldPos[vertexInd] = vec3(_modelMat * vec4(gl_in[vertexInd].gl_Position));
-        worldNormal[vertexInd] = vec3(_modelMat * vec4(gl_in[vertexInd].gl_Position.xyz, 0.0));
-        worldNormal[vertexInd] = normalize(worldNormal[vertexInd]);
-    }
+    gl_Position = _projMat * _viewMat * vec4(vertexPos, 1.0);
 
-    // fixing uv coordinates
-    vec2 fixedUV[3];
-    {
-        fixedUV[0] = gsUV[0];
-        fixedUV[1] = gsUV[1];
-        fixedUV[2] = gsUV[2];
+    // uv coordinates
+    fsData.uv = vec2(0.0);
+    fsData.uv += esData[0].uv * gl_TessCoord.y;
+    fsData.uv += esData[1].uv * gl_TessCoord.z;
+    fsData.uv += esData[2].uv * gl_TessCoord.x;
 
-        // fixing highest values of U coordinates
-        // doesn't seem to work when there are verticies on the right edge of the texture
-        // (uv = [1.0, v])
-        vec3 uvA = vec3(gsUV[0], 0.0);
-        vec3 uvB = vec3(gsUV[1], 0.0);
-        vec3 uvC = vec3(gsUV[2], 0.0);
+    fsData.wNormal = esData[0].wNormal * gl_TessCoord.y;
+    fsData.wNormal += esData[1].wNormal * gl_TessCoord.z;
+    fsData.wNormal += esData[2].wNormal * gl_TessCoord.x;
 
-        vec3 uvNormal = cross(uvB - uvA, uvC - uvA);
-        if(uvNormal.z < 0.0) {
-            if(uvA.x < 0.4) {
-                fixedUV[0].x += 1.0;
-            }
-            if(uvB.x < 0.4) {
-                fixedUV[1].x += 1.0;
-            }
-            if(uvC.x < 0.4) {
-                fixedUV[2].x += 1.0;
-            }
-        }
+    fsData.wTangent = esData[0].wTangent * gl_TessCoord.y;
+    fsData.wTangent += esData[1].wTangent * gl_TessCoord.z;
+    fsData.wTangent += esData[2].wTangent * gl_TessCoord.x;
 
-        // fixing uvs at the poles
-        // doesn't seem to work at all
-        if(uvA.y == 0.0 || uvA.y == 1.0) {
-            fixedUV[0] = vec2(0.5*(uvB.x + uvC.x), uvA.y);
-        }
-        if(uvB.y == 0.0 || uvB.y == 1.0) {
-            fixedUV[1] = vec2(0.5*(uvA.x + uvC.x), uvB.y);
-        }
-        if(uvC.y == 0.0 || uvC.y == 1.0) {
-            fixedUV[2] = vec2(0.5*(uvA.x + uvB.x), uvC.y);
-        }
-    }
+    // tangent-space matrix
+    mat3 TBNMat = mat3(0.0);
+    TBNMat += esData[0].TBNMat * gl_TessCoord.y;
+    TBNMat += esData[1].TBNMat * gl_TessCoord.z;
+    TBNMat += esData[2].TBNMat * gl_TessCoord.x;
 
-    // calculating TBN matrix
-    mat3 TBNMat[3];
-    {
-        // calculating tangent and bitangent
-        vec3 worldTan[3], worldBTan[3];
-        {
-            vec3 dPos1 = worldPos[1] - worldPos[0];
-            vec3 dPos2 = worldPos[2] - worldPos[0];
-            vec2 dUV1 = fixedUV[1] - fixedUV[0];
-            vec2 dUV2 = fixedUV[2] - fixedUV[0];
-
-            float f = 1.0 / (dUV1.x * dUV2.y - dUV2.x * dUV1.y);
-
-            vec3 tan;
-            tan.x = f * (dUV2.y * dPos1.x - dUV1.y * dPos2.x);
-			tan.y = f * (dUV2.y * dPos1.y - dUV1.y * dPos2.y);
-			tan.z = f * (dUV2.y * dPos1.z - dUV1.y * dPos2.z);
-
-            tan = normalize(tan);
-
-            // making the tangent vector orthogonal to the normal vector
-            for(int vertexInd = 0; vertexInd < 3; vertexInd += 1) {
-                worldTan[vertexInd] = normalize(tan - dot(tan, worldNormal[vertexInd]) * worldNormal[vertexInd]);
-                worldBTan[vertexInd] = normalize(cross(worldNormal[vertexInd], worldTan[vertexInd]));
-            }
-        }
-
-        for(int vertexInd = 0; vertexInd < 3; vertexInd += 1) {
-            TBNMat[vertexInd] = transpose(mat3(worldTan[vertexInd], worldBTan[vertexInd], worldNormal[vertexInd]));
-        }
-    }
-
-    for(int vertexInd = 0; vertexInd < 3; vertexInd += 1) {
-        gl_Position = _projMat * _viewMat * _modelMat * gl_in[vertexInd].gl_Position;
-
-        fsData.uv = fixedUV[vertexInd];
-        fsData.tanPos = TBNMat[vertexInd] * worldPos[vertexInd];
-        fsData.tanCamPos = TBNMat[vertexInd] * _viewPos;
-
-        fsData.light = _light;
-        fsData.light.tanPos = TBNMat[vertexInd] * _light.tanPos;
-
-        EmitVertex();
-    }
-
-    EndPrimitive();
+    fsData.tanPos = TBNMat * vertexPos;
+    fsData.tanCamPos = TBNMat * _viewPos;
+    fsData.light = _light;
+    fsData.light.tanPos = TBNMat * _light.tanPos;
 }
 
 #fragment_shader
@@ -272,6 +192,9 @@ in FS_Data {
     vec3 tanCamPos;
 
     Light light;
+
+    vec3 wNormal;
+    vec3 wTangent;
 } fsData;
 
 uniform sampler2D _diffTex;
