@@ -29,7 +29,7 @@ namespace graphics {
 
 		subdivide(subdivLevel);
 		calcUVs();
-		//fixUVs();
+		fixUVs();
 		calcNormalsTangents();
 
 		m_MainMesh = std::shared_ptr<Mesh>(new Mesh(vertices, indices));
