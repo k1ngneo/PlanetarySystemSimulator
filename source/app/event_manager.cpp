@@ -125,6 +125,11 @@ namespace app {
                 camera.gPitch = 89.0f;
             if (camera.gPitch < -89.0f)
                 camera.gPitch = -89.0f;
+
+            if (camera.mode == graphics::Camera::Mode::LOOK_AROUND) {
+                camera.pitch = camera.gPitch;
+                camera.yaw = camera.gYaw;
+            }
         }
     }
 

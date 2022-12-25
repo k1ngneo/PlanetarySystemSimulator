@@ -20,7 +20,7 @@ namespace graphics {
         this->front = glm::vec3(0.0f, 0.0f, -1.0f);
         this->up = glm::vec3(0.0f, 1.0f, 0.0f);
 
-        this->dir = glm::vec3(0.0f, 0.0f, 0.0f);
+        this->dir = glm::vec3(0.0f);
 
         this->pitch = 0.0f;
         this->yaw = 0.0f;
@@ -39,7 +39,7 @@ namespace graphics {
 
         m_Target = nullptr;
         m_PosRelTarget = { 0.0f, 0.0f, 0.0f };
-        m_CameraLockedOnTarget = true;
+        m_CameraLockedOnTarget = false;
 	}
 
     void Camera::update(glm::mat4x4* viewMatrix) {
@@ -57,25 +57,28 @@ namespace graphics {
                     utils::printError("Camera tried to look at a not set target");
                     break;
                 }
-
+                
                 if (!m_CameraLockedOnTarget) {
                     float rYaw = glm::radians(gYaw);
                     float rPitch = glm::radians(gPitch);
-
+                
                     glm::vec3 gCamPos;
                     gCamPos.x = glm::cos(-rYaw) * glm::cos(rPitch);
                     gCamPos.y = glm::sin(rPitch);
                     gCamPos.z = glm::sin(-rYaw) * glm::cos(rPitch);
-
+                    
+                    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    // this might be the problem 
+                    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                     gCamPos = gCamPos * this->radius + m_Target->getPos();
-
+                
                     float camToTargetDist = glm::distance(this->pos, gCamPos);
-
+                
                     if (camToTargetDist < 0.01f) {
                         m_CameraLockedOnTarget = true;
                     }
                 }
-
+                
                 if (viewMatrix)
                     *viewMatrix = this->lookAt(m_Target->getPos());
                 else
@@ -85,7 +88,11 @@ namespace graphics {
     }
 
     void Camera::changeTarget(Object* newTarget) {
-        //m_CameraLockedOnTarget = false;
+        m_CameraLockedOnTarget = false;
+        m_Target = newTarget;
+    }
+
+    void Camera::setTarget(Object* newTarget) {
         m_Target = newTarget;
     }
 
@@ -95,7 +102,7 @@ namespace graphics {
         this->dir.z = sin(glm::radians(this->yaw)) * cos(glm::radians(this->pitch));
         this->front = glm::normalize(this->dir);
 
-        this->viewMatrix = glm::lookAt(this->pos, this->front, this->up);
+        this->viewMatrix = glm::lookAt(this->pos, this->pos + this->front, this->up);
         return this->viewMatrix;
     }
 
@@ -103,9 +110,9 @@ namespace graphics {
         // calculating longitude and latitude for camera position around target
         {
             this->pitch = utils::lerp(this->pitch, this->gPitch, 3.0f * App::s_Instance->mainTimer.deltaTime);
-
+        
             float cappedGoalYaw;
-
+        
             if (std::abs(this->yaw - this->gYaw) < std::abs(this->yaw - (this->gYaw + 360.0f))
                 && std::abs(this->yaw - this->gYaw) < std::abs(this->yaw - (this->gYaw - 360.0f)))
             {
@@ -117,33 +124,33 @@ namespace graphics {
             else {
                 cappedGoalYaw = this->gYaw - 360.0f;
             }
-
+        
             this->yaw = utils::lerp(this->yaw, cappedGoalYaw, 3.0f * App::s_Instance->mainTimer.deltaTime);
-
+        
             this->yaw = this->yaw - 360.0f * (float)((int32_t)(this->yaw / 360.0f));
             if (this->yaw < 0.0f)
                 this->yaw += 360.0f;
         }
-
+        
         // converting degrees to radians
         float radPitch = glm::radians(this->pitch);
         float radYaw = glm::radians(this->yaw);
- 
+        
         m_PosRelTarget.x = glm::cos(-radYaw) * glm::cos(radPitch);
         m_PosRelTarget.y = glm::sin(radPitch);
         m_PosRelTarget.z = glm::sin(-radYaw) * glm::cos(radPitch);
-
+        
         m_PosRelTarget *= this->radius;
-
+        
         if (m_CameraLockedOnTarget) {
             this->pos = target + m_PosRelTarget;
             this->front = target;
         }
         else {
-            //this->pos = utils::lerp(this->pos, target + m_PosRelTarget, 7.0 * App::s_Instance->mainTimer.deltaTime);
-            //this->front = utils::lerp(this->front, target, 7.0 * App::s_Instance->mainTimer.deltaTime);
+            this->pos = utils::lerp(this->pos, target + m_PosRelTarget, 1.0 * App::s_Instance->mainTimer.deltaTime);
+            this->front = utils::lerp(this->front, target, 1.0 * App::s_Instance->mainTimer.deltaTime);
         }
-
+        
         this->viewMatrix = glm::lookAt(this->pos, this->front, this->up);
         return this->viewMatrix;
     }

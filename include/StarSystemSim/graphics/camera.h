@@ -15,6 +15,7 @@ namespace graphics {
 
         void update(glm::mat4x4* viewMatrix = nullptr);
         void changeTarget(Object* newTarget);
+        void setTarget(Object* newTarget);
 
         glm::vec3 pos;
         glm::vec3 front;

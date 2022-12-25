@@ -66,8 +66,9 @@ int main() {
     }
 
     camera.mode = graphics::Camera::Mode::LOOK_AT;
+    camera.pos = glm::vec3(-5.0f, 0.0f, 0.0f);
     camera.radius = 3.14f;
-    camera.changeTarget(camTarget);
+    camera.setTarget(camTarget);
 
 
     bool show_demo_window = false;
@@ -117,11 +118,11 @@ int main() {
 
         // Selected Celestial Body
         {
-            ImGui::Begin("Celestial Body", (bool*)0, ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus);
-            
-            ImGui::DragFloat3("Position", (float*)&((graphics::Planet*)(camera.getTarget()))->body.pos);
-            ImGui::DragFloat3("Velocity", (float*)&((graphics::Planet*)(camera.getTarget()))->body.vel);
-            ImGui::End();
+            //ImGui::Begin("Celestial Body", (bool*)0, ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus);
+            //
+            //ImGui::DragFloat3("Position", (float*)&((graphics::Planet*)(camera.getTarget()))->body.pos);
+            //ImGui::DragFloat3("Velocity", (float*)&((graphics::Planet*)(camera.getTarget()))->body.vel);
+            //ImGui::End();
         }
 
         ImGui::Render();

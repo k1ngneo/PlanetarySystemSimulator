@@ -111,7 +111,7 @@ void App::setSkybox(const graphics::Skybox& skybox) {
 
 App::App(uint32_t windowWidth, uint32_t windowHeight)
     : renderer(), renderMode(graphics::RenderMode::FACES), physicsEngine(), scene(),
-    mainCamera(glm::vec3(0.0f, 0.0f, 0.0f)), camTargets(),
+    mainCamera(glm::vec3(0.0f, 0.0f, 10.0f)), camTargets(),
     mousePos(0.0f, 0.0f)
 {
     m_ScrWidth = windowWidth;
