@@ -82,6 +82,8 @@ int main() {
     std::vector<glm::vec3> lines;
     renderer.lines = &lines;
 
+    utils::print("%d", GL_MAX_TEXTURE_SIZE);
+
     while (!glfwWindowShouldClose(App::s_Window)) {
         App::mainTimer.measureTime();
         physicsEngine.update();

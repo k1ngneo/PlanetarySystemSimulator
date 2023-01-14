@@ -116,6 +116,8 @@ uniform mat4 _projMat;
 uniform mat4 _viewMat;
 uniform mat4 _modelMat;
 
+uniform sampler2D _specHeightTex;
+
 out FS_Data {
     vec2 uv;
     vec3 tanPos;
@@ -128,21 +130,21 @@ out FS_Data {
 } fsData;
 
 void main() {
-    // vertex position
-    vec3 vertexPos = vec3(0.0);
-    vertexPos += esData[0].pos * gl_TessCoord.y;
-    vertexPos += esData[1].pos * gl_TessCoord.z;
-    vertexPos += esData[2].pos * gl_TessCoord.x;
-    vertexPos = normalize(vertexPos);
-    vertexPos = vec3(_modelMat * vec4(vertexPos, 1.0));
-
-    gl_Position = _projMat * _viewMat * vec4(vertexPos, 1.0);
-
     // uv coordinates
     fsData.uv = vec2(0.0);
     fsData.uv += esData[0].uv * gl_TessCoord.y;
     fsData.uv += esData[1].uv * gl_TessCoord.z;
     fsData.uv += esData[2].uv * gl_TessCoord.x;
+
+    // vertex position
+    vec3 vertexPos = vec3(0.0);
+    vertexPos += esData[0].pos * gl_TessCoord.y;
+    vertexPos += esData[1].pos * gl_TessCoord.z;
+    vertexPos += esData[2].pos * gl_TessCoord.x;
+    vertexPos = normalize(vertexPos) * (1.0 + 0.03 * texture2D(_specHeightTex, fsData.uv).g);
+    vertexPos = vec3(_modelMat * vec4(vertexPos, 1.0));
+
+    gl_Position = _projMat * _viewMat * vec4(vertexPos, 1.0);
 
     fsData.wNormal = esData[0].wNormal * gl_TessCoord.y;
     fsData.wNormal += esData[1].wNormal * gl_TessCoord.z;
@@ -198,8 +200,7 @@ in FS_Data {
 } fsData;
 
 uniform sampler2D _diffTex;
-uniform sampler2D _specTex;
-uniform sampler2D _normTex;
+uniform sampler2D _specHeightTex;
 uniform sampler2D _nightTex;
 uniform sampler2D _otherTex1;
 uniform sampler2D _otherTex2;
@@ -239,14 +240,14 @@ void main() {
     Material mater;
     mater.amb = vec3(0.0);
     mater.diff = texture2D(_diffTex, fsData.uv).rgb;
-    mater.spec = texture2D(_specTex, fsData.uv).rgb;
+    mater.spec = texture2D(_specHeightTex, fsData.uv).rrr;
     mater.shine = 16.0;
 
     float waveSize = 20.0;
     vec3 wave1 = texture2D(_otherTex1, waveSize*fsData.uv + 0.03*vec2(_time, 0.0)).rgb;
     vec3 wave2 = texture2D(_otherTex2, waveSize*fsData.uv + 0.03*vec2(0.0, _time)).rgb;
     vec3 waves_normal = normalize(2.0 * (0.5*(wave1+wave2)) - 1.0);
-    vec3 land_normal = normalize(2.0 * texture2D(_normTex, fsData.uv).rgb - 1.0);
+    vec3 land_normal = vec3(0.0, 0.0, 1.0);
 
     mater.norm = mix(land_normal, waves_normal, mater.spec.r);
     mater.norm = mix(mater.norm, vec3(0.0, 0.0, 1.0), 0.8);

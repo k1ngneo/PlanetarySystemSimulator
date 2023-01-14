@@ -7,7 +7,7 @@ namespace graphics {
 
 	Mesh::Mesh(std::vector<VertexData>& vert, std::vector<uint32_t>& ind)
 		: m_VAO(0), m_VBO(0), m_EBO(0),
-		m_DiffuseTex(0), m_SpecularTex(0), m_NormalTex(0), m_NightTex(0),
+		m_DiffuseTex(0), m_SpecHeightTex(0), m_NightTex(0),
 		m_Other1Tex(0), m_Other2Tex(0)
 	{
 		buildMesh(vert, ind);
@@ -16,18 +16,15 @@ namespace graphics {
 	Mesh::~Mesh() {
 		if (m_DiffuseTex)
 			glDeleteTextures(1, &m_DiffuseTex);
-		if (m_SpecularTex)
-			glDeleteTextures(1, &m_SpecularTex);
-		if (m_NormalTex)
-			glDeleteTextures(1, &m_NormalTex);
+		if (m_SpecHeightTex)
+			glDeleteTextures(1, &m_SpecHeightTex);
 		if (m_NightTex)
 			glDeleteTextures(1, &m_NightTex);
 		if (m_Other1Tex)
 			glDeleteTextures(1, &m_Other1Tex);
 
 		m_DiffuseTex = 0;
-		m_SpecularTex = 0;
-		m_NormalTex = 0;
+		m_SpecHeightTex = 0;
 		m_NightTex = 0;
 		m_Other1Tex = 0;
 		m_Other2Tex = 0;
@@ -48,15 +45,12 @@ namespace graphics {
 		shader.use();
 		shader.setUniformMat4("_modelMat", this->modelMat);
 		shader.setUniform1i("_diffTex", 0);
-		shader.setUniform1i("_specTex", 1);
-		shader.setUniform1i("_normTex", 2);
+		shader.setUniform1i("_specHeightTex", 1);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, m_DiffuseTex);
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, m_SpecularTex);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, m_NormalTex);
+		glBindTexture(GL_TEXTURE_2D, m_SpecHeightTex);
 
 		if (m_NightTex) {
 			shader.setUniform1i("_nightTex", 3);
@@ -88,13 +82,9 @@ namespace graphics {
 				if(!m_DiffuseTex)
 					m_DiffuseTex = textureID;
 				break;
-			case TextureType::SPECULAR:
-				if (!m_SpecularTex)
-					m_SpecularTex = textureID;
-				break;
-			case TextureType::NORMAL:
-				if (!m_NormalTex)
-					m_NormalTex = textureID;
+			case TextureType::SPEC_HEIGHT:
+				if (!m_SpecHeightTex)
+					m_SpecHeightTex = textureID;
 				break;
 			case TextureType::NIGHT:
 				if (!m_NightTex)
