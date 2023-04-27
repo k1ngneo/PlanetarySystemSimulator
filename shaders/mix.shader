@@ -14,6 +14,13 @@ void main() {
 #fragment_shader
 #version 330 core
 
+
+#if __VERSION__ > 120
+#define TEXTURE2D(tID, uv) texture(tID, uv)
+#else
+#define TEXTURE2D(tID, uv) texture2D(tID, uv)
+#endif
+
 in vec2 fragUV;
 
 uniform sampler2D _texture1;

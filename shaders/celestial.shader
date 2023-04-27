@@ -89,6 +89,13 @@ void main() {
 #evaluation_shader
 #version 430 core
 
+
+#if __VERSION__ > 120
+#define TEXTURE2D(tID, uv) texture(tID, uv)
+#else
+#define TEXTURE2D(tID, uv) texture2D(tID, uv)
+#endif
+
 layout (triangles, fractional_odd_spacing, ccw) in;
 
 in ES_Data {
@@ -141,7 +148,7 @@ void main() {
     vertexPos += esData[0].pos * gl_TessCoord.y;
     vertexPos += esData[1].pos * gl_TessCoord.z;
     vertexPos += esData[2].pos * gl_TessCoord.x;
-    vertexPos = normalize(vertexPos) * (1.0 + 0.03 * texture2D(_specHeightTex, fsData.uv).g);
+    vertexPos = normalize(vertexPos) * (1.0 + 0.03 * TEXTURE2D(_specHeightTex, fsData.uv).g);
     vertexPos = vec3(_modelMat * vec4(vertexPos, 1.0));
 
     gl_Position = _projMat * _viewMat * vec4(vertexPos, 1.0);
@@ -168,6 +175,13 @@ void main() {
 
 #fragment_shader
 #version 430 core
+
+
+#if __VERSION__ > 120
+#define TEXTURE2D(tID, uv) texture(tID, uv)
+#else
+#define TEXTURE2D(tID, uv) texture2D(tID, uv)
+#endif
 
 struct Light {
     vec3 tanPos;
@@ -239,20 +253,20 @@ vec3 calcPointLight(Light light, Material mater) {
 void main() {
     Material mater;
     mater.amb = vec3(0.0);
-    mater.diff = texture2D(_diffTex, fsData.uv).rgb;
-    mater.spec = texture2D(_specHeightTex, fsData.uv).rrr;
+    mater.diff = TEXTURE2D(_diffTex, fsData.uv).rgb;
+    mater.spec = TEXTURE2D(_specHeightTex, fsData.uv).rrr;
     mater.shine = 16.0;
 
     float waveSize = 20.0;
-    vec3 wave1 = texture2D(_otherTex1, waveSize*fsData.uv + 0.03*vec2(_time, 0.0)).rgb;
-    vec3 wave2 = texture2D(_otherTex2, waveSize*fsData.uv + 0.03*vec2(0.0, _time)).rgb;
+    vec3 wave1 = TEXTURE2D(_otherTex1, waveSize*fsData.uv + 0.03*vec2(_time, 0.0)).rgb;
+    vec3 wave2 = TEXTURE2D(_otherTex2, waveSize*fsData.uv + 0.03*vec2(0.0, _time)).rgb;
     vec3 waves_normal = normalize(2.0 * (0.5*(wave1+wave2)) - 1.0);
     vec3 land_normal = vec3(0.0, 0.0, 1.0);
 
     mater.norm = mix(land_normal, waves_normal, mater.spec.r);
     mater.norm = mix(mater.norm, vec3(0.0, 0.0, 1.0), 0.8);
 
-    mater.night = texture2D(_nightTex, fsData.uv).rgb;
+    mater.night = TEXTURE2D(_nightTex, fsData.uv).rgb;
 
     vec3 pointLights = calcPointLight(fsData.light, mater);
 

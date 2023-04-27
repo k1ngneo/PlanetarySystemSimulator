@@ -14,6 +14,12 @@ void main() {
 #fragment_shader
 #version 330 core
 
+#if __VERSION__ > 120
+#define TEXTURE2D(tID, uv) texture(tID, uv)
+#else
+#define TEXTURE2D(tID, uv) texture2D(tID, uv)
+#endif
+
 in vec2 fragUV;
 
 uniform sampler2D _texture;
@@ -22,8 +28,8 @@ uniform sampler2D _bloomTex;
 layout (location = 0) out vec4 outColor;
 
 void main() {
-	vec3 mainImage = texture2D(_texture, fragUV).rgb;
-	vec3 bloom = texture2D(_bloomTex, fragUV).rgb;
+	vec3 mainImage = TEXTURE2D(_texture, fragUV).rgb;
+	vec3 bloom = TEXTURE2D(_bloomTex, fragUV).rgb;
 
 	outColor = vec4(mainImage + bloom, 1.0);
 }
