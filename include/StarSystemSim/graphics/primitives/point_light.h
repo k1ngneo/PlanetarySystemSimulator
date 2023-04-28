@@ -35,6 +35,8 @@ namespace graphics { namespace primitives {
 		inline const glm::vec3& getPos() { return _pos; }
 		void setPos(const glm::vec3& pos);
 
+        static VertexData *vertices;
+
 	private:
 		glm::vec3 _pos;
 

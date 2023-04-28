@@ -24,6 +24,8 @@ namespace graphics { namespace primitives {
 			glm::vec3 pos;
 			glm::vec3 normal;
 		};
+		
+		static VertexData *vertices;
 
 	private:
 		static unsigned int _VAO, _VBO;

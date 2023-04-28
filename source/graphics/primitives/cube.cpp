@@ -22,7 +22,7 @@ namespace graphics { namespace primitives {
         glBindVertexArray(0);
     }
 
-    Cube::VertexData vertices[] = {
+    Cube::VertexData *Cube::vertices = new Cube::VertexData [36] {
         // positions                     // normals
         {glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3( 0.0f,  0.0f, -1.0f)},
         {glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec3( 0.0f,  0.0f, -1.0f)},

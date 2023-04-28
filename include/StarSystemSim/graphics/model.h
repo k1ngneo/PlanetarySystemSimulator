@@ -1,5 +1,7 @@
 #pragma once
 
+#define ASSIMP 0
+
 #include "StarSystemSim/graphics/shader.h"
 #include "StarSystemSim/graphics/mesh.h"
 
@@ -7,7 +9,9 @@
 
 #include <glm/vec3.hpp>
 
+#if ASSIMP
 #include <assimp/scene.h>
+#endif // ASSIMP
 
 #include <string>
 #include <vector>
@@ -34,8 +38,10 @@ namespace graphics {
 		void loadModel(const std::string& path);
 		unsigned int loadTexture(const std::string& path);
 
+#if ASSIMP
 		void processAssimpNode(aiNode* node, const aiScene* scene);
 		Mesh* processAssimpMesh(aiMesh* mesh, const aiScene* scene);
+#endif // ASSIMP
 	};
-
 }
+
