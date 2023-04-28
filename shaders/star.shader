@@ -34,7 +34,7 @@ layout (location = 0) out vec4 outColor;
 layout (location = 1) out vec4 outHDRColor;
 
 void main() {
-	vec3 texCol = texture2D(_diffTex, fragUV).rgb;
+	vec3 texCol = TEXTURE2D(_diffTex, fragUV).rgb;
 	outColor = vec4(_diffColor * texCol, 1.0);
 	outHDRColor = vec4(15.0 * outColor.rgb, 1.0);
 }
