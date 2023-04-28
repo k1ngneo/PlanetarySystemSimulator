@@ -4,13 +4,14 @@
 
 #include <glad/glad.h>
 
+#if ASSIMP
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
+#endif // ASSIMP
 
 #include <iostream>
 #include <memory>
 
-#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 namespace graphics {
@@ -52,6 +53,7 @@ namespace graphics {
 		std::string path = "models/";
 		path += name + "/";
 
+#if ASSIMP
 		Assimp::Importer imp;
 		unsigned int readFlags;
 		readFlags = aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_OptimizeMeshes
@@ -65,6 +67,7 @@ namespace graphics {
 		m_Path = path.substr(0, path.find_last_of('/'));
 
 		processAssimpNode(scene->mRootNode, scene);
+#endif // ASSIMP
 
 		GLuint diffuseTex = loadTexture(path + "diffuse.jpg");
 		GLuint specularTex = loadTexture(path + "specular.jpg");
@@ -72,7 +75,7 @@ namespace graphics {
 
 		for(Mesh* mesh : m_Meshes) {
 			mesh->bindTexture(diffuseTex, Mesh::TextureType::DIFFUSE);
-			mesh->bindTexture(specularTex, Mesh::TextureType::SPECULAR);
+			//mesh->bindTexture(specularTex, Mesh::TextureType::SPECULAR);
 			mesh->bindTexture(normalTex, Mesh::TextureType::NORMAL);
 		}
 	}
@@ -112,6 +115,7 @@ namespace graphics {
 		return textureID;
 	}
 
+#if ASSIMP
 	void Model::processAssimpNode(aiNode* node, const aiScene* scene) {
 		for (unsigned int meshInd = 0; meshInd < node->mNumMeshes; ++meshInd) {
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[meshInd]];
@@ -165,5 +169,6 @@ namespace graphics {
 
 		return new Mesh(vertices, indices);
 	}
+#endif // ASSIMP
 
 }

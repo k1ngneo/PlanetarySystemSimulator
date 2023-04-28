@@ -30,7 +30,7 @@ namespace graphics { namespace primitives {
         glBindVertexArray(0);
     }
 
-    PointLight::VertexData vertices[] = {
+    PointLight::VertexData *PointLight::vertices = new PointLight::VertexData [36] {
         // positions
         {glm::vec3(-0.5f, -0.5f, -0.5f)},
         {glm::vec3( 0.5f, -0.5f, -0.5f)},
@@ -86,7 +86,7 @@ namespace graphics { namespace primitives {
 
 	void PointLight::initVBO() {
         for (int vertexInd = 0; vertexInd < _VERTICES_COUNT; ++vertexInd) {
-            _vertices[vertexInd] = vertices[vertexInd];
+            _vertices[vertexInd] = PointLight::vertices[vertexInd];
         }
 
         glGenVertexArrays(1, &_VAO);

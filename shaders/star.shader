@@ -18,6 +18,13 @@ void main() {
 #fragment_shader
 #version 330 core
 
+
+#if __VERSION__ > 120
+#define TEXTURE2D(tID, uv) texture(tID, uv)
+#else
+#define TEXTURE2D(tID, uv) texture2D(tID, uv)
+#endif
+
 in vec2 fragUV;
 
 uniform sampler2D _diffTex;
@@ -27,7 +34,7 @@ layout (location = 0) out vec4 outColor;
 layout (location = 1) out vec4 outHDRColor;
 
 void main() {
-	vec3 texCol = texture2D(_diffTex, fragUV).rgb;
+	vec3 texCol = TEXTURE2D(_diffTex, fragUV).rgb;
 	outColor = vec4(_diffColor * texCol, 1.0);
 	outHDRColor = vec4(15.0 * outColor.rgb, 1.0);
 }

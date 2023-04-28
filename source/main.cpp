@@ -20,6 +20,11 @@
 
 #include <GLFW/glfw3.h>
 
+#if !defined(__unix__) || !defined(__linux__)
+#define STB_IMAGE_IMPLEMENTATION
+#endif
+#include "stb_image.h"
+
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
@@ -81,8 +86,6 @@ int main() {
 
     std::vector<glm::vec3> lines;
     renderer.lines = &lines;
-
-    utils::print("%d", GL_MAX_TEXTURE_SIZE);
 
     while (!glfwWindowShouldClose(App::s_Window)) {
         App::mainTimer.measureTime();
@@ -156,3 +159,4 @@ int main() {
 
     return 0;
 }
+
