@@ -20,9 +20,6 @@
 
 #include <GLFW/glfw3.h>
 
-#if !defined(__unix__) || !defined(__linux__)
-#define STB_IMAGE_IMPLEMENTATION
-#endif
 #include "stb_image.h"
 
 #include <imgui/imgui.h>

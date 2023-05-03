@@ -400,3 +400,4 @@ FodyWeavers.xsd
 # CMake build directory and executable
 *build
 *StarSystemSim
+*.exe
