@@ -29,24 +29,48 @@ namespace app {
             camSpeed = 1.0f;
 
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-            glm::vec3 camRight = glm::normalize(glm::cross(camera.front, camera.up));
-            camera.pos += glm::normalize(glm::cross(camera.up, camRight)) * camSpeed * App::mainTimer.deltaTime;
+            if (camera.mode == graphics::Camera::Mode::LOOK_AT) {
+                camera.pitch += 10.0f * App::mainTimer.deltaTime;
+            }
+            else if (camera.mode == graphics::Camera::Mode::LOOK_AROUND) {
+                glm::vec3 camRight = glm::normalize(glm::cross(camera.front, camera.up));
+                camera.pos += glm::normalize(glm::cross(camera.up, camRight)) * camSpeed * App::mainTimer.deltaTime;
+            }
         }
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-            glm::vec3 camRight = glm::normalize(glm::cross(camera.front, camera.up));
-            camera.pos -= glm::normalize(glm::cross(camera.up, camRight)) * camSpeed * App::mainTimer.deltaTime;
+            if (camera.mode == graphics::Camera::Mode::LOOK_AT) {
+                camera.pitch -= 10.0f * App::mainTimer.deltaTime;
+            }
+            else if (camera.mode == graphics::Camera::Mode::LOOK_AROUND) {
+                glm::vec3 camRight = glm::normalize(glm::cross(camera.front, camera.up));
+                camera.pos -= glm::normalize(glm::cross(camera.up, camRight)) * camSpeed * App::mainTimer.deltaTime;
+            }
         }
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-            camera.pos -= glm::normalize(glm::cross(camera.front, camera.up)) * camSpeed * App::mainTimer.deltaTime;
+            if (camera.mode == graphics::Camera::Mode::LOOK_AT) {
+                camera.yaw -= 12.0f * App::mainTimer.deltaTime;
+            }
+            else if (camera.mode == graphics::Camera::Mode::LOOK_AROUND) {
+                camera.pos -= glm::normalize(glm::cross(camera.front, camera.up)) * camSpeed * App::mainTimer.deltaTime;
+            }
         }
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-            camera.pos += glm::normalize(glm::cross(camera.front, camera.up)) * camSpeed * App::mainTimer.deltaTime;
+            if (camera.mode == graphics::Camera::Mode::LOOK_AT) {
+                camera.yaw += 12.0f * App::mainTimer.deltaTime;
+            }
+            else if (camera.mode == graphics::Camera::Mode::LOOK_AROUND) {
+                camera.pos += glm::normalize(glm::cross(camera.front, camera.up)) * camSpeed * App::mainTimer.deltaTime;
+            }
         }
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            camera.pos += camSpeed * camera.up * App::mainTimer.deltaTime;
+            if (camera.mode == graphics::Camera::Mode::LOOK_AROUND) {
+                camera.pos += camSpeed * camera.up * App::mainTimer.deltaTime;
+            }
         }
         if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-            camera.pos -= camSpeed * camera.up * App::mainTimer.deltaTime;
+            if (camera.mode == graphics::Camera::Mode::LOOK_AROUND) {
+                camera.pos -= camSpeed * camera.up * App::mainTimer.deltaTime;
+            }
         }
 	}
 
