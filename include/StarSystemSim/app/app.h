@@ -14,8 +14,6 @@
 #include <cstdint>
 #include <vector>
 
-class graphics::Object;
-
 struct App {
 	static utils::Timer mainTimer;
 	static utils::Timer frameClock;
