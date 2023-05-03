@@ -18,18 +18,17 @@ file(GLOB_RECURSE HEADER_FILES
 
 include_directories(${INC_DIR})
 
-link_directories(${CMAKE_SOURCE_DIR}/libs)
+link_directories(${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake_modules")
-find_package(OpenGL REQUIRED)
 set(GLM_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include/glm")
 find_package(GLM REQUIRED)
 set(GLFW3_INCLUDE_DIR "${INC_DIR}/GLFW")
-set(GLFW3_LIBRARY "${CMAKE_SOURCE_DIR}/libs")
+set(GLFW3_LIBRARY "${CMAKE_SOURCE_DIR}/lib")
 find_package(GLFW3 REQUIRED)
 
 add_library(GLAD "${CMAKE_SOURCE_DIR}/source/glad.c")
 
-set(LIBS GLFW3 opengl32 GLAD)
+set(LIBS glfw3 dl GLAD X11)
 
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} ${LIBS})
