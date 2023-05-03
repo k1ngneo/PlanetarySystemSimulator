@@ -28,7 +28,17 @@ find_package(GLFW3 REQUIRED)
 
 add_library(GLAD "${CMAKE_SOURCE_DIR}/source/glad.c")
 
-set(LIBS glfw3 dl GLAD X11)
+if (UNIX)
+    set(LIBS glfw3 dl GLAD X11)
+endif (UNIX)
+
+if (WIN32)
+    set(LIBS glfw3 GLAD)
+endif (WIN32)
+
+if (MSVC)
+    set(LIBS glfw3 GLAD)
+endif (MSVC)
 
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} ${LIBS})
