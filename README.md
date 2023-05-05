@@ -1,4 +1,4 @@
-# Star-System-Sim
+# Planetary-System-Simulator
 This is a planetary system toy-simulator, which goal is to visualize a behaviour of modifiable celestial bodies within a single planetary system.
 
 The application is not yet near finished, but at the current state it's at least possible to look at a Earth looking celestial body orbit Sun.
