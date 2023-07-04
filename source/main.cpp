@@ -147,7 +147,7 @@ int main() {
 
         App::frameClock.measureTime();
         std::chrono::microseconds sleepTime;
-        double maxTime = 1000000.0f / 144.0f;
+        double maxTime = 1000000.0f / 60.0f;
         sleepTime = std::chrono::microseconds((uint64_t)std::max(0.0f, (float)std::min(maxTime, maxTime - (double)App::frameClock.deltaTime * 1000000.0f)));
         std::this_thread::sleep_for(sleepTime);
     }

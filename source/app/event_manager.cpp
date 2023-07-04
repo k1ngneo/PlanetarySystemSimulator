@@ -7,6 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/norm.hpp>
 
 namespace app {
 
@@ -113,6 +114,53 @@ namespace app {
 
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
             // selecting celestial bodies
+            glm::vec3 clickRayDir;
+            graphics::Camera& camera = App::s_Instance->mainCamera;
+            glm::vec2& mousePos = App::s_Instance->mousePos;
+
+            glm::mat4x4 clipToWorldMat = glm::inverse(camera.projMatrix * camera.viewMatrix);
+            glm::vec4 clickPos {
+                mousePos.x / (float)App::getWindowWidth(),
+                1.0f - (mousePos.y / (float)App::getWindowHeight()),
+                1.0f, 0.0f
+            };
+
+            clickRayDir = clipToWorldMat * clickPos;
+            clickRayDir = clickRayDir / glm::length(clickRayDir);
+
+            auto nearestObject = std::pair<graphics::Object*, float>(nullptr, INFINITY);
+            
+            for (graphics::Planet* planet : App::s_Instance->scene.planets) {
+                glm::vec3 planetPos = planet->getPos() - camera.pos;
+                float planetRadius = planet->getMousePickRadius();
+
+                float planetCamDist = glm::length(planetPos);
+                float dist1 = glm::length2(planetCamDist * clickRayDir - planetPos);
+                float dist2 = planetRadius * planetRadius;
+                if (dist1 < dist2) {
+                    if (planetCamDist < nearestObject.second) {
+                        nearestObject.first = planet;
+                        nearestObject.second = planetCamDist;
+                    }
+                }
+            }
+
+            for (graphics::Star* star : App::s_Instance->scene.stars) {
+                glm::vec3 starPos = star->getPos() - camera.pos;
+                float starRadius = star->getMousePickRadius();
+
+                float starCamDist = glm::length(starPos);
+                if (glm::length2(starCamDist * clickRayDir - starPos) < starRadius * starRadius) {
+                    if (starCamDist < nearestObject.second) {
+                        nearestObject.first = star;
+                        nearestObject.second = starCamDist;
+                    }
+                }
+            }
+
+            if (nearestObject.first) {
+                camera.target = nearestObject.first;
+            }
         }
     }
 

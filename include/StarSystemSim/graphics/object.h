@@ -26,6 +26,7 @@ namespace graphics {
 		Object(Type type = Type::UNDEFINED);
 
 		glm::vec3 getPos();
+		float getMousePickRadius();
 
 		inline void resetTransMat() { _transMat = glm::mat4(1.0f); }
 		inline void resetRotMat() { _rotMat = glm::mat4(1.0f); }

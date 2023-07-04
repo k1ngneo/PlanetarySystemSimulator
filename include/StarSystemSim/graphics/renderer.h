@@ -72,6 +72,7 @@ namespace graphics {
 		Shader m_CelestialShader;
 		Shader m_StarShader;
 		Shader m_LineShader;
+		Shader m_SelectShader;
 
 		void setupFramebuffers();
 		void setupFramebuffers(uint16_t width, uint16_t height);

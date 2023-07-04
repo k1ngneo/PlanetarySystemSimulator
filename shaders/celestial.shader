@@ -35,6 +35,12 @@ void main() {
 #control_shader
 #version 430 core
 
+#if __VERSION__ > 120
+#define TEXTURE2D(tID, uv) texture(tID, uv)
+#else
+#define TEXTURE2D(tID, uv) texture2D(tID, uv)
+#endif
+
 layout (vertices = 3) out;
 
 in CS_Data {
@@ -59,6 +65,8 @@ out ES_Data {
 uniform mat4 _modelMat;
 uniform mat4 _viewMat;
 
+uniform sampler2D _specHeightTex;
+
 void main() {
     esData[gl_InvocationID].pos = csData[gl_InvocationID].mPos;
     esData[gl_InvocationID].uv = csData[gl_InvocationID].uv;
@@ -71,10 +79,27 @@ void main() {
         float camDist;
         const float tessFactor = 4.0;
 
+        // finding the extreme height values on the tessallated triangles
+        // and the range of those values
+        float minHeight =  1000.0;
+        float maxHeight = -1000.0;
+        float heightValue = 0.0;
+
+        for (int vertexInd = 0; vertexInd < 3; vertexInd += 1) {
+            heightValue = TEXTURE2D(_specHeightTex, csData[gl_InvocationID + vertexInd].uv).g;
+            if (minHeight > heightValue)
+                minHeight = heightValue;
+            if (maxHeight < heightValue)
+                maxHeight = heightValue;
+        }
+
+        float rangeHeight = maxHeight - minHeight;
+
         // calculating outer tessellation levels
         for(int vertexInd = 0; vertexInd < 3; vertexInd += 1) {
             vec3 edgePos = 0.5 * (csData[vertexInd].vPos + csData[(vertexInd+1)%3].vPos);
             camDist = -edgePos.z;
+            camDist = camDist * camDist;
 
             gl_TessLevelOuter[vertexInd] = tessFactor / (camDist);
         }
@@ -82,7 +107,7 @@ void main() {
         // calculating inner tessellation level
         vec3 triangleCenter = 0.33333 * (csData[0].vPos + csData[1].vPos + csData[2].vPos);
         camDist = -triangleCenter.z;
-        gl_TessLevelInner[0] = tessFactor / (camDist);
+        gl_TessLevelInner[0] = tessFactor / (camDist) /* rangeHeight*/;
     }
 }
 

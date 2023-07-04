@@ -527,5 +527,6 @@ namespace graphics {
 		m_CelestialShader.buildShaders("shaders/celestial.shader", true);
 		m_StarShader.buildShaders("shaders/star.shader", true);
 		m_LineShader.buildShaders("shaders/line.shader", true);
+		m_SelectShader.buildShaders("shaders/select.shader", true);
 	}
 }

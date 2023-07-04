@@ -40,4 +40,9 @@ namespace graphics {
 		return _transMat * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	}
 
+	float Object::getMousePickRadius() {
+		glm::vec4 scale = _scaleMat * glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		return (scale.x + scale.y + scale.z) * 0.33f;
+	}
+
 }
