@@ -36,6 +36,8 @@ namespace graphics {
 
 		std::vector<glm::vec3>* lines;
 
+		bool bloomEnabled;
+
 	private:
 		Scene* m_CurrentScene;
 

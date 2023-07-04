@@ -24,6 +24,7 @@ in vec2 fragUV;
 
 uniform sampler2D _texture;
 uniform sampler2D _bloomTex;
+uniform bool _bloomEnabled = false;
 
 layout (location = 0) out vec4 outColor;
 
@@ -31,5 +32,7 @@ void main() {
 	vec3 mainImage = TEXTURE2D(_texture, fragUV).rgb;
 	vec3 bloom = TEXTURE2D(_bloomTex, fragUV).rgb;
 
-	outColor = vec4(mainImage + bloom, 1.0);
+	if(_bloomEnabled)
+		mainImage = mainImage + bloom;
+	outColor = vec4(mainImage, 1.0);
 }

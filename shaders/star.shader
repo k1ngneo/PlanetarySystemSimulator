@@ -29,6 +29,7 @@ in vec2 fragUV;
 
 uniform sampler2D _diffTex;
 uniform vec3 _diffColor;
+uniform bool _bloomEnabled;
 
 layout (location = 0) out vec4 outColor;
 layout (location = 1) out vec4 outHDRColor;
@@ -36,5 +37,7 @@ layout (location = 1) out vec4 outHDRColor;
 void main() {
 	vec3 texCol = TEXTURE2D(_diffTex, fragUV).rgb;
 	outColor = vec4(_diffColor * texCol, 1.0);
+	if(!_bloomEnabled)
+		outColor.rgb = 3.0 * outColor.rgb;
 	outHDRColor = vec4(15.0 * outColor.rgb, 1.0);
 }

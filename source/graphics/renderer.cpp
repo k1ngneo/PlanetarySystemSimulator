@@ -16,7 +16,8 @@ namespace graphics {
 		MSAA_samples(8), blurStr(5),
 		m_CurrentScene(nullptr),
 		m_MSFramebuffer(0), m_HDRFramebuffer(0), m_IntermediateMSFramebuffer(0), m_BloomFramebuffers(nullptr),
-		m_MainTexture(0), m_HDRTexture(0), m_BloomTextures(nullptr)
+		m_MainTexture(0), m_HDRTexture(0), m_BloomTextures(nullptr),
+		bloomEnabled(false)
 	{
 		this->currentBloomTexture = 1;
 
@@ -110,6 +111,7 @@ namespace graphics {
 				m_StarShader.use();
 				m_StarShader.setUniformMat4("_projMat", App::s_Instance->mainCamera.projMatrix);
 				m_StarShader.setUniformMat4("_viewMat", App::s_Instance->mainCamera.viewMatrix);
+				m_StarShader.setUniform1ui("_bloomEnabled", this->bloomEnabled);
 
 				for (Star* star : m_CurrentScene->stars) {
 					m_StarShader.setUniform3f("_diffColor", star->light.diffuseColor);
@@ -191,6 +193,7 @@ namespace graphics {
 		glDisable(GL_DEPTH_TEST);
 
 		// calculating bloom effect
+		if(bloomEnabled)
 		{
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -283,6 +286,8 @@ namespace graphics {
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, m_BloomTextures[1]);
 			
+			m_PostprocessingShader.setUniform1ui("_bloomEnabled", this->bloomEnabled);
+
 			glBindVertexArray(m_VAO);
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 			glBindVertexArray(0);

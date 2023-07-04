@@ -114,6 +114,8 @@ int main() {
 
             ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
 
+            ImGui::Checkbox("Bloom", &renderer.bloomEnabled);
+
             ImGui::Text("Camera\n");
             ImGui::Text("Yaw: %.1f\nPitch: %.1f", camera.yaw, camera.pitch);
 
