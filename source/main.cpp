@@ -124,8 +124,9 @@ int main() {
         {
             ImGui::Begin("Celestial Body", (bool*)0, ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoBringToFrontOnFocus);
             
-            ImGui::DragFloat3("Position", (float*)&((graphics::Planet*)(camera.target))->body.pos);
-            ImGui::DragFloat3("Velocity", (float*)&((graphics::Planet*)(camera.target))->body.vel);
+            // ImGui::DragFloat breaks changing targets - should be read-only
+            //ImGui::DragFloat3("Position", (float*)&((graphics::Planet*)(camera.target))->body.pos);
+            //ImGui::DragFloat3("Velocity", (float*)&((graphics::Planet*)(camera.target))->body.vel);
             
             if (camera.target->type == graphics::Object::Type::STAR) {
                 graphics::Star& target = *(graphics::Star*)camera.target;
