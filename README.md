@@ -131,11 +131,11 @@ This allows flexibility: e.g., a binary star system, moons orbiting planets, etc
 
 ### Linux / macOS
 ```bash
-git clone https://github.com/yourusername/planetary-system-simulator.git
-cd planetary-system-simulator
-mkdir build && cd build
-cmake ..
-make
+git clone git@github.com:k1ngneo/PlanetarySystemSimulator.git
+cd PlanetarySystemSimulator/
+mkdir build/ && cd build/
+cmake .. && make
+cd ..
 ./PlanetarySystemSimulator
 ```
 
