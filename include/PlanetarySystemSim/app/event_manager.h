@@ -1,7 +1,7 @@
 #pragma once
 
-#include "StarSystemSim/app/app.h"
-#include "StarSystemSim/utilities/timer.h"
+#include "PlanetarySystemSim/app/app.h"
+#include "PlanetarySystemSim/utilities/timer.h"
 
 #include <GLFW/glfw3.h>
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "StarSystemSim/physics/body.h"
-#include "StarSystemSim/utilities/timer.h"
+#include "PlanetarySystemSim/physics/body.h"
+#include "PlanetarySystemSim/utilities/timer.h"
 
 #include <glm/vec3.hpp>
 #include <memory>

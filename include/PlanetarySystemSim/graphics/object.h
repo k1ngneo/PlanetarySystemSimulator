@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StarSystemSim/graphics/shader.h"
+#include "PlanetarySystemSim/graphics/shader.h"
 
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>

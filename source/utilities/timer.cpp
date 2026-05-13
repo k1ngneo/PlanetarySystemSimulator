@@ -1,4 +1,4 @@
-#include "StarSystemSim/utilities/timer.h"
+#include "PlanetarySystemSim/utilities/timer.h"
 
 #include <GLFW/glfw3.h>
 

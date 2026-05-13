@@ -1,7 +1,7 @@
-#include "StarSystemSim/app/app.h"
-#include "StarSystemSim/app/event_manager.h"
-#include "StarSystemSim/utilities/error.h"
-#include "StarSystemSim/graphics/renderer.h"
+#include "PlanetarySystemSim/app/app.h"
+#include "PlanetarySystemSim/app/event_manager.h"
+#include "PlanetarySystemSim/utilities/error.h"
+#include "PlanetarySystemSim/graphics/renderer.h"
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
@@ -30,7 +30,7 @@ void App::start(uint32_t width, uint32_t height) {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_SAMPLES, 4);
 
-    s_Window = glfwCreateWindow(width, height, "StarSystemSim", NULL, NULL);
+    s_Window = glfwCreateWindow(width, height, "Planetary System Simulator", NULL, NULL);
     if (s_Window == NULL) {
         utils::printError("Failed to create GLFW window");
         glfwTerminate();

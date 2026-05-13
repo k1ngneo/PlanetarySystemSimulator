@@ -1,4 +1,4 @@
-#include "StarSystemSim/utilities/error.h"
+#include "PlanetarySystemSim/utilities/error.h"
 
 #include <iostream>
 #include <cstdarg>

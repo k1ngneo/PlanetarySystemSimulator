@@ -1,8 +1,8 @@
-#include "StarSystemSim/graphics/renderer.h"
+#include "PlanetarySystemSim/graphics/renderer.h"
 
-#include "StarSystemSim/app/app.h"
-#include "StarSystemSim/graphics/render_mode.h"
-#include "StarSystemSim/utilities/error.h"
+#include "PlanetarySystemSim/app/app.h"
+#include "PlanetarySystemSim/graphics/render_mode.h"
+#include "PlanetarySystemSim/utilities/error.h"
 
 #include <glad/glad.h>
 #include <glm/vec2.hpp>

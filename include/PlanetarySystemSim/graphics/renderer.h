@@ -1,12 +1,12 @@
 #pragma once
 
-#include "StarSystemSim/graphics/shader.h"
-#include "StarSystemSim/graphics/scene.h"
-#include "StarSystemSim/graphics/camera.h"
-#include "StarSystemSim/graphics/skybox.h"
-#include "StarSystemSim/graphics/object.h"
-#include "StarSystemSim/graphics/star.h"
-#include "StarSystemSim/graphics/render_mode.h"
+#include "PlanetarySystemSim/graphics/shader.h"
+#include "PlanetarySystemSim/graphics/scene.h"
+#include "PlanetarySystemSim/graphics/camera.h"
+#include "PlanetarySystemSim/graphics/skybox.h"
+#include "PlanetarySystemSim/graphics/object.h"
+#include "PlanetarySystemSim/graphics/star.h"
+#include "PlanetarySystemSim/graphics/render_mode.h"
 
 #include <glad/glad.h>
 

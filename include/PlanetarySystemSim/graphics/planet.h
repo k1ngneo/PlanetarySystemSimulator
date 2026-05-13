@@ -1,7 +1,7 @@
 #pragma once
 
-#include "StarSystemSim/graphics/mesh.h"
-#include "StarSystemSim/physics/body.h"
+#include "PlanetarySystemSim/graphics/mesh.h"
+#include "PlanetarySystemSim/physics/body.h"
 
 #include <glad/glad.h>
 

@@ -1,4 +1,4 @@
-#include "StarSystemSim/graphics/primitives/plane.h"
+#include "PlanetarySystemSim/graphics/primitives/plane.h"
 
 #include <glad/glad.h>
 

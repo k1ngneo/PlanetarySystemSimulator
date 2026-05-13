@@ -40,5 +40,5 @@ if (MSVC)
     set(LIBS glfw3 GLAD)
 endif (MSVC)
 
-add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} ${LIBS})
+add_executable(${PROJECT_NAME}.exe ${HEADER_FILES} ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME}.exe ${LIBS})

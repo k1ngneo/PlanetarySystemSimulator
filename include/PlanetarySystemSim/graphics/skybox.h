@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StarSystemSim/graphics/shader.h"
+#include "PlanetarySystemSim/graphics/shader.h"
 
 #include <string>
 

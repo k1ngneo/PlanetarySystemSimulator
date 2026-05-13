@@ -1,7 +1,7 @@
-#include "StarSystemSim/graphics/shader.h"
-#include "StarSystemSim/utilities/error.h"
-#include "StarSystemSim/utilities/load_text_file.h"
-#include "StarSystemSim/utilities/string_manipulations.h"
+#include "PlanetarySystemSim/graphics/shader.h"
+#include "PlanetarySystemSim/utilities/error.h"
+#include "PlanetarySystemSim/utilities/load_text_file.h"
+#include "PlanetarySystemSim/utilities/string_manipulations.h"
 
 #include <glad/glad.h>
 

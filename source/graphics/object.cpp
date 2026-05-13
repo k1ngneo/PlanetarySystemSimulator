@@ -1,4 +1,4 @@
-#include "StarSystemSim/graphics/object.h"
+#include "PlanetarySystemSim/graphics/object.h"
 
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>

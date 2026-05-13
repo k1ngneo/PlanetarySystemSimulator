@@ -1,21 +1,21 @@
-#include "StarSystemSim/app/app.h"
-#include "StarSystemSim/app/event_manager.h"
+#include "PlanetarySystemSim/app/app.h"
+#include "PlanetarySystemSim/app/event_manager.h"
 
-#include "StarSystemSim/graphics/shader.h"
-#include "StarSystemSim/graphics/renderer.h"
-#include "StarSystemSim/graphics/camera.h"
-#include "StarSystemSim/graphics/primitives/plane.h"
-#include "StarSystemSim/graphics/primitives/cube.h"
-#include "StarSystemSim/graphics/primitives/point_light.h"
-#include "StarSystemSim/graphics/planet.h"
-#include "StarSystemSim/graphics/star.h"
-#include "StarSystemSim/graphics/skybox.h"
+#include "PlanetarySystemSim/graphics/shader.h"
+#include "PlanetarySystemSim/graphics/renderer.h"
+#include "PlanetarySystemSim/graphics/camera.h"
+#include "PlanetarySystemSim/graphics/primitives/plane.h"
+#include "PlanetarySystemSim/graphics/primitives/cube.h"
+#include "PlanetarySystemSim/graphics/primitives/point_light.h"
+#include "PlanetarySystemSim/graphics/planet.h"
+#include "PlanetarySystemSim/graphics/star.h"
+#include "PlanetarySystemSim/graphics/skybox.h"
 
-#include "StarSystemSim/physics/engine.h"
+#include "PlanetarySystemSim/physics/engine.h"
 
-#include "StarSystemSim/utilities/timer.h"
-#include "StarSystemSim/utilities/load_text_file.h"
-#include "StarSystemSim/utilities/error.h"
+#include "PlanetarySystemSim/utilities/timer.h"
+#include "PlanetarySystemSim/utilities/load_text_file.h"
+#include "PlanetarySystemSim/utilities/error.h"
 
 
 #include <GLFW/glfw3.h>

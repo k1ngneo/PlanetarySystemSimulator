@@ -1,7 +1,7 @@
 #pragma once
 
-#include "StarSystemSim/graphics/object.h"
-#include "StarSystemSim/graphics/shader.h"
+#include "PlanetarySystemSim/graphics/object.h"
+#include "PlanetarySystemSim/graphics/shader.h"
 
 #include <glm/vec3.hpp>
 

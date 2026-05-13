@@ -1,6 +1,6 @@
-#include "StarSystemSim/graphics/model.h"
+#include "PlanetarySystemSim/graphics/model.h"
 
-#include "StarSystemSim/utilities/error.h"
+#include "PlanetarySystemSim/utilities/error.h"
 
 #include <glad/glad.h>
 

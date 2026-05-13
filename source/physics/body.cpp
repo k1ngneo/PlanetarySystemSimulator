@@ -1,5 +1,5 @@
-#include "StarSystemSim/physics/body.h"
-#include "StarSystemSim/physics/engine.h"
+#include "PlanetarySystemSim/physics/body.h"
+#include "PlanetarySystemSim/physics/engine.h"
 
 namespace physics {
 

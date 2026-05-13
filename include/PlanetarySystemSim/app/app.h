@@ -1,10 +1,10 @@
 #pragma once
 
-#include "StarSystemSim/graphics/renderer.h"
-#include "StarSystemSim/graphics/scene.h"
-#include "StarSystemSim/graphics/camera.h"
-#include "StarSystemSim/physics/engine.h"
-#include "StarSystemSim/utilities/timer.h"
+#include "PlanetarySystemSim/graphics/renderer.h"
+#include "PlanetarySystemSim/graphics/scene.h"
+#include "PlanetarySystemSim/graphics/camera.h"
+#include "PlanetarySystemSim/physics/engine.h"
+#include "PlanetarySystemSim/utilities/timer.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>

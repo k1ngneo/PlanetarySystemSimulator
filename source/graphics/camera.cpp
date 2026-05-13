@@ -1,9 +1,9 @@
-#include "StarSystemSim/graphics/camera.h"
+#include "PlanetarySystemSim/graphics/camera.h"
 
-#include "StarSystemSim/app/app.h"
-#include "StarSystemSim/graphics/object.h"
-#include "StarSystemSim/utilities/error.h"
-#include "StarSystemSim/utilities/lerp.h"
+#include "PlanetarySystemSim/app/app.h"
+#include "PlanetarySystemSim/graphics/object.h"
+#include "PlanetarySystemSim/utilities/error.h"
+#include "PlanetarySystemSim/utilities/lerp.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

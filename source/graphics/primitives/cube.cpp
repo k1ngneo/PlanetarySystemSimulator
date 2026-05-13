@@ -1,4 +1,4 @@
-#include "StarSystemSim/graphics/primitives/cube.h"
+#include "PlanetarySystemSim/graphics/primitives/cube.h"
 
 #include <glad/glad.h>
 

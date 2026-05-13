@@ -1,4 +1,4 @@
-#include "StarSystemSim/graphics/primitives/point_light.h"
+#include "PlanetarySystemSim/graphics/primitives/point_light.h"
 
 #include <glad/glad.h>
 

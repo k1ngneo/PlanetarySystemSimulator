@@ -1,5 +1,5 @@
-#include "StarSystemSim/utilities/load_text_file.h"
-#include "StarSystemSim/utilities/error.h"
+#include "PlanetarySystemSim/utilities/load_text_file.h"
+#include "PlanetarySystemSim/utilities/error.h"
 
 #include <fstream>
 

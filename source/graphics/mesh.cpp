@@ -1,5 +1,5 @@
-#include "StarSystemSim/graphics/mesh.h"
-#include "StarSystemSim/utilities/error.h"
+#include "PlanetarySystemSim/graphics/mesh.h"
+#include "PlanetarySystemSim/utilities/error.h"
 
 #include <glad/glad.h>
 

@@ -1,5 +1,5 @@
-#include "StarSystemSim/graphics/skybox.h"
-#include "StarSystemSim/utilities/error.h"
+#include "PlanetarySystemSim/graphics/skybox.h"
+#include "PlanetarySystemSim/utilities/error.h"
 
 #include <glad/glad.h>
 

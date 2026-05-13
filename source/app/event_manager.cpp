@@ -1,8 +1,8 @@
-#include "StarSystemSim/app/event_manager.h"
+#include "PlanetarySystemSim/app/event_manager.h"
 
-#include "StarSystemSim/graphics/camera.h"
+#include "PlanetarySystemSim/graphics/camera.h"
 
-#include "StarSystemSim/utilities/error.h"
+#include "PlanetarySystemSim/utilities/error.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

@@ -1,6 +1,6 @@
-#include "StarSystemSim/physics/engine.h"
+#include "PlanetarySystemSim/physics/engine.h"
 
-#include "StarSystemSim/physics/body.h"
+#include "PlanetarySystemSim/physics/body.h"
 
 #include <glm/geometric.hpp>
 #include <cmath>

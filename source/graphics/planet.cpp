@@ -1,5 +1,5 @@
-#include "StarSystemSim/graphics/planet.h"
-#include "StarSystemSim/utilities/error.h"
+#include "PlanetarySystemSim/graphics/planet.h"
+#include "PlanetarySystemSim/utilities/error.h"
 
 #include <glad/glad.h>
 #include <glm/vec3.hpp>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "StarSystemSim/graphics/mesh.h"
-#include "StarSystemSim/graphics/planet.h"
+#include "PlanetarySystemSim/graphics/mesh.h"
+#include "PlanetarySystemSim/graphics/planet.h"
 
 namespace graphics {
 

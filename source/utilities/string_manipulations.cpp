@@ -1,4 +1,4 @@
-#include "StarSystemSim/utilities/string_manipulations.h"
+#include "PlanetarySystemSim/utilities/string_manipulations.h"
 
 #include <cstring>
 

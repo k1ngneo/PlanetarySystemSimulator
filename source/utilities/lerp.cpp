@@ -1,4 +1,4 @@
-#include "StarSystemSim/utilities/lerp.h"
+#include "PlanetarySystemSim/utilities/lerp.h"
 
 namespace utils {
 	float lerp(float a, float b, float x) {

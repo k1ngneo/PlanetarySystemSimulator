@@ -1,4 +1,4 @@
-#include "StarSystemSim/graphics/scene.h"
+#include "PlanetarySystemSim/graphics/scene.h"
 
 namespace graphics {
 

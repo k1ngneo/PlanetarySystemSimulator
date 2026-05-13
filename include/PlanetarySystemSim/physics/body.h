@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StarSystemSim/physics/engine.h"
+#include "PlanetarySystemSim/physics/engine.h"
 
 #include <glm/vec3.hpp>
 

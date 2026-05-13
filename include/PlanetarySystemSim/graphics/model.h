@@ -2,8 +2,8 @@
 
 #define ASSIMP 0
 
-#include "StarSystemSim/graphics/shader.h"
-#include "StarSystemSim/graphics/mesh.h"
+#include "PlanetarySystemSim/graphics/shader.h"
+#include "PlanetarySystemSim/graphics/mesh.h"
 
 #include <glad/glad.h>
 
