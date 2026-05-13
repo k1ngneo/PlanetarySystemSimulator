@@ -19,8 +19,6 @@ namespace graphics {
         glm::vec3 front;
         glm::vec3 up;
 
-        glm::vec3 dir;
-
         float pitch, yaw, roll;
 
         float fov;
@@ -33,9 +31,13 @@ namespace graphics {
 
         Camera(const glm::vec3& pos);
 
+        void setTarget(Object* newTarget);
+
     private:
         glm::mat4& lookAround();
         glm::mat4& lookAt(const glm::vec3& target, bool justFollow = false);
+        const float m_TargetSwitchDuration = 2.0f;
+        float m_TargetSwitchProgress; 
         glm::vec3 m_PosRelTarget;
     };
 

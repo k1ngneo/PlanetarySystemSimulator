@@ -17,8 +17,6 @@ namespace graphics {
         this->front = glm::vec3(0.0f, 0.0f, -1.0f);
         this->up = glm::vec3(0.0f, 1.0f, 0.0f);
 
-        this->dir = glm::vec3(0.0f, 0.0f, 0.0f);
-
         this->pitch = 0.0f;
         this->yaw = -90.0f;
         this->roll = 0.0f;
@@ -32,6 +30,7 @@ namespace graphics {
         this->projMatrix = glm::mat4x4(1.0f);
 
         m_PosRelTarget = { 0.0f, 0.0f, 0.0f };
+        m_TargetSwitchProgress = 1.0f;
 	}
 
     void Camera::update(glm::mat4x4* viewMatrix) {
@@ -55,11 +54,18 @@ namespace graphics {
         }
     }
 
+    void Camera::setTarget(Object* newTarget) {
+        this->target = newTarget;
+        m_TargetSwitchProgress = 0.0f;
+    }
+
     glm::mat4& Camera::lookAround() {
-        this->dir.x = cos(glm::radians(this->yaw)) * cos(glm::radians(this->pitch));
-        this->dir.y = sin(glm::radians(this->pitch));
-        this->dir.z = sin(glm::radians(this->yaw)) * cos(glm::radians(this->pitch));
-        this->front = glm::normalize(this->dir);
+        glm::vec3 dir;
+
+        dir.x = cos(glm::radians(this->yaw)) * cos(glm::radians(this->pitch));
+        dir.y = sin(glm::radians(this->pitch));
+        dir.z = sin(glm::radians(this->yaw)) * cos(glm::radians(this->pitch));
+        this->front = glm::normalize(dir);
 
         this->viewMatrix = glm::lookAt(this->pos, this->front, this->up);
         return this->viewMatrix;
@@ -75,12 +81,13 @@ namespace graphics {
             m_PosRelTarget.z = glm::sin(-radYaw) * glm::cos(radPitch);
 
             m_PosRelTarget *= this->radius;
-
-            //this->dir = glm::normalize(-m_PosRelTarget);
         }
+        
+        m_TargetSwitchProgress += App::s_Instance->mainTimer.deltaTime / m_TargetSwitchDuration;
+        m_TargetSwitchProgress = std::min(m_TargetSwitchProgress, 1.0f);
 
-        this->pos = utils::lerp(this->pos, target + m_PosRelTarget, 0.99f * App::s_Instance->mainTimer.deltaTime);
-        this->front = utils::lerp(this->front, target, 0.95f * App::s_Instance->mainTimer.deltaTime);
+        this->pos = utils::lerp(this->pos, target + m_PosRelTarget, m_TargetSwitchProgress);
+        this->front = utils::lerp(this->front, target, m_TargetSwitchProgress);
 
         this->viewMatrix = glm::lookAt(this->pos, this->front, this->up);
         return this->viewMatrix;

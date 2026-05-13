@@ -78,7 +78,7 @@ namespace app {
         if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS) {
             for (size_t i = 0; i < App::s_Instance->camTargets.size(); ++i) {
                 if (App::s_Instance->mainCamera.target == App::s_Instance->camTargets[i]) {
-                    App::s_Instance->mainCamera.target = App::s_Instance->camTargets[(i + 1) % App::s_Instance->camTargets.size()];
+                    App::s_Instance->mainCamera.setTarget( App::s_Instance->camTargets[(i + 1) % App::s_Instance->camTargets.size()] );
                     break;
                 }
             }

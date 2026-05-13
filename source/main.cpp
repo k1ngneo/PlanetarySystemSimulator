@@ -69,7 +69,7 @@ int main() {
 
     camera.mode = graphics::Camera::Mode::LOOK_AT;
     camera.radius = 3.14f;
-    camera.target = earth;
+    camera.setTarget(earth);
 
 
     float clear_color[3] = { 0.5f, 0.5f, 0.5f };
@@ -86,16 +86,15 @@ int main() {
         App::mainTimer.measureTime();
         physicsEngine.update();
         app::EventManager::processInput(App::s_Window);
-
-        camera.dir = camera.target->getPos() - camera.pos;
-        camera.update();
-
+        
         // ImGui preparing for a new frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-
+        
         physicsEngine.getPredictedPos(lines);
+        
+        camera.update();
 
         renderer.drawFrame((uint32_t)App::s_Instance->renderMode);
 
